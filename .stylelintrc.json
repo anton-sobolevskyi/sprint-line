@@ -1,15 +1,24 @@
 {
-  "extends": [
-    "stylelint-config-standard-scss",
-    "stylelint-config-prettier-scss"
-  ],
+  "extends": ["stylelint-config-standard-scss", "stylelint-config-prettier-scss"],
   "rules": {
     "no-empty-source": null,
     "selector-class-pattern": null,
     "scss/at-rule-no-unknown": [
       true,
       {
-        "ignoreAtRules": ["use", "forward", "include", "mixin", "function", "if", "else", "each", "for", "while", "return"]
+        "ignoreAtRules": [
+          "use",
+          "forward",
+          "include",
+          "mixin",
+          "function",
+          "if",
+          "else",
+          "each",
+          "for",
+          "while",
+          "return"
+        ]
       }
     ]
   },
