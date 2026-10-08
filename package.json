@@ -9,7 +9,10 @@
     "test": "ng test",
     "test:ci": "ng test --watch=false",
     "prepare": "husky",
-    "lint": "ng lint"
+    "lint": "ng lint",
+    "lint:styles": "stylelint \"**/*.{scss,css}\"",
+    "lint:styles:fix": "stylelint \"**/*.{scss,css}\" --fix",
+    "format": "prettier --write ."
   },
   "private": true,
   "packageManager": "npm@11.19.0",
@@ -34,7 +37,11 @@
     "eslint": "^10.9.1",
     "husky": "^9.1.7",
     "jsdom": "^30.0.0",
+    "postcss-angular": "^2.0.0",
     "prettier": "^3.8.1",
+    "stylelint": "^17.16.0",
+    "stylelint-config-prettier-scss": "^1.0.0",
+    "stylelint-config-standard-scss": "^17.0.0",
     "typescript": "~6.0.2",
     "typescript-eslint": "8.69.0",
     "vitest": "^5.0.0"
