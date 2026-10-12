@@ -1,3 +1,73 @@
 [tools]
 node = "24"
 python = "3.14"
+
+[tasks.install]
+description = "Install npm dependencies"
+run = "npm install"
+
+[tasks.start]
+description = "Start Angular dev server (local)"
+run = "npm start"
+# or: run = "ng serve --host 0.0.0.0"
+
+[tasks.dev]
+description = "Alias for start"
+run = "npm start"
+
+[tasks.build]
+description = "Build Angular for production"
+run = "npm run build -- --configuration=production"
+
+[tasks.lint]
+description = "Run linter"
+run = "npm run lint"
+
+[tasks.test]
+description = "Run unit tests"
+run = "npm test"
+
+# ======================
+# Docker – Development
+# ======================
+[tasks.docker-dev]
+description = "Start Angular in Docker (dev + live reload)"
+run = "docker compose -f docker-compose.dev.yml up --build"
+
+[tasks.docker-dev-d]
+description = "Start Angular in Docker (dev, detached)"
+run = "docker compose -f docker-compose.dev.yml up --build -d"
+
+[tasks.docker-dev-down]
+description = "Stop Docker dev containers"
+run = "docker compose -f docker-compose.dev.yml down"
+
+# ======================
+# Docker – Production (HTTP only)
+# ======================
+[tasks.docker-prod]
+description = "Build & run production image (HTTP)"
+run = "docker compose -f docker-compose.prod.yml up --build -d"
+
+[tasks.docker-prod-build]
+description = "Build production image only"
+run = "docker compose -f docker-compose.prod.yml build"
+
+[tasks.docker-prod-down]
+description = "Stop production containers"
+run = "docker compose -f docker-compose.prod.yml down"
+
+[tasks.docker-prod-logs]
+description = "Show production logs"
+run = "docker compose -f docker-compose.prod.yml logs -f"
+
+# ======================
+# Helpers
+# ======================
+[tasks.clean]
+description = "Remove node_modules and Angular cache"
+run = "rm -rf node_modules .angular dist"
+
+[tasks.reinstall]
+description = "Clean + install"
+depends = ["clean", "install"]

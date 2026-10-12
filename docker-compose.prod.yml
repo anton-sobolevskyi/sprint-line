@@ -1,0 +1,9 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: sprint-line:prod
+    ports:
+      - '80:80'
+    restart: unless-stopped
