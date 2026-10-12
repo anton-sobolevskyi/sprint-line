@@ -1,1 +1,6 @@
-mise run test-docker
+#!/bin/sh
+set -e
+
+echo "→ Running Vitest (CI) in Docker..."
+mise run test-ci-quick
+echo "✓ Tests passed"

@@ -75,10 +75,20 @@ depends = ["clean", "install"]
 # ======================
 # Tests
 # ======================
-[tasks.test-docker]
-description = "Run Vitest unit tests inside Docker (pre-push)"
-run = "docker compose -f docker-compose.test.yml run --rm --build test"
+# CI – single run (for pre-push)
+[tasks.test-ci]
+description = "Run Vitest once in Docker (CI / pre-push)"
+run = "docker compose -f docker-compose.test.yml --profile ci run --rm -T --build test-ci"
 
-[tasks.test-docker-quick]
-description = "Run tests in Docker (reuse existing image)"
-run = "docker compose -f docker-compose.test.yml run --rm test"
+[tasks.test-ci-quick]
+description = "Run Vitest once in Docker (reuse image)"
+run = "docker compose -f docker-compose.test.yml --profile ci run --rm -T test-ci"
+
+# Development – watch mode
+[tasks.test-dev]
+description = "Run Vitest in Docker with watch mode"
+run = "docker compose -f docker-compose.test.yml --profile dev run --rm --build test-dev"
+
+[tasks.test-dev-quick]
+description = "Run Vitest watch in Docker (reuse image)"
+run = "docker compose -f docker-compose.test.yml --profile dev run --rm test-dev"

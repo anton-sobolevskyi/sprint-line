@@ -70,6 +70,8 @@ mise run start        # local ng serve
 mise run docker-dev   # Docker development
 mise run docker-prod  # production (HTTP)
 mise run docker-prod-down
-mise run test-docker
-mise run test-docker-quick
+mise run test-ci
+mise run test-ci-quick
+mise run test-dev
+mise run test-dev-quick
 ```
