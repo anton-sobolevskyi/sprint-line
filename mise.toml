@@ -71,3 +71,14 @@ run = "rm -rf node_modules .angular dist"
 [tasks.reinstall]
 description = "Clean + install"
 depends = ["clean", "install"]
+
+# ======================
+# Tests
+# ======================
+[tasks.test-docker]
+description = "Run Vitest unit tests inside Docker (pre-push)"
+run = "docker compose -f docker-compose.test.yml run --rm --build test"
+
+[tasks.test-docker-quick]
+description = "Run tests in Docker (reuse existing image)"
+run = "docker compose -f docker-compose.test.yml run --rm test"

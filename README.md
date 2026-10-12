@@ -62,3 +62,14 @@ For more information on using the Angular CLI, including detailed command refere
 docker compose -f docker-compose.dev.yml up --build
 docker compose -f docker-compose.prod.yml up --build -d
 ```
+
+```bash
+mise install          # installs Node 24 (if needed)
+mise run install      # npm install
+mise run start        # local ng serve
+mise run docker-dev   # Docker development
+mise run docker-prod  # production (HTTP)
+mise run docker-prod-down
+mise run test-docker
+mise run test-docker-quick
+```

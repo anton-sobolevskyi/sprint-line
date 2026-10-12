@@ -1,0 +1,16 @@
+FROM node:24-alpine
+
+WORKDIR /app
+
+# Install deps first (better layer cache)
+COPY package*.json ./
+RUN npm ci
+
+# Copy the rest of the project
+COPY . .
+
+# CI=true → Vitest / ng test run once (no watch)
+ENV CI=true
+
+# Default: run unit tests
+CMD ["npm", "run"]
