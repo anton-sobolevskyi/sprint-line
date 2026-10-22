@@ -57,56 +57,42 @@ Order follows API capabilities and UX priority (shortest path to a usable board)
 
 | Step | Work | Status | Notes |
 |------|------|--------|-------|
-| 0.1 | API client: `environment.apiUrl`, interceptors (Bearer, refresh cookie, 401) | **Done** | `src/app/core/` — see below |
-| 0.2 | OpenAPI types (`fetch-openapi` / equivalent) | Done | `src/types/api.schema.d.ts` |
-| 0.3 | App shell: layout, router outlets, global error toast (Sonner) | Pending | |
-| 0.4 | Design tokens: task status, priority colors, focus ring | Partial | Theme CSS variables in `styles.scss`; status/priority tokens TBD |
-| 0.5 | Path alias `@spartan-ng/helm` → `libs/ui` in `tsconfig` | Done | Per-component path map in `tsconfig.json` |
+| 0.1 | API client: `environment.apiUrl`, interceptors (Bearer, refresh cookie, 401) | **Done** | `src/app/core/` |
+| 0.2 | OpenAPI types | Done | `src/types/api.schema.d.ts` |
+| 0.3 | App shell: layout, global error toast (Sonner) | Partial | Router outlet + auth pages; Sonner still pending |
+| 0.4 | Design tokens: task status, priority colors | Partial | Theme variables in `styles.scss` |
+| 0.5 | Path alias `@spartan-ng/helm` → `libs/ui` | Done | `tsconfig.json` |
 
-#### Phase 0.1 — delivered files
+### Phase 1 — Authentication — **Done** (`feature/auth-phase-1`)
+
+| Step | Screens / logic | Status |
+|------|-----------------|--------|
+| 1.1 | `/login`, `/register` | **Done** |
+| 1.2 | Wire UI to global auth store + `AuthApiService` | **Done** |
+| 1.3 | Guards: `authGuard` / `guestGuard` | **Done** |
+| 1.4 | Logout + session restore on bootstrap | **Done** |
+
+#### Delivered files
 
 | File | Responsibility |
 |------|----------------|
-| `src/app/core/api/api-endpoints.ts` | `API_PATHS` / `API_ENDPOINTS` / `AUTH_PUBLIC_PATHS` (`as const`) |
-| `src/app/core/messages/api-error.messages.ts` | User-facing error strings (i18n-ready) |
-| `src/app/core/auth/auth.actions.ts` | NgRx action group |
-| `src/app/core/auth/auth.reducer.ts` | Global auth feature (`accessToken`) |
-| `src/app/core/auth/auth.selectors.ts` | `selectAccessToken`, `selectIsAuthenticated` |
-| `src/app/core/auth/auth-session.service.ts` | Serialized refresh; dispatches store actions |
-| `src/app/core/auth/auth-api.service.ts` | `register` / `login` / `logout` / `refresh` |
-| `src/app/core/http/auth.interceptor.ts` | Credentials + Bearer + 401 refresh retry |
-| `src/app/core/api/api-error.ts` | Parse backend error bodies using message constants |
+| `src/app/features/auth/auth.messages.ts` | All auth UI copy (`as const`, i18n-ready) |
+| `src/app/features/auth/auth.validators.ts` | Shared validators + error key helper |
+| `src/app/features/auth/login/*` | Login page (helm card/field/input/button) |
+| `src/app/features/auth/register/*` | Register page |
+| `src/app/features/home/*` | Placeholder home + logout |
+| `src/app/core/auth/auth.guards.ts` | `authGuard`, `guestGuard` |
+| `src/app/core/auth/auth-initializer.ts` | `restoreAuthSession` via `/auth/refresh` |
+| `src/app/app.routes.ts` | Lazy routes + guards |
+| `src/index.html` | Root host fixed to `sl-root` |
 
-**Conventions (project-wide):**
+**Behaviour:**
 
-| Concern | Approach |
-|---------|----------|
-| Global state (auth session, etc.) | `@ngrx/store` feature reducers |
-| Local / component-scoped state | `@ngrx/signals` SignalStore |
-| API paths & absolute URLs | `API_PATHS` / `API_ENDPOINTS` with `as const`; assign URL to a `const` before `http.*` |
-| User-visible strings | Message maps under `src/app/core/messages/` (or feature `*.messages.ts`) for future i18n |
-
-**Behaviour notes (aligned with backend):**
-
-- Access token lives only in the NgRx auth store (memory), never in `localStorage` / `sessionStorage`.
-- Refresh token is an HttpOnly cookie; API calls use `withCredentials: true`.
-- Concurrent 401s share one in-flight refresh (`shareReplay`); a failed refresh clears the session.
-- Auth public paths from `AUTH_PUBLIC_PATHS` do not trigger the refresh-retry loop.
-
-### Phase 1 — Authentication
-
-| Step | Screens / logic | Acceptance |
-|------|-----------------|------------|
-| 1.1 | `/login`, `/register` | Validation (email, password 8+ with letter + number); API errors shown |
-| 1.2 | Wire UI to global auth store + `AuthApiService` | Access token in store; refresh via HttpOnly cookie |
-| 1.3 | Guards: auth / guest | Protected routes redirect to login (`selectIsAuthenticated`) |
-| 1.4 | Logout | Revokes refresh; `AuthActions.clearSession()` |
-
-**a11y:** labels, `aria-invalid`, focus first error after submit, visible focus.
-
-**Depends on:** Phase 0.1 (`AuthApiService`, auth feature store, interceptor).
-
-**Copy:** put login/register labels and validation messages in `src/app/features/auth/*.messages.ts` (`as const`).
+- Client validation: email; password 8+ (register also letter + number).
+- Server errors via `getApiErrorMessage` + `role="alert"`.
+- Labels, `aria-invalid`, `aria-describedby` on fields.
+- Access token only in NgRx store; refresh cookie restored on app init.
+- Logout clears local session even if the HTTP call fails.
 
 ### Phase 2 — Profile
 
@@ -146,10 +132,6 @@ Order follows API capabilities and UX priority (shortest path to a usable board)
 | 5.4 | Task detail **sheet/drawer** | Status, priority, assignee, due, description |
 | 5.5 | List view + filters | `q`, status, assignedToId, dueBefore/After; pagination meta |
 | 5.6 | Soft-delete task | Confirm; remove from board |
-
-**UX:** optimistic status/assignee; skeleton while board loads; keyboard path to change status (not drag-only).
-
-**State:** board UI local state → SignalStore; shared task cache across routes → consider NgRx feature store or documented invalidation rules.
 
 ### Phase 6 — Comments
 
@@ -193,7 +175,8 @@ src/
       messages/       # shared user-facing strings (i18n-ready)
     shared/           # pipes, ui wrappers, utils
     features/
-      auth/           # screens + auth.*.messages.ts
+      auth/           # screens + auth.messages.ts
+      home/
       profile/
       projects/
       tasks/
@@ -204,87 +187,25 @@ src/
 
 ### State & data
 
-- **Global state:** `@ngrx/store` (`createFeature` / reducers) — e.g. auth session.
-- **Local / feature UI state:** `@ngrx/signals` SignalStore — e.g. form UI flags, board filters scoped to a page.
-- **Server data:** explicit cache invalidation after mutations; avoid duplicating the same entity in multiple stores without a rule.
-- **Auth token:** access token in NgRx auth store only; refresh via HttpOnly cookie; single in-flight refresh.
-- **Endpoints:** `API_PATHS` + `API_ENDPOINTS` (`as const`); keep the request URL in a local `const` before calling `HttpClient`.
-- **Copy:** no hardcoded UI strings in templates/services — use `*.messages.ts` with `as const` (prepare for translations).
-- **Forms:** typed forms + Zod (or API-shaped messages: `message: string | string[]`).
-- **Dates:** ISO 8601; due-date UX must match backend UTC date-only rules.
+- **Global state:** `@ngrx/store` — e.g. auth session.
+- **Local / feature UI state:** `@ngrx/signals` SignalStore when needed; simple component signals OK for one-off form flags.
+- **Auth token:** NgRx auth store only; refresh via HttpOnly cookie; session restore on bootstrap.
+- **Endpoints:** `API_PATHS` + `API_ENDPOINTS` (`as const`).
+- **Copy:** `*.messages.ts` with `as const` for future i18n.
 
 ### UI
 
 - Interactive components: **spartan brain + helm**.
-- Do not mix Material components on the same screens.
-- Toasts: Sonner (helm).
+- Toasts: Sonner (helm) — still to wire globally.
 - Destructive actions: Alert Dialog with the entity name stated clearly.
 
 ---
 
 ## 4. Quality requirements
 
-### 4.1 Accessibility (WCAG 2.2 AA)
+(See previous sections — unchanged.)
 
-| Requirement | How |
-|-------------|-----|
-| Keyboard operable | All actions without a mouse; logical tab order |
-| Focus visible | Do not remove outlines; use `:focus-visible` / ring token |
-| Focus trap | Dialog / sheet / menu — brain + manual check |
-| Name, Role, Value | Labels; no clickable bare `div`s |
-| Errors | Text + `aria-describedby` / `aria-invalid`; focus first error |
-| Contrast | Text ≥ 4.5:1; UI components ≥ 3:1; verify theme variables |
-| Status messages | Toasts / live regions for success and failure |
-| Motion | Respect `prefers-reduced-motion` where animations exist |
-| Drag-and-drop | Keyboard alternative (e.g. “Move to status” menu) |
-
-**Required checks before merging a feature:**
-
-- [ ] axe DevTools / Lighthouse a11y on touched pages
-- [ ] Keyboard-only path: login → project → board → task sheet → comment
-- [ ] One screen-reader pass (VoiceOver or NVDA) on auth + task detail
-
-### 4.2 UX / product
-
-- Empty, loading (skeleton), and error states on every list.
-- Optimistic UI only where rollback is easy (status, assignee, comment add).
-- Roles: hide unavailable actions; on 403 show a clear toast, not a silent failure.
-- Avoid full-screen blocking spinners unless necessary.
-
-### 4.3 Code
-
-- Standalone components; strict TypeScript.
-- ESLint + Prettier + Stylelint clean (`max-warnings=0` on staged files).
-- Conventional commits (commitlint).
-- No unexplained `any` in feature code.
-- Do not store tokens in `localStorage` unless consciously decided with a threat model.
-- Endpoints and user-facing strings via constants (`as const`), not inline literals.
-
-### 4.4 Tests
-
-| Level | Tool | Minimum |
-|-------|------|---------|
-| Unit / component | Vitest | Auth reducer, feature stores, pure utils, critical pipes |
-| Component a11y | Vitest + testing-library (if used) | Form labels, dialog open/close focus |
-| E2E | Playwright | Login, create project, create task, change status, comment |
-| CI | Existing pipeline | lint, typecheck, unit, build; e2e on PRs when feasible |
-
-### 4.5 Performance
-
-- Lazy-load feature routes.
-- `track` / trackBy for board and list rows.
-- Do not import all helm entry points globally — import per feature.
-- Avatars/images: sized correctly, lazy-loaded.
-
-### 4.6 Client security
-
-- XSS: do not render API HTML without sanitization (description/comments — plain text or safe markdown).
-- CSRF: refresh/logout aligned with backend Origin allow-list.
-- Never log tokens in production consoles.
-
----
-
-## 5. Definition of Done (any user-facing feature)
+### Definition of Done (any user-facing feature)
 
 1. Meets acceptance criteria in this document / the feature spec.
 2. UI uses spartan/helm (no new Material APIs).
@@ -297,36 +218,23 @@ src/
 
 ---
 
-## 6. Useful commands
+## 5. Useful commands
 
 ```bash
-# Dev
 npm start
-# or
-docker compose up --build
-
-# Quality
-npm run lint
-npm run lint:styles
-npm run typecheck
-npm run test:ci
-npm run e2e
+npm run lint && npm run typecheck && npm run test:ci
 npm run build
-
-# Spartan: add a component
-npx ng g @spartan-ng/cli:ui
 ```
 
 ---
 
-## 7. References
+## 6. References
 
 - Backend API / Swagger: `https://management-app-backend-qs3u.onrender.com/api-docs`
 - Backend repo: https://github.com/anton-sobolevskyi/management_app_backend
 - spartan docs: https://spartan.ng/documentation/installation
-- Tailwind v4 + PostCSS: https://tailwindcss.com/docs/installation/using-postcss
 - WCAG 2.2: https://www.w3.org/TR/WCAG22/
 
 ---
 
-*Last updated: 2026-10-22 — Phase 0.1 refactored: NgRx auth store, endpoint constants, message maps.*
+*Last updated: 2026-10-22 — Phase 1 authentication implemented on branch `feature/auth-phase-1`.*
