@@ -1,5 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 
+import { API_ERROR_MESSAGES } from '../messages/api-error.messages';
+
 /**
  * Backend error body shape (see management_app_backend README):
  * `{ statusCode, code, message, timestamp, path, requestId }`
@@ -20,7 +22,7 @@ export function isApiErrorBody(value: unknown): value is ApiErrorBody {
 
 export function getApiErrorMessage(
   error: unknown,
-  fallback = 'Something went wrong. Please try again.',
+  fallback: string = API_ERROR_MESSAGES.generic,
 ): string {
   if (!(error instanceof HttpErrorResponse)) {
     return fallback;
@@ -29,7 +31,7 @@ export function getApiErrorMessage(
   const body = error.error;
   if (!isApiErrorBody(body) || body.message == null) {
     if (error.status === 0) {
-      return 'Unable to reach the server. Check your connection.';
+      return API_ERROR_MESSAGES.network;
     }
     return fallback;
   }

@@ -67,32 +67,46 @@ Order follows API capabilities and UX priority (shortest path to a usable board)
 
 | File | Responsibility |
 |------|----------------|
-| `src/app/core/auth/access-token.store.ts` | In-memory access token (signal) |
-| `src/app/core/auth/auth-session.service.ts` | Serialized `/auth/refresh` + apply/clear session |
-| `src/app/core/auth/auth-api.service.ts` | `register` / `login` / `logout` / `refresh` HTTP API |
-| `src/app/core/http/auth.interceptor.ts` | `withCredentials`, `Authorization: Bearer`, 401 → refresh → retry once |
-| `src/app/core/api/api-error.ts` | Parse backend `{ code, message }` error bodies |
-| `src/app/app.config.ts` | `provideHttpClient(withInterceptors([authInterceptor]))` |
+| `src/app/core/api/api-endpoints.ts` | `API_PATHS` / `API_ENDPOINTS` / `AUTH_PUBLIC_PATHS` (`as const`) |
+| `src/app/core/messages/api-error.messages.ts` | User-facing error strings (i18n-ready) |
+| `src/app/core/auth/auth.actions.ts` | NgRx action group |
+| `src/app/core/auth/auth.reducer.ts` | Global auth feature (`accessToken`) |
+| `src/app/core/auth/auth.selectors.ts` | `selectAccessToken`, `selectIsAuthenticated` |
+| `src/app/core/auth/auth-session.service.ts` | Serialized refresh; dispatches store actions |
+| `src/app/core/auth/auth-api.service.ts` | `register` / `login` / `logout` / `refresh` |
+| `src/app/core/http/auth.interceptor.ts` | Credentials + Bearer + 401 refresh retry |
+| `src/app/core/api/api-error.ts` | Parse backend error bodies using message constants |
+
+**Conventions (project-wide):**
+
+| Concern | Approach |
+|---------|----------|
+| Global state (auth session, etc.) | `@ngrx/store` feature reducers |
+| Local / component-scoped state | `@ngrx/signals` SignalStore |
+| API paths & absolute URLs | `API_PATHS` / `API_ENDPOINTS` with `as const`; assign URL to a `const` before `http.*` |
+| User-visible strings | Message maps under `src/app/core/messages/` (or feature `*.messages.ts`) for future i18n |
 
 **Behaviour notes (aligned with backend):**
 
-- Access token is never written to `localStorage` / `sessionStorage`.
-- Refresh token is an HttpOnly cookie (`path=/auth`); all API calls use `withCredentials: true`.
+- Access token lives only in the NgRx auth store (memory), never in `localStorage` / `sessionStorage`.
+- Refresh token is an HttpOnly cookie; API calls use `withCredentials: true`.
 - Concurrent 401s share one in-flight refresh (`shareReplay`); a failed refresh clears the session.
-- `/auth/login`, `/auth/register`, `/auth/refresh`, `/auth/logout` do not trigger the refresh-retry loop.
+- Auth public paths from `AUTH_PUBLIC_PATHS` do not trigger the refresh-retry loop.
 
 ### Phase 1 — Authentication
 
 | Step | Screens / logic | Acceptance |
 |------|-----------------|------------|
 | 1.1 | `/login`, `/register` | Validation (email, password 8+ with letter + number); API errors shown |
-| 1.2 | Auth store (NgRx signals or feature store) | Access token in memory; refresh via HttpOnly cookie |
-| 1.3 | Guards: auth / guest | Protected routes redirect to login |
-| 1.4 | Logout | Revokes refresh; clears client state |
+| 1.2 | Wire UI to global auth store + `AuthApiService` | Access token in store; refresh via HttpOnly cookie |
+| 1.3 | Guards: auth / guest | Protected routes redirect to login (`selectIsAuthenticated`) |
+| 1.4 | Logout | Revokes refresh; `AuthActions.clearSession()` |
 
 **a11y:** labels, `aria-invalid`, focus first error after submit, visible focus.
 
-**Depends on:** Phase 0.1 (`AuthApiService`, `AccessTokenStore`, interceptor).
+**Depends on:** Phase 0.1 (`AuthApiService`, auth feature store, interceptor).
+
+**Copy:** put login/register labels and validation messages in `src/app/features/auth/*.messages.ts` (`as const`).
 
 ### Phase 2 — Profile
 
@@ -135,6 +149,8 @@ Order follows API capabilities and UX priority (shortest path to a usable board)
 
 **UX:** optimistic status/assignee; skeleton while board loads; keyboard path to change status (not drag-only).
 
+**State:** board UI local state → SignalStore; shared task cache across routes → consider NgRx feature store or documented invalidation rules.
+
 ### Phase 6 — Comments
 
 | Step | Work | Acceptance |
@@ -170,22 +186,30 @@ Order follows API capabilities and UX priority (shortest path to a usable board)
 ```text
 src/
   app/
-    core/           # auth, http, guards, interceptors
-    shared/         # pipes, ui wrappers, utils
+    core/
+      api/            # endpoints, error helpers
+      auth/           # global NgRx auth feature + session/API services
+      http/           # interceptors
+      messages/       # shared user-facing strings (i18n-ready)
+    shared/           # pipes, ui wrappers, utils
     features/
-      auth/
+      auth/           # screens + auth.*.messages.ts
       profile/
       projects/
       tasks/
       members/
-  libs/ui/          # spartan helm (owned styles)
-  types/            # OpenAPI + env
+  libs/ui/            # spartan helm (owned styles)
+  types/              # OpenAPI + env
 ```
 
 ### State & data
 
-- **Server state:** one approach per project (prefer NgRx SignalStore per feature or clear feature stores) with explicit cache invalidation after mutations.
-- **Auth token:** access token in memory; refresh only via cookie; single in-flight refresh across tabs.
+- **Global state:** `@ngrx/store` (`createFeature` / reducers) — e.g. auth session.
+- **Local / feature UI state:** `@ngrx/signals` SignalStore — e.g. form UI flags, board filters scoped to a page.
+- **Server data:** explicit cache invalidation after mutations; avoid duplicating the same entity in multiple stores without a rule.
+- **Auth token:** access token in NgRx auth store only; refresh via HttpOnly cookie; single in-flight refresh.
+- **Endpoints:** `API_PATHS` + `API_ENDPOINTS` (`as const`); keep the request URL in a local `const` before calling `HttpClient`.
+- **Copy:** no hardcoded UI strings in templates/services — use `*.messages.ts` with `as const` (prepare for translations).
 - **Forms:** typed forms + Zod (or API-shaped messages: `message: string | string[]`).
 - **Dates:** ISO 8601; due-date UX must match backend UTC date-only rules.
 
@@ -234,12 +258,13 @@ src/
 - Conventional commits (commitlint).
 - No unexplained `any` in feature code.
 - Do not store tokens in `localStorage` unless consciously decided with a threat model.
+- Endpoints and user-facing strings via constants (`as const`), not inline literals.
 
 ### 4.4 Tests
 
 | Level | Tool | Minimum |
 |-------|------|---------|
-| Unit / component | Vitest | Auth store, feature stores, pure utils, critical pipes |
+| Unit / component | Vitest | Auth reducer, feature stores, pure utils, critical pipes |
 | Component a11y | Vitest + testing-library (if used) | Form labels, dialog open/close focus |
 | E2E | Playwright | Login, create project, create task, change status, comment |
 | CI | Existing pipeline | lint, typecheck, unit, build; e2e on PRs when feasible |
@@ -268,6 +293,7 @@ src/
 5. Unit tests for new business logic; E2E if the feature introduces a new happy path.
 6. `lint`, `typecheck`, and `test:ci` are green.
 7. No auth regression (refresh / logout).
+8. New endpoints/strings follow `as const` maps (no raw URL/copy in call sites).
 
 ---
 
@@ -303,4 +329,4 @@ npx ng g @spartan-ng/cli:ui
 
 ---
 
-*Last updated: 2026-10-22 — Phase 0.1 API foundation implemented on branch `feature/api-foundation`.*
+*Last updated: 2026-10-22 — Phase 0.1 refactored: NgRx auth store, endpoint constants, message maps.*

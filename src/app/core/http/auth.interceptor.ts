@@ -6,24 +6,11 @@ import {
 import { inject } from '@angular/core';
 import { catchError, switchMap, throwError } from 'rxjs';
 
-import { environment } from '../../../environments/environment';
-import { AccessTokenStore } from '../auth/access-token.store';
+import {
+  isApiRequestUrl,
+  isAuthPublicRequestUrl,
+} from '../api/api-endpoints';
 import { AuthSessionService } from '../auth/auth-session.service';
-
-const AUTH_PUBLIC_PATHS = [
-  '/auth/login',
-  '/auth/register',
-  '/auth/refresh',
-  '/auth/logout',
-] as const;
-
-function isApiRequest(url: string): boolean {
-  return url.startsWith(environment.apiUrl);
-}
-
-function isAuthPublicRequest(url: string): boolean {
-  return AUTH_PUBLIC_PATHS.some((path) => url.includes(path));
-}
 
 function withAccessToken(
   req: HttpRequest<unknown>,
@@ -31,12 +18,11 @@ function withAccessToken(
 ): HttpRequest<unknown> {
   let next = req;
 
-  // Refresh cookie must be sent cross-origin for /auth/* and any future cookie use.
-  if (isApiRequest(req.url) && !req.withCredentials) {
+  if (isApiRequestUrl(req.url) && !req.withCredentials) {
     next = next.clone({ withCredentials: true });
   }
 
-  if (token && isApiRequest(req.url) && !isAuthPublicRequest(req.url)) {
+  if (token && isApiRequestUrl(req.url) && !isAuthPublicRequestUrl(req.url)) {
     next = next.clone({
       setHeaders: { Authorization: `Bearer ${token}` },
     });
@@ -46,14 +32,13 @@ function withAccessToken(
 }
 
 /**
- * Attaches Bearer access token, enables credentials for API calls,
- * and on 401 performs a single serialized refresh then retries once.
+ * Attaches Bearer access token from the global NgRx auth store,
+ * enables credentials for API calls, and on 401 performs a single
+ * serialized refresh then retries once.
  */
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  const accessTokenStore = inject(AccessTokenStore);
   const authSession = inject(AuthSessionService);
-
-  const token = accessTokenStore.getSnapshot();
+  const token = authSession.getAccessTokenSnapshot();
   const authorizedReq = withAccessToken(req, token);
 
   return next(authorizedReq).pipe(
@@ -62,8 +47,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         return throwError(() => error);
       }
 
-      // Do not attempt refresh for public auth endpoints or non-API calls.
-      if (!isApiRequest(req.url) || isAuthPublicRequest(req.url)) {
+      if (!isApiRequestUrl(req.url) || isAuthPublicRequestUrl(req.url)) {
         return throwError(() => error);
       }
 

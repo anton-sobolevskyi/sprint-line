@@ -1,6 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { describe, expect, it } from 'vitest';
 
+import { API_ERROR_MESSAGES } from '../messages/api-error.messages';
 import { getApiErrorCode, getApiErrorMessage, isApiErrorBody } from './api-error';
 
 describe('api-error helpers', () => {
@@ -29,8 +30,12 @@ describe('api-error helpers', () => {
     );
   });
 
-  it('handles network failures', () => {
+  it('handles network failures with message constant', () => {
     const error = new HttpErrorResponse({ status: 0, error: null });
-    expect(getApiErrorMessage(error)).toContain('Unable to reach the server');
+    expect(getApiErrorMessage(error)).toBe(API_ERROR_MESSAGES.network);
+  });
+
+  it('uses generic fallback for non-HTTP errors', () => {
+    expect(getApiErrorMessage(new Error('boom'))).toBe(API_ERROR_MESSAGES.generic);
   });
 });
