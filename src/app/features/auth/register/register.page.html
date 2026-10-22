@@ -32,7 +32,7 @@
             [placeholder]="messages.register.namePlaceholder"
           />
           @if (nameError(); as message) {
-            <p id="register-name-error" hlmFieldError>{{ message }}</p>
+            <hlm-field-error id="register-name-error" forceShow>{{ message }}</hlm-field-error>
           }
         </div>
 
@@ -49,7 +49,7 @@
             [placeholder]="messages.register.emailPlaceholder"
           />
           @if (emailError(); as message) {
-            <p id="register-email-error" hlmFieldError>{{ message }}</p>
+            <hlm-field-error id="register-email-error" forceShow>{{ message }}</hlm-field-error>
           }
         </div>
 
@@ -71,7 +71,7 @@
             {{ messages.register.passwordHint }}
           </p>
           @if (passwordError(); as message) {
-            <p id="register-password-error" hlmFieldError>{{ message }}</p>
+            <hlm-field-error id="register-password-error" forceShow>{{ message }}</hlm-field-error>
           }
         </div>
 

@@ -32,7 +32,7 @@
             [placeholder]="messages.login.emailPlaceholder"
           />
           @if (emailError(); as message) {
-            <p id="login-email-error" hlmFieldError>{{ message }}</p>
+            <hlm-field-error id="login-email-error" forceShow>{{ message }}</hlm-field-error>
           }
         </div>
 
@@ -49,16 +49,11 @@
             [placeholder]="messages.login.passwordPlaceholder"
           />
           @if (passwordError(); as message) {
-            <p id="login-password-error" hlmFieldError>{{ message }}</p>
+            <hlm-field-error id="login-password-error" forceShow>{{ message }}</hlm-field-error>
           }
         </div>
 
-        <button
-          hlmBtn
-          type="submit"
-          class="w-full"
-          [disabled]="isSubmitting()"
-        >
+        <button hlmBtn type="submit" class="w-full" [disabled]="isSubmitting()">
           {{ isSubmitting() ? messages.login.submitting : messages.login.submit }}
         </button>
       </form>

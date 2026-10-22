@@ -1,12 +1,21 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { provideStore } from '@ngrx/store';
-import { firstValueFrom } from 'rxjs';
+import { Store, provideStore } from '@ngrx/store';
+import { firstValueFrom, isObservable } from 'rxjs';
 import { describe, expect, it } from 'vitest';
 
 import { AuthActions } from './auth.actions';
 import { authGuard, guestGuard } from './auth.guards';
 import { authFeature } from './auth.reducer';
+
+async function resolveGuardResult(
+  result: ReturnType<typeof authGuard>,
+): Promise<boolean | ReturnType<Router['createUrlTree']>> {
+  if (isObservable(result)) {
+    return firstValueFrom(result);
+  }
+  return result as boolean | ReturnType<Router['createUrlTree']>;
+}
 
 describe('auth guards', () => {
   it('authGuard redirects guests to login', async () => {
@@ -17,7 +26,9 @@ describe('auth guards', () => {
       ],
     });
 
-    const result = await firstValueFrom(TestBed.runInInjectionContext(() => authGuard({} as never, {} as never)) as ReturnType<typeof authGuard> extends boolean ? never : ReturnType<typeof authGuard>);
+    const result = await resolveGuardResult(
+      TestBed.runInInjectionContext(() => authGuard({} as never, {} as never)),
+    );
 
     const router = TestBed.inject(Router);
     expect(result).toEqual(router.createUrlTree(['/login']));
@@ -31,17 +42,12 @@ describe('auth guards', () => {
       ],
     });
 
-    const store = TestBed.inject(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (await import('@ngrx/store')).Store as any,
+    TestBed.inject(Store).dispatch(
+      AuthActions.setAccessToken({ accessToken: 'token' }),
     );
-    store.dispatch(AuthActions.setAccessToken({ accessToken: 'token' }));
 
-    const result = await firstValueFrom(
-      TestBed.runInInjectionContext(() => guestGuard({} as never, {} as never)) as Exclude<
-        ReturnType<typeof guestGuard>,
-        boolean | import('@angular/router').UrlTree
-      >,
+    const result = await resolveGuardResult(
+      TestBed.runInInjectionContext(() => guestGuard({} as never, {} as never)),
     );
 
     const router = TestBed.inject(Router);
