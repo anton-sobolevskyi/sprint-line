@@ -12,7 +12,7 @@ export const AUTH_VALIDATORS = {
     Validators.pattern(PASSWORD_PATTERN),
   ],
   name: [Validators.required, Validators.minLength(2)],
-} as const;
+};
 
 export function controlErrorKey(control: AbstractControl | null): string | null {
   if (!control || !control.errors || !(control.touched || control.dirty)) {

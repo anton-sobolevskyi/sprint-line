@@ -34,8 +34,8 @@ export class LoginPage {
   readonly serverError = signal<string | null>(null);
 
   readonly form = this.formBuilder.nonNullable.group({
-    email: ['', AUTH_VALIDATORS.email],
-    password: ['', AUTH_VALIDATORS.passwordLogin],
+    email: this.formBuilder.nonNullable.control('', AUTH_VALIDATORS.email),
+    password: this.formBuilder.nonNullable.control('', AUTH_VALIDATORS.passwordLogin),
   });
 
   emailError(): string | null {
@@ -68,8 +68,13 @@ export class LoginPage {
       return;
     }
 
+    const { email, password } = this.form.value;
+
+    if (!email || !password) {
+      return;
+    }
+
     this.isSubmitting.set(true);
-    const { email, password } = this.form.getRawValue();
 
     this.authApi.login({ email, password }).subscribe({
       next: () => {

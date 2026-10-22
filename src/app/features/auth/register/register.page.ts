@@ -34,9 +34,9 @@ export class RegisterPage {
   readonly serverError = signal<string | null>(null);
 
   readonly form = this.formBuilder.nonNullable.group({
-    name: ['', AUTH_VALIDATORS.name],
-    email: ['', AUTH_VALIDATORS.email],
-    password: ['', AUTH_VALIDATORS.passwordRegister],
+    name: this.formBuilder.nonNullable.control('', AUTH_VALIDATORS.name),
+    email: this.formBuilder.nonNullable.control('', AUTH_VALIDATORS.email),
+    password: this.formBuilder.nonNullable.control('', AUTH_VALIDATORS.passwordRegister),
   });
 
   nameError(): string | null {
@@ -83,8 +83,12 @@ export class RegisterPage {
       return;
     }
 
+    const { name, email, password } = this.form.value;
+    if (!name || !email || !password) {
+      return;
+    }
+
     this.isSubmitting.set(true);
-    const { name, email, password } = this.form.getRawValue();
 
     this.authApi.register({ name, email, password }).subscribe({
       next: () => {
