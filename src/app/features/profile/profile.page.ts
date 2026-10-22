@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, effect, inject, signal } from '@angular/core';
 import { form, FormField, validateStandardSchema } from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
@@ -38,7 +38,7 @@ import {
   ],
   templateUrl: './profile.page.html',
 })
-export class ProfilePage implements OnInit {
+export class ProfilePage {
   private readonly store = inject(Store);
   private readonly usersApi = inject(UsersApiService);
   private readonly authSession = inject(AuthSessionService);
@@ -85,27 +85,26 @@ export class ProfilePage implements OnInit {
     validateStandardSchema(schemaPath, changePasswordSchema);
   });
 
-  ngOnInit(): void {
+  private readonly syncedUserId = signal<string | null>(null);
+
+  constructor() {
     this.store.dispatch(UserActions.loadMe());
-    const stop = setInterval(() => {
+
+    effect(() => {
       const user = this.currentUser();
-      if (user) {
-        this.detailsModel.set({ name: user.name, email: user.email });
-        clearInterval(stop);
+      if (!user || this.syncedUserId() === user.id) {
+        return;
       }
-      if (this.loadStatus() === 'error') {
-        clearInterval(stop);
-      }
-    }, 50);
+      this.syncedUserId.set(user.id);
+      this.detailsModel.set({ name: user.name, email: user.email });
+    });
   }
 
   reload(): void {
     this.store.dispatch(UserActions.loadMe());
   }
 
-  detailsFieldError(
-    field: 'name' | 'email',
-  ): string | null {
+  detailsFieldError(field: 'name' | 'email'): string | null {
     const state = this.detailsForm[field]();
     if (!this.detailsShowErrors() && !state.touched()) {
       return null;
