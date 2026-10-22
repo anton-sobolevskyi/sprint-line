@@ -1,0 +1,54 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      target: dev
+    command: npm run start:docker
+    ports:
+      - '4200:4200'
+    volumes:
+      - .:/app
+      - node_modules:/app/node_modules
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://localhost:4200').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  unit:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      target: unit
+    command: npm run test:ci
+    volumes:
+      - .:/app
+      - node_modules:/app/node_modules
+    profiles: ['tests']
+
+  e2e:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      target: e2e
+    command: npm run e2e
+    environment:
+      BASE_URL: http://app:4200
+    depends_on:
+      app:
+        condition: service_healthy
+    volumes:
+      - .:/app
+      - node_modules:/app/node_modules
+    ipc: host
+    profiles: ['tests']
+
+volumes:
+  node_modules:

@@ -1,0 +1,48 @@
+[tools]
+node = "22"
+
+[tasks.docker-dev]
+description = "Start Angular in Docker (dev, detached)"
+run = "docker compose up app"
+
+[tasks.docker-dev-build]
+description = "Start Angular in Docker (dev, detached)"
+run = "docker compose up --build app"
+
+[tasks.docker-dev-down]
+description = "Stop Docker dev containers"
+run = "docker compose down app"
+
+[tasks.docker-prod]
+description = "Build & run production image (HTTP)"
+run = "docker compose -f docker-compose.prod.yml up --build -d"
+
+[tasks.docker-prod-down]
+description = "Stop production containers"
+run = "docker compose -f docker-compose.prod.yml down"
+
+[tasks.docker-prod-logs]
+description = "Show production logs"
+run = "docker compose -f docker-compose.prod.yml logs -f"
+
+[tasks.clean]
+description = "Remove node_modules and Angular cache"
+run = "rm -rf node_modules .angular dist"
+
+[tasks.test-ci]
+description = "Run Vitest once in the Docker test service"
+run = "docker compose run --rm unit"
+
+# Development – watch mode
+[tasks.test-dev]
+description = "Run Vitest watch in the Docker test service"
+run = "docker compose run --rm unit npm test"
+
+# End-to-end tests
+[tasks.test-e2e]
+description = "Run Playwright tests in the Docker test service"
+run = "docker compose run --rm e2e"
+
+[tasks.fetch-openapi]
+description = "Fetch OpenAPI spec from backend"
+run = "npx openapi-typescript ${API_URL} -o ./src/core/api/generated/schema.d.ts"
