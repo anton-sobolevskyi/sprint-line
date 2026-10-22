@@ -2,8 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 
-import { API_ENDPOINTS } from '../api/api-endpoints';
 import type { components } from '../../../types/api.schema';
+import { API_ENDPOINTS } from '../api/api-endpoints';
 import { AuthSessionService } from './auth-session.service';
 
 type RegisterDto = components['schemas']['RegisterDto'];
@@ -12,7 +12,6 @@ type AuthResponseDto = components['schemas']['AuthResponseDto'];
 
 /**
  * Thin HTTP wrapper for /auth/* endpoints.
- * Full login/register UI belongs to Phase 1.
  */
 @Injectable({ providedIn: 'root' })
 export class AuthApiService {
@@ -37,14 +36,17 @@ export class AuthApiService {
 
   /**
    * Clears the refresh cookie on the server and the in-memory access token.
-   * Backend responds 201.
+   * Local session is cleared even if the network call fails.
    */
   logout(): Observable<void> {
     const url = API_ENDPOINTS.auth.logout;
 
-    return this.http
-      .post<void>(url, null, { withCredentials: true })
-      .pipe(tap(() => this.authSession.clearSession()));
+    return this.http.post<void>(url, null, { withCredentials: true }).pipe(
+      tap({
+        next: () => this.authSession.clearSession(),
+        error: () => this.authSession.clearSession(),
+      }),
+    );
   }
 
   refresh(): Observable<AuthResponseDto> {
