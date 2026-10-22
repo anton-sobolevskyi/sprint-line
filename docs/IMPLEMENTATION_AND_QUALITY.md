@@ -36,7 +36,7 @@ Step-by-step frontend plan for [management_app_backend](https://github.com/anton
 
 Login / register (Signal Forms + Zod), auth store, guards, session restore, logout.
 
-### Phase 2 — Profile — **Done** (`feature/profile-phase-2`)
+### Phase 2 — Profile — **Done** (included in this branch)
 
 | Item | Status |
 |------|--------|
@@ -91,4 +91,4 @@ npm run lint && npm run typecheck && npm run test:ci
 
 ---
 
-*Last updated: 2026-10-22 — Phase 3 projects on `feature/projects-phase-3` (includes Phase 2).*|
+*Last updated: 2026-10-22 — Phase 3 projects on `feature/projects-phase-3` (includes Phase 2).*
