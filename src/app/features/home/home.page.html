@@ -1,0 +1,19 @@
+<main class="bg-background flex min-h-svh items-center justify-center p-4">
+  <section hlmCard class="w-full max-w-lg">
+    <header hlmCardHeader>
+      <h1 hlmCardTitle>{{ messages.home.title }}</h1>
+      <p hlmCardDescription>{{ messages.home.body }}</p>
+    </header>
+    <footer hlmCardFooter>
+      <button
+        hlmBtn
+        variant="outline"
+        type="button"
+        [disabled]="isLoggingOut()"
+        (click)="logout()"
+      >
+        {{ isLoggingOut() ? messages.home.loggingOut : messages.home.logout }}
+      </button>
+    </footer>
+  </section>
+</main>

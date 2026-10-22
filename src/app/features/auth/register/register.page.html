@@ -1,0 +1,91 @@
+<main class="bg-background flex min-h-svh items-center justify-center p-4">
+  <section hlmCard class="w-full max-w-md">
+    <header hlmCardHeader>
+      <p class="text-muted-foreground text-xs font-medium tracking-wide uppercase">
+        {{ messages.brand }}
+      </p>
+      <h1 hlmCardTitle>{{ messages.register.title }}</h1>
+      <p hlmCardDescription>{{ messages.register.description }}</p>
+    </header>
+
+    <div hlmCardContent>
+      <form class="flex flex-col gap-4" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+        @if (serverError(); as error) {
+          <div
+            class="border-destructive/40 bg-destructive/10 text-destructive rounded-xl border px-3 py-2 text-sm"
+            role="alert"
+          >
+            {{ error }}
+          </div>
+        }
+
+        <div hlmField>
+          <label hlmFieldLabel for="register-name">{{ messages.register.nameLabel }}</label>
+          <input
+            id="register-name"
+            type="text"
+            hlmInput
+            formControlName="name"
+            autocomplete="name"
+            [attr.aria-invalid]="nameError() ? true : null"
+            [attr.aria-describedby]="nameError() ? 'register-name-error' : null"
+            [placeholder]="messages.register.namePlaceholder"
+          />
+          @if (nameError(); as message) {
+            <p id="register-name-error" hlmFieldError>{{ message }}</p>
+          }
+        </div>
+
+        <div hlmField>
+          <label hlmFieldLabel for="register-email">{{ messages.register.emailLabel }}</label>
+          <input
+            id="register-email"
+            type="email"
+            hlmInput
+            formControlName="email"
+            autocomplete="email"
+            [attr.aria-invalid]="emailError() ? true : null"
+            [attr.aria-describedby]="emailError() ? 'register-email-error' : null"
+            [placeholder]="messages.register.emailPlaceholder"
+          />
+          @if (emailError(); as message) {
+            <p id="register-email-error" hlmFieldError>{{ message }}</p>
+          }
+        </div>
+
+        <div hlmField>
+          <label hlmFieldLabel for="register-password">{{ messages.register.passwordLabel }}</label>
+          <input
+            id="register-password"
+            type="password"
+            hlmInput
+            formControlName="password"
+            autocomplete="new-password"
+            [attr.aria-invalid]="passwordError() ? true : null"
+            [attr.aria-describedby]="
+              passwordError() ? 'register-password-error' : 'register-password-hint'
+            "
+            [placeholder]="messages.register.passwordPlaceholder"
+          />
+          <p id="register-password-hint" hlmFieldDescription>
+            {{ messages.register.passwordHint }}
+          </p>
+          @if (passwordError(); as message) {
+            <p id="register-password-error" hlmFieldError>{{ message }}</p>
+          }
+        </div>
+
+        <button hlmBtn type="submit" class="w-full" [disabled]="isSubmitting()">
+          {{ isSubmitting() ? messages.register.submitting : messages.register.submit }}
+        </button>
+      </form>
+    </div>
+
+    <footer hlmCardFooter class="justify-center gap-1 text-sm">
+      <span class="text-muted-foreground">{{ messages.register.hasAccount }}</span>
+      <a hlmBtn variant="link" routerLink="/login" class="h-auto p-0">
+        {{ messages.register.loginLink }}
+      </a>
+    </footer>
+  </section>
+</main>

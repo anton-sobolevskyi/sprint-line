@@ -1,0 +1,74 @@
+<main class="bg-background flex min-h-svh items-center justify-center p-4">
+  <section hlmCard class="w-full max-w-md">
+    <header hlmCardHeader>
+      <p class="text-muted-foreground text-xs font-medium tracking-wide uppercase">
+        {{ messages.brand }}
+      </p>
+      <h1 hlmCardTitle>{{ messages.login.title }}</h1>
+      <p hlmCardDescription>{{ messages.login.description }}</p>
+    </header>
+
+    <div hlmCardContent>
+      <form class="flex flex-col gap-4" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+        @if (serverError(); as error) {
+          <div
+            class="border-destructive/40 bg-destructive/10 text-destructive rounded-xl border px-3 py-2 text-sm"
+            role="alert"
+          >
+            {{ error }}
+          </div>
+        }
+
+        <div hlmField>
+          <label hlmFieldLabel for="login-email">{{ messages.login.emailLabel }}</label>
+          <input
+            id="login-email"
+            type="email"
+            hlmInput
+            formControlName="email"
+            autocomplete="email"
+            [attr.aria-invalid]="emailError() ? true : null"
+            [attr.aria-describedby]="emailError() ? 'login-email-error' : null"
+            [placeholder]="messages.login.emailPlaceholder"
+          />
+          @if (emailError(); as message) {
+            <p id="login-email-error" hlmFieldError>{{ message }}</p>
+          }
+        </div>
+
+        <div hlmField>
+          <label hlmFieldLabel for="login-password">{{ messages.login.passwordLabel }}</label>
+          <input
+            id="login-password"
+            type="password"
+            hlmInput
+            formControlName="password"
+            autocomplete="current-password"
+            [attr.aria-invalid]="passwordError() ? true : null"
+            [attr.aria-describedby]="passwordError() ? 'login-password-error' : null"
+            [placeholder]="messages.login.passwordPlaceholder"
+          />
+          @if (passwordError(); as message) {
+            <p id="login-password-error" hlmFieldError>{{ message }}</p>
+          }
+        </div>
+
+        <button
+          hlmBtn
+          type="submit"
+          class="w-full"
+          [disabled]="isSubmitting()"
+        >
+          {{ isSubmitting() ? messages.login.submitting : messages.login.submit }}
+        </button>
+      </form>
+    </div>
+
+    <footer hlmCardFooter class="justify-center gap-1 text-sm">
+      <span class="text-muted-foreground">{{ messages.login.noAccount }}</span>
+      <a hlmBtn variant="link" routerLink="/register" class="h-auto p-0">
+        {{ messages.login.registerLink }}
+      </a>
+    </footer>
+  </section>
+</main>
