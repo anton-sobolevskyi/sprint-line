@@ -6,6 +6,7 @@ import { provideRouterStore } from '@ngrx/router-store';
 import { provideStore } from '@ngrx/store';
 
 import { routes } from './app.routes';
+import { authFeature } from './core/auth/auth.reducer';
 import { authInterceptor } from './core/http/auth.interceptor';
 
 export const appConfig: ApplicationConfig = {
@@ -13,7 +14,9 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
     provideHttpClient(withInterceptors([authInterceptor])),
-    provideStore(),
+    provideStore({
+      [authFeature.name]: authFeature.reducer,
+    }),
     provideEffects(),
     provideRouterStore(),
   ],

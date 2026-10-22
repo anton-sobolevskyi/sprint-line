@@ -1,31 +1,41 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
+import { Store } from '@ngrx/store';
 import { Observable, firstValueFrom, shareReplay } from 'rxjs';
 
-import { environment } from '../../../environments/environment';
+import { API_ENDPOINTS } from '../api/api-endpoints';
 import type { components } from '../../../types/api.schema';
-import { AccessTokenStore } from './access-token.store';
+import { AuthActions } from './auth.actions';
+import { selectAccessToken } from './auth.selectors';
 
 export type AuthResponseDto = components['schemas']['AuthResponseDto'];
 
 /**
  * Serializes refresh calls so concurrent 401s share one in-flight refresh.
- * Backend revokes all sessions if a rotated refresh token is replayed.
+ * Global session state lives in the NgRx auth feature store.
  */
 @Injectable({ providedIn: 'root' })
 export class AuthSessionService {
   private readonly http = inject(HttpClient);
-  private readonly accessTokenStore = inject(AccessTokenStore);
+  private readonly store = inject(Store);
 
   private refreshInFlight: Observable<AuthResponseDto> | null = null;
 
+  readonly accessToken = this.store.selectSignal(selectAccessToken);
+
   applyAuthResponse(response: AuthResponseDto): void {
-    this.accessTokenStore.set(response.accessToken);
+    this.store.dispatch(
+      AuthActions.setAccessToken({ accessToken: response.accessToken }),
+    );
   }
 
   clearSession(): void {
-    this.accessTokenStore.clear();
+    this.store.dispatch(AuthActions.clearSession());
     this.refreshInFlight = null;
+  }
+
+  getAccessTokenSnapshot(): string | null {
+    return this.accessToken();
   }
 
   /**
@@ -34,12 +44,10 @@ export class AuthSessionService {
    */
   refresh(): Observable<AuthResponseDto> {
     if (!this.refreshInFlight) {
+      const refreshUrl = API_ENDPOINTS.auth.refresh;
+
       this.refreshInFlight = this.http
-        .post<AuthResponseDto>(
-          `${environment.apiUrl}/auth/refresh`,
-          null,
-          { withCredentials: true },
-        )
+        .post<AuthResponseDto>(refreshUrl, null, { withCredentials: true })
         .pipe(
           shareReplay({
             bufferSize: 1,
@@ -47,7 +55,6 @@ export class AuthSessionService {
           }),
         );
 
-      // Clear the shared observable after it settles so the next 401 can refresh again.
       void firstValueFrom(this.refreshInFlight).then(
         (response) => {
           this.applyAuthResponse(response);
