@@ -9,7 +9,7 @@
     </header>
 
     <div hlmCardContent>
-      <form class="flex flex-col gap-4" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+      <form class="flex flex-col gap-4" (submit)="onSubmit($event)">
         @if (serverError(); as error) {
           <div
             class="border-destructive/40 bg-destructive/10 text-destructive rounded-xl border px-3 py-2 text-sm"
@@ -25,8 +25,8 @@
             id="register-name"
             type="text"
             hlmInput
-            formControlName="name"
             autocomplete="name"
+            [formField]="registerForm.name"
             [attr.aria-invalid]="nameError() ? true : null"
             [attr.aria-describedby]="nameError() ? 'register-name-error' : null"
             [placeholder]="messages.register.namePlaceholder"
@@ -42,8 +42,8 @@
             id="register-email"
             type="email"
             hlmInput
-            formControlName="email"
             autocomplete="email"
+            [formField]="registerForm.email"
             [attr.aria-invalid]="emailError() ? true : null"
             [attr.aria-describedby]="emailError() ? 'register-email-error' : null"
             [placeholder]="messages.register.emailPlaceholder"
@@ -59,8 +59,8 @@
             id="register-password"
             type="password"
             hlmInput
-            formControlName="password"
             autocomplete="new-password"
+            [formField]="registerForm.password"
             [attr.aria-invalid]="passwordError() ? true : null"
             [attr.aria-describedby]="
               passwordError() ? 'register-password-error' : 'register-password-hint'
@@ -75,7 +75,12 @@
           }
         </div>
 
-        <button hlmBtn type="submit" class="w-full" [disabled]="isSubmitting()">
+        <button
+          hlmBtn
+          type="submit"
+          class="w-full"
+          [disabled]="registerForm().invalid() || isSubmitting()"
+        >
           {{ isSubmitting() ? messages.register.submitting : messages.register.submit }}
         </button>
       </form>
