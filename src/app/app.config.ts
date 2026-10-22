@@ -13,6 +13,8 @@ import { routes } from './app.routes';
 import { restoreAuthSession } from './core/auth/auth-initializer';
 import { authFeature } from './core/auth/auth.reducer';
 import { authInterceptor } from './core/http/auth.interceptor';
+import { UserEffects } from './core/users/user.effects';
+import { userFeature } from './core/users/user.reducer';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -21,8 +23,9 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptors([authInterceptor])),
     provideStore({
       [authFeature.name]: authFeature.reducer,
+      [userFeature.name]: userFeature.reducer,
     }),
-    provideEffects(),
+    provideEffects([UserEffects]),
     provideRouterStore(),
     provideAppInitializer(restoreAuthSession),
   ],
