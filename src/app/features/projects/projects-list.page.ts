@@ -10,6 +10,7 @@ import { HlmTextareaImports } from '@spartan-ng/helm/textarea';
 
 import { getApiErrorMessage } from '../../core/api/api-error';
 import {
+  type PaginationMetaDto,
   type ProjectResponseDto,
   ProjectsApiService,
 } from '../../core/projects/projects-api.service';
@@ -19,6 +20,9 @@ import {
   createProjectSchema,
   type CreateProjectModel,
 } from './projects.schemas';
+
+const DEFAULT_PAGE = 1 as const;
+const DEFAULT_LIMIT = 20 as const;
 
 @Component({
   selector: 'sl-projects-list-page',
@@ -40,6 +44,7 @@ export class ProjectsListPage implements OnInit {
   readonly messages = PROJECTS_MESSAGES;
 
   readonly projects = signal<ProjectResponseDto[]>([]);
+  readonly pagination = signal<PaginationMetaDto | null>(null);
   readonly loadStatus = signal<'idle' | 'loading' | 'success' | 'error'>('idle');
   readonly loadError = signal<string | null>(null);
 
@@ -61,13 +66,14 @@ export class ProjectsListPage implements OnInit {
     this.load();
   }
 
-  load(): void {
+  load(page: number = DEFAULT_PAGE): void {
     this.loadStatus.set('loading');
     this.loadError.set(null);
 
-    this.projectsApi.findAll().subscribe({
-      next: (items) => {
-        this.projects.set(items);
+    this.projectsApi.findAll({ page, limit: DEFAULT_LIMIT }).subscribe({
+      next: (response) => {
+        this.projects.set(response.data);
+        this.pagination.set(response.meta);
         this.loadStatus.set('success');
       },
       error: (error: unknown) => {
