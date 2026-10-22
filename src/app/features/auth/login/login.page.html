@@ -9,7 +9,7 @@
     </header>
 
     <div hlmCardContent>
-      <form class="flex flex-col gap-4" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+      <form class="flex flex-col gap-4" (submit)="onSubmit($event)">
         @if (serverError(); as error) {
           <div
             class="border-destructive/40 bg-destructive/10 text-destructive rounded-xl border px-3 py-2 text-sm"
@@ -25,8 +25,8 @@
             id="login-email"
             type="email"
             hlmInput
-            formControlName="email"
             autocomplete="email"
+            [formField]="loginForm.email"
             [attr.aria-invalid]="emailError() ? true : null"
             [attr.aria-describedby]="emailError() ? 'login-email-error' : null"
             [placeholder]="messages.login.emailPlaceholder"
@@ -42,8 +42,8 @@
             id="login-password"
             type="password"
             hlmInput
-            formControlName="password"
             autocomplete="current-password"
+            [formField]="loginForm.password"
             [attr.aria-invalid]="passwordError() ? true : null"
             [attr.aria-describedby]="passwordError() ? 'login-password-error' : null"
             [placeholder]="messages.login.passwordPlaceholder"
@@ -53,7 +53,12 @@
           }
         </div>
 
-        <button hlmBtn type="submit" class="w-full" [disabled]="isSubmitting()">
+        <button
+          hlmBtn
+          type="submit"
+          class="w-full"
+          [disabled]="loginForm().invalid() || isSubmitting()"
+        >
           {{ isSubmitting() ? messages.login.submitting : messages.login.submit }}
         </button>
       </form>

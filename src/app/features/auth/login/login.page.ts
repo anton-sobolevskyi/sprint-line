@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { form, FormField, validateStandardSchema } from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
 
 import { HlmButtonImports } from '@spartan-ng/helm/button';
@@ -9,13 +9,14 @@ import { HlmInputImports } from '@spartan-ng/helm/input';
 
 import { getApiErrorMessage } from '../../../core/api/api-error';
 import { AuthApiService } from '../../../core/auth/auth-api.service';
+import { firstFieldErrorMessage } from '../auth.form-utils';
 import { AUTH_MESSAGES } from '../auth.messages';
-import { AUTH_VALIDATORS, controlErrorKey } from '../auth.validators';
+import { loginFormSchema, type LoginFormModel } from '../auth.schemas';
 
 @Component({
   selector: 'sl-login-page',
   imports: [
-    ReactiveFormsModule,
+    FormField,
     RouterLink,
     ...HlmButtonImports,
     ...HlmCardImports,
@@ -25,56 +26,48 @@ import { AUTH_VALIDATORS, controlErrorKey } from '../auth.validators';
   templateUrl: './login.page.html',
 })
 export class LoginPage {
-  private readonly formBuilder = inject(FormBuilder);
   private readonly authApi = inject(AuthApiService);
   private readonly router = inject(Router);
 
   readonly messages = AUTH_MESSAGES;
   readonly isSubmitting = signal(false);
   readonly serverError = signal<string | null>(null);
+  readonly showErrors = signal(false);
 
-  readonly form = this.formBuilder.nonNullable.group({
-    email: this.formBuilder.nonNullable.control('', AUTH_VALIDATORS.email),
-    password: this.formBuilder.nonNullable.control('', AUTH_VALIDATORS.passwordLogin),
+  private readonly model = signal<LoginFormModel>({
+    email: '',
+    password: '',
+  });
+
+  readonly loginForm = form(this.model, (schemaPath) => {
+    validateStandardSchema(schemaPath, loginFormSchema);
   });
 
   emailError(): string | null {
-    const key = controlErrorKey(this.form.controls.email);
-    if (key === 'required') {
-      return this.messages.validation.emailRequired;
+    if (!this.showErrors() && !this.loginForm.email().touched()) {
+      return null;
     }
-    if (key === 'email') {
-      return this.messages.validation.emailInvalid;
-    }
-    return null;
+    return firstFieldErrorMessage(this.loginForm.email().errors());
   }
 
   passwordError(): string | null {
-    const key = controlErrorKey(this.form.controls.password);
-    if (key === 'required') {
-      return this.messages.validation.passwordRequired;
+    if (!this.showErrors() && !this.loginForm.password().touched()) {
+      return null;
     }
-    if (key === 'minlength') {
-      return this.messages.validation.passwordMinLength;
-    }
-    return null;
+    return firstFieldErrorMessage(this.loginForm.password().errors());
   }
 
-  onSubmit(): void {
+  onSubmit(event: Event): void {
+    event.preventDefault();
     this.serverError.set(null);
-    this.form.markAllAsTouched();
+    this.showErrors.set(true);
 
-    if (this.form.invalid || this.isSubmitting()) {
-      return;
-    }
-
-    const { email, password } = this.form.value;
-
-    if (!email || !password) {
+    if (this.loginForm().invalid() || this.isSubmitting()) {
       return;
     }
 
     this.isSubmitting.set(true);
+    const { email, password } = this.model();
 
     this.authApi.login({ email, password }).subscribe({
       next: () => {
