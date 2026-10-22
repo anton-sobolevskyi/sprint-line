@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmCardImports } from '@spartan-ng/helm/card';
@@ -9,7 +9,7 @@ import { AUTH_MESSAGES } from '../auth/auth.messages';
 
 @Component({
   selector: 'sl-home-page',
-  imports: [...HlmButtonImports, ...HlmCardImports],
+  imports: [RouterLink, ...HlmButtonImports, ...HlmCardImports],
   templateUrl: './home.page.html',
 })
 export class HomePage {
@@ -31,8 +31,6 @@ export class HomePage {
         void this.router.navigateByUrl('/login');
       },
       error: () => {
-        // Cookie may already be gone; still clear local session via service tap on success only.
-        // Force navigation so the user is not stuck if the network call fails after clear.
         this.isLoggingOut.set(false);
         void this.router.navigateByUrl('/login');
       },

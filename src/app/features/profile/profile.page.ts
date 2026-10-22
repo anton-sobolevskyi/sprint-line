@@ -1,0 +1,226 @@
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { form, FormField, validateStandardSchema } from '@angular/forms/signals';
+import { Router, RouterLink } from '@angular/router';
+import { Store } from '@ngrx/store';
+
+import { HlmButtonImports } from '@spartan-ng/helm/button';
+import { HlmCardImports } from '@spartan-ng/helm/card';
+import { HlmFieldImports } from '@spartan-ng/helm/field';
+import { HlmInputImports } from '@spartan-ng/helm/input';
+
+import { getApiErrorMessage } from '../../core/api/api-error';
+import { AuthSessionService } from '../../core/auth/auth-session.service';
+import { UserActions } from '../../core/users/user.actions';
+import {
+  selectCurrentUser,
+  selectLoadError,
+  selectLoadStatus,
+} from '../../core/users/user.reducer';
+import { UsersApiService } from '../../core/users/users-api.service';
+import { firstFieldErrorMessage } from '../auth/auth.form-utils';
+import { PROFILE_MESSAGES } from './profile.messages';
+import {
+  changePasswordSchema,
+  type ChangePasswordModel,
+  profileDetailsSchema,
+  type ProfileDetailsModel,
+} from './profile.schemas';
+
+@Component({
+  selector: 'sl-profile-page',
+  imports: [
+    FormField,
+    RouterLink,
+    ...HlmButtonImports,
+    ...HlmCardImports,
+    ...HlmFieldImports,
+    ...HlmInputImports,
+  ],
+  templateUrl: './profile.page.html',
+})
+export class ProfilePage implements OnInit {
+  private readonly store = inject(Store);
+  private readonly usersApi = inject(UsersApiService);
+  private readonly authSession = inject(AuthSessionService);
+  private readonly router = inject(Router);
+
+  readonly messages = PROFILE_MESSAGES;
+
+  readonly currentUser = this.store.selectSignal(selectCurrentUser);
+  readonly loadStatus = this.store.selectSignal(selectLoadStatus);
+  readonly loadError = this.store.selectSignal(selectLoadError);
+
+  readonly detailsShowErrors = signal(false);
+  readonly detailsSubmitting = signal(false);
+  readonly detailsServerError = signal<string | null>(null);
+  readonly detailsSuccess = signal<string | null>(null);
+
+  readonly passwordShowErrors = signal(false);
+  readonly passwordSubmitting = signal(false);
+  readonly passwordServerError = signal<string | null>(null);
+
+  readonly avatarUploading = signal(false);
+  readonly avatarError = signal<string | null>(null);
+  readonly avatarSuccess = signal<string | null>(null);
+
+  readonly deleteSubmitting = signal(false);
+  readonly deleteError = signal<string | null>(null);
+
+  private readonly detailsModel = signal<ProfileDetailsModel>({
+    name: '',
+    email: '',
+  });
+
+  readonly detailsForm = form(this.detailsModel, (schemaPath) => {
+    validateStandardSchema(schemaPath, profileDetailsSchema);
+  });
+
+  private readonly passwordModel = signal<ChangePasswordModel>({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  });
+
+  readonly passwordForm = form(this.passwordModel, (schemaPath) => {
+    validateStandardSchema(schemaPath, changePasswordSchema);
+  });
+
+  ngOnInit(): void {
+    this.store.dispatch(UserActions.loadMe());
+    const stop = setInterval(() => {
+      const user = this.currentUser();
+      if (user) {
+        this.detailsModel.set({ name: user.name, email: user.email });
+        clearInterval(stop);
+      }
+      if (this.loadStatus() === 'error') {
+        clearInterval(stop);
+      }
+    }, 50);
+  }
+
+  reload(): void {
+    this.store.dispatch(UserActions.loadMe());
+  }
+
+  detailsFieldError(
+    field: 'name' | 'email',
+  ): string | null {
+    const state = this.detailsForm[field]();
+    if (!this.detailsShowErrors() && !state.touched()) {
+      return null;
+    }
+    return firstFieldErrorMessage(state.errors());
+  }
+
+  passwordFieldError(
+    field: 'currentPassword' | 'newPassword' | 'confirmPassword',
+  ): string | null {
+    const state = this.passwordForm[field]();
+    if (!this.passwordShowErrors() && !state.touched()) {
+      return null;
+    }
+    return firstFieldErrorMessage(state.errors());
+  }
+
+  onSaveDetails(event: Event): void {
+    event.preventDefault();
+    this.detailsServerError.set(null);
+    this.detailsSuccess.set(null);
+    this.detailsShowErrors.set(true);
+
+    if (this.detailsForm().invalid() || this.detailsSubmitting()) {
+      return;
+    }
+
+    this.detailsSubmitting.set(true);
+    const dto = this.detailsModel();
+
+    this.usersApi.updateMe(dto).subscribe({
+      next: (user) => {
+        this.detailsSubmitting.set(false);
+        this.store.dispatch(UserActions.setCurrentUser({ user }));
+        this.detailsSuccess.set(this.messages.profileSection.success);
+      },
+      error: (error: unknown) => {
+        this.detailsSubmitting.set(false);
+        this.detailsServerError.set(getApiErrorMessage(error));
+      },
+    });
+  }
+
+  onChangePassword(event: Event): void {
+    event.preventDefault();
+    this.passwordServerError.set(null);
+    this.passwordShowErrors.set(true);
+
+    if (this.passwordForm().invalid() || this.passwordSubmitting()) {
+      return;
+    }
+
+    this.passwordSubmitting.set(true);
+    const { currentPassword, newPassword } = this.passwordModel();
+
+    this.usersApi.changePassword({ currentPassword, newPassword }).subscribe({
+      next: () => {
+        this.passwordSubmitting.set(false);
+        this.authSession.clearSession();
+        void this.router.navigateByUrl('/login');
+      },
+      error: (error: unknown) => {
+        this.passwordSubmitting.set(false);
+        this.passwordServerError.set(getApiErrorMessage(error));
+      },
+    });
+  }
+
+  onAvatarSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+
+    if (!file || this.avatarUploading()) {
+      return;
+    }
+
+    this.avatarError.set(null);
+    this.avatarSuccess.set(null);
+    this.avatarUploading.set(true);
+
+    this.usersApi.uploadAvatar(file).subscribe({
+      next: () => {
+        this.avatarUploading.set(false);
+        this.avatarSuccess.set(this.messages.avatarSection.success);
+        this.store.dispatch(UserActions.loadMe());
+      },
+      error: (error: unknown) => {
+        this.avatarUploading.set(false);
+        this.avatarError.set(getApiErrorMessage(error));
+      },
+    });
+  }
+
+  onDeleteAccount(): void {
+    const confirmed = globalThis.confirm(
+      `${this.messages.deleteSection.dialogTitle}\n\n${this.messages.deleteSection.dialogBody}`,
+    );
+    if (!confirmed || this.deleteSubmitting()) {
+      return;
+    }
+
+    this.deleteError.set(null);
+    this.deleteSubmitting.set(true);
+
+    this.usersApi.deleteMe().subscribe({
+      next: () => {
+        this.deleteSubmitting.set(false);
+        this.authSession.clearSession();
+        void this.router.navigateByUrl('/login');
+      },
+      error: (error: unknown) => {
+        this.deleteSubmitting.set(false);
+        this.deleteError.set(getApiErrorMessage(error));
+      },
+    });
+  }
+}

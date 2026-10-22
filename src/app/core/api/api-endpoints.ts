@@ -14,6 +14,14 @@ export const API_PATHS = {
     refresh: '/auth/refresh',
     logout: '/auth/logout',
   },
+  users: {
+    me: '/users/me',
+    mePassword: '/users/me/password',
+    avatar: '/users/avatar',
+  },
+  attachments: {
+    download: (id: string) => `/attachments/${id}/download-url` as const,
+  },
 } as const;
 
 export type ApiAuthPath = (typeof API_PATHS.auth)[keyof typeof API_PATHS.auth];
@@ -25,6 +33,14 @@ export const API_ENDPOINTS = {
     login: apiUrl(API_PATHS.auth.login),
     refresh: apiUrl(API_PATHS.auth.refresh),
     logout: apiUrl(API_PATHS.auth.logout),
+  },
+  users: {
+    me: apiUrl(API_PATHS.users.me),
+    mePassword: apiUrl(API_PATHS.users.mePassword),
+    avatar: apiUrl(API_PATHS.users.avatar),
+  },
+  attachments: {
+    downloadUrl: (id: string) => apiUrl(API_PATHS.attachments.download(id)),
   },
 } as const;
 
