@@ -21,10 +21,10 @@ export type ApiAuthPath = (typeof API_PATHS.auth)[keyof typeof API_PATHS.auth];
 /** Absolute URLs for HTTP calls. */
 export const API_ENDPOINTS = {
   auth: {
-    register: `${API_BASE_URL}${API_PATHS.auth.register}`,
-    login: `${API_BASE_URL}${API_PATHS.auth.login}`,
-    refresh: `${API_BASE_URL}${API_PATHS.auth.refresh}`,
-    logout: `${API_BASE_URL}${API_PATHS.auth.logout}`,
+    register: apiUrl(API_PATHS.auth.register),
+    login: apiUrl(API_PATHS.auth.login),
+    refresh: apiUrl(API_PATHS.auth.refresh),
+    logout: apiUrl(API_PATHS.auth.logout),
   },
 } as const;
 
