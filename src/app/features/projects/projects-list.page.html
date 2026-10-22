@@ -1,0 +1,125 @@
+<main class="bg-background mx-auto flex min-h-svh w-full max-w-3xl flex-col gap-6 p-4 md:p-8">
+  <header class="flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <h1 class="text-2xl font-semibold tracking-tight">{{ messages.list.title }}</h1>
+      <p class="text-muted-foreground text-sm">{{ messages.list.subtitle }}</p>
+    </div>
+    <div class="flex gap-2">
+      <a hlmBtn variant="outline" routerLink="/">Home</a>
+      <button hlmBtn type="button" (click)="openCreate()">{{ messages.list.createCta }}</button>
+    </div>
+  </header>
+
+  @if (showCreate()) {
+    <section hlmCard>
+      <header hlmCardHeader>
+        <h2 hlmCardTitle>{{ messages.create.title }}</h2>
+        <p hlmCardDescription>{{ messages.create.description }}</p>
+      </header>
+      <div hlmCardContent>
+        <form class="flex flex-col gap-4" (submit)="onCreateSubmit($event)">
+          @if (createServerError(); as error) {
+            <div
+              class="border-destructive/40 bg-destructive/10 text-destructive rounded-xl border px-3 py-2 text-sm"
+              role="alert"
+            >
+              {{ error }}
+            </div>
+          }
+
+          <div hlmField>
+            <label hlmFieldLabel for="project-name">{{ messages.create.nameLabel }}</label>
+            <input
+              id="project-name"
+              type="text"
+              hlmInput
+              [formField]="createForm.name"
+              [placeholder]="messages.create.namePlaceholder"
+              [attr.aria-invalid]="createFieldError('name') ? true : null"
+            />
+            @if (createFieldError('name'); as message) {
+              <hlm-field-error forceShow>{{ message }}</hlm-field-error>
+            }
+          </div>
+
+          <div hlmField>
+            <label hlmFieldLabel for="project-description">{{
+              messages.create.descriptionLabel
+            }}</label>
+            <textarea
+              id="project-description"
+              hlmTextarea
+              rows="3"
+              [formField]="createForm.description"
+              [placeholder]="messages.create.descriptionPlaceholder"
+            ></textarea>
+          </div>
+
+          <div class="flex flex-wrap gap-2">
+            <button
+              hlmBtn
+              type="submit"
+              [disabled]="createForm().invalid() || createSubmitting()"
+            >
+              {{ createSubmitting() ? messages.create.submitting : messages.create.submit }}
+            </button>
+            <button hlmBtn type="button" variant="outline" (click)="closeCreate()">
+              {{ messages.create.cancel }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+  }
+
+  @if (loadStatus() === 'loading') {
+    <p class="text-muted-foreground text-sm">{{ messages.list.loading }}</p>
+  } @else if (loadStatus() === 'error') {
+    <section hlmCard>
+      <div hlmCardContent class="flex flex-col gap-3 py-6">
+        <p class="text-destructive text-sm" role="alert">{{ loadError() }}</p>
+        <button hlmBtn type="button" variant="outline" class="w-fit" (click)="load()">
+          {{ messages.list.retry }}
+        </button>
+      </div>
+    </section>
+  } @else if (projects().length === 0) {
+    <section hlmCard>
+      <header hlmCardHeader>
+        <h2 hlmCardTitle>{{ messages.list.emptyTitle }}</h2>
+        <p hlmCardDescription>{{ messages.list.emptyBody }}</p>
+      </header>
+      <footer hlmCardFooter>
+        <button hlmBtn type="button" (click)="openCreate()">{{ messages.list.emptyAction }}</button>
+      </footer>
+    </section>
+  } @else {
+    <ul class="flex flex-col gap-3">
+      @for (project of projects(); track project.id) {
+        <li hlmCard>
+          <div class="flex flex-wrap items-center justify-between gap-3 px-(--card-spacing)">
+            <div class="min-w-0">
+              <a
+                class="hover:text-primary text-base font-medium underline-offset-4 hover:underline"
+                [routerLink]="['/projects', project.id]"
+              >
+                {{ project.name }}
+              </a>
+              @if (project.description) {
+                <p class="text-muted-foreground mt-1 line-clamp-2 text-sm">
+                  {{ project.description }}
+                </p>
+              }
+              <p class="text-muted-foreground mt-1 text-xs">
+                {{ memberCount(project) }} {{ messages.list.membersLabel }}
+              </p>
+            </div>
+            <a hlmBtn variant="outline" [routerLink]="['/projects', project.id]">
+              {{ messages.list.open }}
+            </a>
+          </div>
+        </li>
+      }
+    </ul>
+  }
+</main>

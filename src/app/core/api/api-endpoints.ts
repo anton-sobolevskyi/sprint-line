@@ -19,8 +19,12 @@ export const API_PATHS = {
     mePassword: '/users/me/password',
     avatar: '/users/avatar',
   },
+  projects: {
+    root: '/projects',
+    byId: (id: string) => `/projects/${id}` as const,
+  },
   attachments: {
-    download: (id: string) => `/attachments/${id}/download-url` as const,
+    download: (id: string) => `/attachments/${id}/download` as const,
   },
 } as const;
 
@@ -38,6 +42,11 @@ export const API_ENDPOINTS = {
     me: apiUrl(API_PATHS.users.me),
     mePassword: apiUrl(API_PATHS.users.mePassword),
     avatar: apiUrl(API_PATHS.users.avatar),
+  },
+  projects: {
+    list: apiUrl(API_PATHS.projects.root),
+    create: apiUrl(API_PATHS.projects.root),
+    byId: (id: string) => apiUrl(API_PATHS.projects.byId(id)),
   },
   attachments: {
     downloadUrl: (id: string) => apiUrl(API_PATHS.attachments.download(id)),

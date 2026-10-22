@@ -1,22 +1,22 @@
 # SprintLine — Implementation Guide & Quality Requirements
 
-Step-by-step frontend implementation plan based on the [management_app_backend](https://github.com/anton-sobolevskyi/management_app_backend) API, plus quality requirements (UX, accessibility, code, tests).
+Step-by-step frontend plan for [management_app_backend](https://github.com/anton-sobolevskyi/management_app_backend).
 
-**UI stack:** Angular 22 · spartan-ng (brain + helm) · Tailwind CSS v4 · NgRx · Zod · openapi-typescript · Signal Forms  
-**Accessibility target:** WCAG 2.2 Level AA
+**Stack:** Angular 22 · spartan-ng · Tailwind v4 · NgRx · Zod · Signal Forms · openapi-typescript  
+**a11y target:** WCAG 2.2 AA
 
 ---
 
-## Conventions (project-wide)
+## Conventions
 
 | Concern | Approach |
 |---------|----------|
-| Global state | `@ngrx/store` feature reducers (auth, current user, …) |
-| Local / UI state | `@ngrx/signals` SignalStore or component signals |
-| Forms | **Signal Forms** (`form()`, `[formField]`) + **Zod** via `validateStandardSchema` |
-| Submit buttons | Disabled while `form().invalid()` or request in flight |
-| API paths / URLs | `API_PATHS` / `API_ENDPOINTS` (`as const`); URL in a local `const` before `http.*` |
-| User-visible strings | `*.messages.ts` with `as const` (i18n-ready) |
+| Global state | `@ngrx/store` (auth, current user, …) |
+| Local / UI state | SignalStore or component signals |
+| Forms | Signal Forms + Zod (`validateStandardSchema`) |
+| Submit buttons | Disabled when `form().invalid()` or request in flight |
+| Endpoints | `API_PATHS` / `API_ENDPOINTS` (`as const`) |
+| Copy | `*.messages.ts` (`as const`, i18n-ready) |
 
 ---
 
@@ -28,93 +28,57 @@ Step-by-step frontend implementation plan based on the [management_app_backend](
 |------|--------|
 | 0.1 API client + interceptors | **Done** |
 | 0.2 OpenAPI types | **Done** |
-| 0.3 App shell + global Sonner | Partial (routes exist; Sonner pending) |
-| 0.4 Design tokens | Partial |
-| 0.5 Helm path aliases | **Done** |
+| 0.3 Global Sonner toast | Pending |
+| 0.4 Design tokens (status/priority) | Partial |
+| 0.5 Helm aliases | **Done** |
 
-### Phase 1 — Authentication — **Done**
+### Phase 1 — Authentication — **Done** (merged to `main`)
 
-| Step | Status |
-|------|--------|
-| Login / register (Signal Forms + Zod) | **Done** |
-| Global auth NgRx store + interceptor | **Done** |
-| `authGuard` / `guestGuard` | **Done** |
-| Logout + session restore on bootstrap | **Done** |
-
-Key paths: `src/app/features/auth/`, `src/app/core/auth/`.
+Login / register (Signal Forms + Zod), auth store, guards, session restore, logout.
 
 ### Phase 2 — Profile — **Done** (`feature/profile-phase-2`)
 
-| Step | Status |
+| Item | Status |
 |------|--------|
-| 2.1 `/profile` — name, email | **Done** |
-| 2.2 Change password | **Done** (then re-login) |
-| 2.3 Avatar upload | **Done** (`POST /users/avatar`) |
-| 2.4 Delete account | **Done** (confirm + 409 handling via API message) |
+| `/profile` name & email | **Done** |
+| Change password → re-login | **Done** |
+| Avatar upload (`file` multipart) | **Done** |
+| Delete account + 409 messaging | **Done** |
+| NgRx `user` feature + effects | **Done** |
 
-#### Delivered files
+### Phase 3 — Projects — **Done** (`feature/projects-phase-3`)
 
-| File | Role |
-|------|------|
-| `src/app/core/api/api-endpoints.ts` | `users.*`, attachment download URL helper |
-| `src/app/core/users/users-api.service.ts` | HTTP for me / password / avatar / delete |
-| `src/app/core/users/user.actions.ts` | NgRx actions |
-| `src/app/core/users/user.reducer.ts` | Global `currentUser` feature |
-| `src/app/core/users/user.effects.ts` | `loadMe` effect |
-| `src/app/features/profile/*` | Page, messages, Zod schemas |
+| Item | Status |
+|------|--------|
+| 3.1 Projects list | **Done** (`/projects`) |
+| 3.2 Create project | **Done** (inline form) |
+| 3.3 Project hub shell `/projects/:id` | **Done** (settings + hub hint) |
+| 3.4 Update / soft-delete | **Done** |
+| 3.5 Empty / loading / error states | **Done** |
 
-**Behaviour:**
+Key paths: `src/app/core/projects/`, `src/app/features/projects/`.
 
-- Profile details & password use Signal Forms + Zod; submit disabled when invalid.
-- Password change clears session and navigates to `/login` (backend revokes refresh tokens).
-- Delete uses `confirm()`; API errors (e.g. sole OWNER 409) surface via `getApiErrorMessage`.
-- Avatar: multipart `file` field; then `UserActions.loadMe`.
+### Phase 4 — Members — **Next**
 
-### Phase 3 — Projects — **Next**
+Invite, roles, remove, transfer ownership.
 
-| Step | Work |
-|------|------|
-| 3.1 | Projects list |
-| 3.2 | Create project |
-| 3.3 | Project hub `/projects/:id` |
-| 3.4 | Update / soft-delete |
-| 3.5 | Empty states |
+### Later
 
-### Later phases
-
-4 Members · 5 Tasks / board · 6 Comments · 7 Attachments · 8 Dashboard & polish
-
----
-
-## Architecture snapshot
-
-```text
-src/app/
-  core/
-    api/          # endpoints, errors
-    auth/         # global auth store, interceptors, guards
-    users/        # global current user store + API
-    http/
-    messages/
-  features/
-    auth/
-    profile/
-    home/
-```
+5 Tasks / board · 6 Comments · 7 Attachments · 8 Dashboard & polish
 
 ---
 
 ## Definition of Done
 
 1. Acceptance criteria met  
-2. Spartan/helm only (no new Material)  
+2. Spartan/helm only  
 3. Loading / empty / error states  
 4. Keyboard + basic a11y  
-5. Tests for new business logic where practical  
-6. `lint` / `typecheck` / `test:ci` green  
+5. Tests where practical  
+6. `lint` / `typecheck` / `test:ci`  
 7. Auth/session safe  
-8. Endpoints & copy via `as const` maps  
-9. Forms: Signal Forms + Zod; invalid submit disabled  
+8. Endpoints & copy via constants  
+9. Signal Forms + Zod; invalid submit disabled  
 
 ---
 
@@ -123,18 +87,8 @@ src/app/
 ```bash
 npm start
 npm run lint && npm run typecheck && npm run test:ci
-npm run build
 ```
 
 ---
 
-## References
-
-- Backend: https://github.com/anton-sobolevskyi/management_app_backend  
-- Swagger: `https://management-app-backend-qs3u.onrender.com/api-docs`  
-- Signal Forms + Zod: https://angular.dev/guide/forms/signals/validation  
-- WCAG 2.2: https://www.w3.org/TR/WCAG22/  
-
----
-
-*Last updated: 2026-10-22 — Phase 2 profile on branch `feature/profile-phase-2`.*
+*Last updated: 2026-10-22 — Phase 3 projects on `feature/projects-phase-3` (includes Phase 2).*|
