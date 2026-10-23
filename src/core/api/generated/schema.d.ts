@@ -310,6 +310,80 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/auth/forgot-password': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Request a password-reset e-mail
+     * @description Always answers 204, whether or not the address is registered, so it cannot be used to discover accounts.
+     */
+    post: operations['auth-forgotpassword'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/auth/reset-password': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Set a new password with the token from the reset e-mail
+     * @description Ends every session of the account (refresh tokens revoked, access tokens invalidated).
+     */
+    post: operations['auth-resetpassword'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/auth/verify-email': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Confirm the e-mail address with the e-mailed token */
+    post: operations['auth-verifyemail'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/auth/resend-verification': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Send the verification e-mail again */
+    post: operations['auth-resendverification'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/auth/login': {
     parameters: {
       query?: never;
@@ -411,8 +485,13 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
+    /**
+     * Get paginated comments for a task
+     * @description Supports pagination via query parameters
+     */
     get: operations['comments-findall'];
     put?: never;
+    /** Create a new comment for a task */
     post: operations['comments-create'];
     delete?: never;
     options?: never;
@@ -452,6 +531,11 @@ export interface components {
       name: string;
       /** @example attachment-uuid */
       avatarId?: string | null;
+      /**
+       * Format: date-time
+       * @description When the e-mail address was confirmed; null while unconfirmed
+       */
+      emailVerifiedAt?: string | null;
       /** Format: date-time */
       createdAt: string;
     };
@@ -488,7 +572,7 @@ export interface components {
       name: string;
       description?: string | null;
       members?: components['schemas']['ProjectMemberResponseDto'][];
-      /** @description Total members (list endpoint only; `members` is capped at 20 there) */
+      /** @description Total members. `members` is capped (20 in the list, 100 in the detail view); use GET /projects/:id/members to page through all of them */
       memberCount?: number;
       /** Format: date-time */
       createdAt: string;
@@ -582,6 +666,26 @@ export interface components {
        */
       expiresIn: number;
     };
+    ForgotPasswordDto: {
+      /**
+       * Format: email
+       * @example alice@example.com
+       */
+      email: string;
+    };
+    ResetPasswordDto: {
+      /** @description The token from the e-mailed link */
+      token: string;
+      /**
+       * @description At least 8 characters, including a letter and a number. At most 72 bytes (bcrypt limit).
+       * @example Secret1!
+       */
+      newPassword: string;
+    };
+    TokenDto: {
+      /** @description The token from the e-mailed link */
+      token: string;
+    };
     LoginDto: {
       /** Format: email */
       email: string;
@@ -593,7 +697,10 @@ export interface components {
        * @example 2026-10-31T17:00:00Z
        */
       dueDate?: string | null;
-      /** @description Project member to assign. On update, null unassigns. */
+      /**
+       * Format: uuid
+       * @description Project member to assign. On update, null unassigns.
+       */
       assignedToId?: string | null;
       title: string;
       description?: string;
@@ -652,7 +759,10 @@ export interface components {
        * @example 2026-10-31T17:00:00Z
        */
       dueDate?: string | null;
-      /** @description Project member to assign. On update, null unassigns. */
+      /**
+       * Format: uuid
+       * @description Project member to assign. On update, null unassigns.
+       */
       assignedToId?: string | null;
       title?: string;
       description?: string;
@@ -866,6 +976,7 @@ export interface operations {
   'projects-findall': {
     parameters: {
       query?: {
+        /** @description Offset pagination gets slower the deeper you go, so the page number is capped. */
         page?: number;
         limit?: number;
       };
@@ -978,6 +1089,7 @@ export interface operations {
   'projectmembers-findall': {
     parameters: {
       query?: {
+        /** @description Offset pagination gets slower the deeper you go, so the page number is capped. */
         page?: number;
         limit?: number;
       };
@@ -1248,6 +1360,100 @@ export interface operations {
       };
     };
   };
+  'auth-forgotpassword': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ForgotPasswordDto'];
+      };
+    };
+    responses: {
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  'auth-resetpassword': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ResetPasswordDto'];
+      };
+    };
+    responses: {
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Invalid or expired token */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  'auth-verifyemail': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['TokenDto'];
+      };
+    };
+    responses: {
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Invalid or expired token */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  'auth-resendverification': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
   'auth-login': {
     parameters: {
       query?: never;
@@ -1339,6 +1545,7 @@ export interface operations {
   'tasks-findall': {
     parameters: {
       query?: {
+        /** @description Offset pagination gets slower the deeper you go, so the page number is capped. */
         page?: number;
         limit?: number;
         status?: 'TODO' | 'IN_PROGRESS' | 'IN_REVIEW' | 'DONE';
@@ -1471,6 +1678,7 @@ export interface operations {
   'comments-findall': {
     parameters: {
       query?: {
+        /** @description Offset pagination gets slower the deeper you go, so the page number is capped. */
         page?: number;
         limit?: number;
       };
