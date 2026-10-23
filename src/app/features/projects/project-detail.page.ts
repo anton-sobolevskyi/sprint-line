@@ -9,6 +9,9 @@ import { HlmInputImports } from '@spartan-ng/helm/input';
 import { HlmTextareaImports } from '@spartan-ng/helm/textarea';
 
 import { getApiErrorMessage } from '../../core/api/api-error';
+import { ConfirmDialogService } from '../../core/ui/confirm-dialog.service';
+import { appToast } from '../../core/ui/toast';
+import { UI_MESSAGES } from '../../core/ui/ui.messages';
 import {
   type ProjectResponseDto,
   ProjectsApiService,
@@ -41,6 +44,7 @@ export class ProjectDetailPage {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly projectsApi = inject(ProjectsApiService);
+  private readonly confirmDialog = inject(ConfirmDialogService);
 
   readonly messages = PROJECTS_MESSAGES;
 
@@ -148,6 +152,7 @@ export class ProjectDetailPage {
           this.project.set(updated);
           this.syncedProjectId.set(null);
           this.settingsSuccess.set(this.messages.detail.saveSuccess);
+          appToast.success(this.messages.detail.saveSuccess);
         },
         error: (error: unknown) => {
           this.settingsSubmitting.set(false);
@@ -156,15 +161,18 @@ export class ProjectDetailPage {
       });
   }
 
-  onDelete(): void {
+  async onDelete(): Promise<void> {
     const project = this.project();
     if (!project || this.deleteSubmitting()) {
       return;
     }
 
-    const confirmed = globalThis.confirm(
-      `${this.messages.detail.deleteConfirmTitle}\n\n${this.messages.detail.deleteConfirmBody}`,
-    );
+    const confirmed = await this.confirmDialog.confirm({
+      title: this.messages.detail.deleteConfirmTitle,
+      description: this.messages.detail.deleteConfirmBody,
+      confirmLabel: UI_MESSAGES.dialog.delete,
+      destructive: true,
+    });
     if (!confirmed) {
       return;
     }
@@ -175,11 +183,13 @@ export class ProjectDetailPage {
     this.projectsApi.softDelete(project.id).subscribe({
       next: () => {
         this.deleteSubmitting.set(false);
+        appToast.success(this.messages.detail.delete);
         void this.router.navigateByUrl('/projects');
       },
       error: (error: unknown) => {
         this.deleteSubmitting.set(false);
         this.deleteError.set(getApiErrorMessage(error));
+        appToast.error(getApiErrorMessage(error));
       },
     });
   }
