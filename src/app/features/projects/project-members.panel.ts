@@ -9,6 +9,9 @@ import { HlmFieldImports } from '@spartan-ng/helm/field';
 import { HlmInputImports } from '@spartan-ng/helm/input';
 
 import { getApiErrorMessage } from '../../core/api/api-error';
+import { ConfirmDialogService } from '../../core/ui/confirm-dialog.service';
+import { appToast } from '../../core/ui/toast';
+import { UI_MESSAGES } from '../../core/ui/ui.messages';
 import {
   type ProjectMemberResponseDto,
   type ProjectMemberRole,
@@ -40,6 +43,7 @@ export class ProjectMembersPanel {
   private readonly membersApi = inject(ProjectMembersApiService);
   private readonly store = inject(Store);
   private readonly router = inject(Router);
+  private readonly confirmDialog = inject(ConfirmDialogService);
 
   readonly messages = MEMBERS_MESSAGES;
   readonly currentUser = this.store.selectSignal(selectCurrentUser);
@@ -163,6 +167,7 @@ export class ProjectMembersPanel {
       next: () => {
         this.inviteSubmitting.set(false);
         this.inviteSuccess.set(this.messages.invite.success);
+        appToast.success(this.messages.invite.success);
         this.inviteModel.set({ email: '', role: 'MEMBER' });
         this.inviteShowErrors.set(false);
         this.load();
@@ -195,7 +200,7 @@ export class ProjectMembersPanel {
           this.actionUserId.set(null);
           this.load();
         },
-        error: (error: unknown) => {
+      error: (error: unknown) => {
           this.actionUserId.set(null);
           select.value = member.role;
           this.actionError.set(getApiErrorMessage(error));
@@ -203,20 +208,23 @@ export class ProjectMembersPanel {
       });
   }
 
-  onRemove(member: ProjectMemberResponseDto): void {
+  async onRemove(member: ProjectMemberResponseDto): Promise<void> {
     const self = this.isSelf(member);
     if (!self && !this.canManageMembers()) {
       return;
     }
 
-    const title = self
-      ? this.messages.confirm.leaveTitle
-      : this.messages.confirm.removeTitle;
-    const body = self
-      ? this.messages.confirm.leaveBody
-      : this.messages.confirm.removeBody;
-
-    if (!globalThis.confirm(`${title}\n\n${body}`)) {
+    const confirmed = await this.confirmDialog.confirm({
+      title: self
+        ? this.messages.confirm.leaveTitle
+        : this.messages.confirm.removeTitle,
+      description: self
+        ? this.messages.confirm.leaveBody
+        : this.messages.confirm.removeBody,
+      confirmLabel: self ? this.messages.actions.leave : UI_MESSAGES.dialog.delete,
+      destructive: true,
+    });
+    if (!confirmed) {
       return;
     }
 
@@ -227,28 +235,33 @@ export class ProjectMembersPanel {
       next: () => {
         this.actionUserId.set(null);
         if (self) {
+          appToast.success(this.messages.actions.leave);
           void this.router.navigateByUrl('/projects');
           return;
         }
+        appToast.success(this.messages.actions.remove);
         this.load();
       },
       error: (error: unknown) => {
         this.actionUserId.set(null);
         this.actionError.set(getApiErrorMessage(error));
+        appToast.error(getApiErrorMessage(error));
       },
     });
   }
 
-  onTransfer(member: ProjectMemberResponseDto): void {
+  async onTransfer(member: ProjectMemberResponseDto): Promise<void> {
     if (!this.isOwner() || this.isSelf(member) || member.role === 'OWNER') {
       return;
     }
 
-    if (
-      !globalThis.confirm(
-        `${this.messages.confirm.transferTitle}\n\n${this.messages.confirm.transferBody}`,
-      )
-    ) {
+    const confirmed = await this.confirmDialog.confirm({
+      title: this.messages.confirm.transferTitle,
+      description: this.messages.confirm.transferBody,
+      confirmLabel: this.messages.actions.transfer,
+      destructive: false,
+    });
+    if (!confirmed) {
       return;
     }
 
@@ -258,11 +271,13 @@ export class ProjectMembersPanel {
     this.membersApi.transferOwnership(this.projectId(), member.userId).subscribe({
       next: () => {
         this.actionUserId.set(null);
+        appToast.success(this.messages.actions.transfer);
         this.load();
       },
       error: (error: unknown) => {
         this.actionUserId.set(null);
         this.actionError.set(getApiErrorMessage(error));
+        appToast.error(getApiErrorMessage(error));
       },
     });
   }
