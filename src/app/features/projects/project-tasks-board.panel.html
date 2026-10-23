@@ -151,9 +151,16 @@
     } @else if (hasActiveFilters() && totalVisible() === 0) {
       <p class="text-muted-foreground text-sm">{{ messages.emptyFiltered }}</p>
     } @else {
-      <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+      <p class="text-muted-foreground text-xs">{{ messages.dnd.hint }}</p>
+      <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-4" cdkDropListGroup>
         @for (column of columns(); track column.status) {
-          <div class="bg-muted/30 flex min-h-48 flex-col gap-2 rounded-xl border p-3">
+          <div
+            class="bg-muted/30 flex min-h-48 flex-col gap-2 rounded-xl border p-3"
+            cdkDropList
+            [cdkDropListData]="column.status"
+            [id]="'col-' + column.status"
+            (cdkDropListDropped)="onTaskDrop($event)"
+          >
             <div class="flex items-center justify-between gap-2">
               <h3 class="text-sm font-semibold">{{ column.label }}</h3>
               <span class="text-muted-foreground text-xs">{{ column.tasks.length }}</span>
@@ -161,99 +168,103 @@
 
             @if (column.tasks.length === 0) {
               <p class="text-muted-foreground text-xs">{{ messages.emptyColumn }}</p>
-            } @else {
-              <ul class="flex flex-col gap-2">
-                @for (task of column.tasks; track task.id) {
-                  <li class="bg-card rounded-lg border p-3 shadow-xs">
-                    <a
-                      class="text-sm font-medium hover:underline focus-visible:ring-ring rounded-sm focus-visible:ring-2 focus-visible:outline-none"
-                      [routerLink]="['/projects', projectId(), 'tasks', task.id]"
-                    >
-                      {{ task.title }}
-                    </a>
-                    @if (task.description) {
-                      <p class="text-muted-foreground mt-1 line-clamp-2 text-xs">
-                        {{ task.description }}
-                      </p>
-                    }
-                    <div class="text-muted-foreground mt-2 flex flex-wrap gap-x-2 gap-y-1 text-xs">
-                      <span>{{ priorityLabel(task.priority) }}</span>
-                      @if (dueLabel(task); as due) {
-                        <span [class.text-destructive]="isOverdue(task)">{{ due }}</span>
-                      }
-                    </div>
-
-                    <div class="mt-3 flex flex-wrap items-center gap-2">
-                      <label class="sr-only" [attr.for]="'status-' + task.id">
-                        {{ messages.actions.changeStatus }}
-                      </label>
-                      <select
-                        class="border-input bg-input/30 h-8 min-w-0 flex-1 rounded-4xl border px-2 text-xs outline-none"
-                        [id]="'status-' + task.id"
-                        [value]="task.status"
-                        [disabled]="actionTaskId() === task.id"
-                        (change)="onStatusChange(task, $event)"
-                      >
-                        @for (status of statusOrder; track status) {
-                          <option [value]="status">{{ messages.status[status] }}</option>
-                        }
-                      </select>
-
-                      <button
-                        hlmBtn
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        (click)="toggleComments(task.id)"
-                      >
-                        {{
-                          isCommentsOpen(task.id)
-                            ? commentsMessages.close
-                            : commentsMessages.open
-                        }}
-                      </button>
-
-                      <button
-                        hlmBtn
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        (click)="toggleFiles(task.id)"
-                      >
-                        {{
-                          isFilesOpen(task.id)
-                            ? attachmentsMessages.close
-                            : attachmentsMessages.open
-                        }}
-                      </button>
-
-                      <button
-                        hlmBtn
-                        type="button"
-                        variant="destructive"
-                        size="sm"
-                        [disabled]="actionTaskId() === task.id"
-                        (click)="onDelete(task)"
-                      >
-                        {{
-                          actionTaskId() === task.id
-                            ? messages.actions.deleting
-                            : messages.actions.delete
-                        }}
-                      </button>
-                    </div>
-
-                    @if (isCommentsOpen(task.id)) {
-                      <sl-task-comments-panel [taskId]="task.id" />
-                    }
-
-                    @if (isFilesOpen(task.id)) {
-                      <sl-task-attachments-panel [taskId]="task.id" />
-                    }
-                  </li>
-                }
-              </ul>
             }
+            <ul class="flex min-h-24 flex-1 flex-col gap-2">
+              @for (task of column.tasks; track task.id) {
+                <li
+                  class="bg-card cursor-grab rounded-lg border p-3 shadow-xs active:cursor-grabbing"
+                  cdkDrag
+                  [cdkDragData]="task"
+                  [cdkDragDisabled]="actionTaskId() === task.id"
+                >
+                  <a
+                    class="text-sm font-medium hover:underline focus-visible:ring-ring rounded-sm focus-visible:ring-2 focus-visible:outline-none"
+                    [routerLink]="['/projects', projectId(), 'tasks', task.id]"
+                  >
+                    {{ task.title }}
+                  </a>
+                  @if (task.description) {
+                    <p class="text-muted-foreground mt-1 line-clamp-2 text-xs">
+                      {{ task.description }}
+                    </p>
+                  }
+                  <div class="text-muted-foreground mt-2 flex flex-wrap gap-x-2 gap-y-1 text-xs">
+                    <span>{{ priorityLabel(task.priority) }}</span>
+                    @if (dueLabel(task); as due) {
+                      <span [class.text-destructive]="isOverdue(task)">{{ due }}</span>
+                    }
+                  </div>
+
+                  <div class="mt-3 flex flex-wrap items-center gap-2">
+                    <label class="sr-only" [attr.for]="'status-' + task.id">
+                      {{ messages.actions.changeStatus }}
+                    </label>
+                    <select
+                      class="border-input bg-input/30 h-8 min-w-0 flex-1 rounded-4xl border px-2 text-xs outline-none"
+                      [id]="'status-' + task.id"
+                      [value]="task.status"
+                      [disabled]="actionTaskId() === task.id"
+                      (change)="onStatusChange(task, $event)"
+                    >
+                      @for (status of statusOrder; track status) {
+                        <option [value]="status">{{ messages.status[status] }}</option>
+                      }
+                    </select>
+
+                    <button
+                      hlmBtn
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      (click)="toggleComments(task.id)"
+                    >
+                      {{
+                        isCommentsOpen(task.id)
+                          ? commentsMessages.close
+                          : commentsMessages.open
+                      }}
+                    </button>
+
+                    <button
+                      hlmBtn
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      (click)="toggleFiles(task.id)"
+                    >
+                      {{
+                        isFilesOpen(task.id)
+                          ? attachmentsMessages.close
+                          : attachmentsMessages.open
+                      }}
+                    </button>
+
+                    <button
+                      hlmBtn
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      [disabled]="actionTaskId() === task.id"
+                      (click)="onDelete(task)"
+                    >
+                      {{
+                        actionTaskId() === task.id
+                          ? messages.actions.deleting
+                          : messages.actions.delete
+                      }}
+                    </button>
+                  </div>
+
+                  @if (isCommentsOpen(task.id)) {
+                    <sl-task-comments-panel [taskId]="task.id" />
+                  }
+
+                  @if (isFilesOpen(task.id)) {
+                    <sl-task-attachments-panel [taskId]="task.id" />
+                  }
+                </li>
+              }
+            </ul>
           </div>
         }
       </div>
