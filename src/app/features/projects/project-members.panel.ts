@@ -8,26 +8,23 @@ import { HlmCardImports } from '@spartan-ng/helm/card';
 import { HlmFieldImports } from '@spartan-ng/helm/field';
 import { HlmInputImports } from '@spartan-ng/helm/input';
 
-import { getApiErrorMessage } from '../../core/api/api-error';
 import { ConfirmDialogService } from '../../core/ui/confirm-dialog.service';
 import { appToast } from '../../core/ui/toast';
 import { UI_MESSAGES } from '../../core/ui/ui.messages';
 import {
   type ProjectMemberResponseDto,
   type ProjectMemberRole,
-  ProjectMembersApiService,
 } from '../../core/projects/project-members-api.service';
 import { UserActions } from '../../core/users/user.actions';
 import { selectCurrentUser } from '../../core/users/user.reducer';
 import { firstFieldErrorMessage } from '../auth/auth.form-utils';
 import { MEMBERS_MESSAGES } from './members.messages';
 import { inviteMemberSchema, type InviteMemberModel } from './members.schemas';
-
-const DEFAULT_PAGE = 1 as const;
-const DEFAULT_LIMIT = 50 as const;
+import { ProjectMembersStore } from './project-members.store';
 
 @Component({
   selector: 'sl-project-members-panel',
+  providers: [ProjectMembersStore],
   imports: [
     FormField,
     ...HlmButtonImports,
@@ -40,25 +37,24 @@ const DEFAULT_LIMIT = 50 as const;
 export class ProjectMembersPanel {
   readonly projectId = input.required<string>();
 
-  private readonly membersApi = inject(ProjectMembersApiService);
-  private readonly store = inject(Store);
+  private readonly membersStore = inject(ProjectMembersStore);
+  private readonly ngrxStore = inject(Store);
   private readonly router = inject(Router);
   private readonly confirmDialog = inject(ConfirmDialogService);
 
   readonly messages = MEMBERS_MESSAGES;
-  readonly currentUser = this.store.selectSignal(selectCurrentUser);
+  readonly currentUser = this.ngrxStore.selectSignal(selectCurrentUser);
 
-  readonly members = signal<ProjectMemberResponseDto[]>([]);
-  readonly loadStatus = signal<'idle' | 'loading' | 'success' | 'error'>('idle');
-  readonly loadError = signal<string | null>(null);
+  readonly members = this.membersStore.members;
+  readonly loadStatus = this.membersStore.loadStatus;
+  readonly loadError = this.membersStore.loadError;
+  readonly actionUserId = this.membersStore.actionUserId;
+  readonly actionError = this.membersStore.actionError;
 
   readonly inviteShowErrors = signal(false);
   readonly inviteSubmitting = signal(false);
   readonly inviteServerError = signal<string | null>(null);
   readonly inviteSuccess = signal<string | null>(null);
-
-  readonly actionUserId = signal<string | null>(null);
-  readonly actionError = signal<string | null>(null);
 
   private readonly inviteModel = signal<InviteMemberModel>({
     email: '',
@@ -88,7 +84,7 @@ export class ProjectMembersPanel {
 
   constructor() {
     if (!this.currentUser()) {
-      this.store.dispatch(UserActions.loadMe());
+      this.ngrxStore.dispatch(UserActions.loadMe());
     }
 
     effect(() => {
@@ -97,29 +93,13 @@ export class ProjectMembersPanel {
         return;
       }
       this.loadedForProjectId.set(projectId);
-      this.load();
+      this.membersStore.setProjectId(projectId);
+      this.membersStore.load();
     });
   }
 
-  load(page: number = DEFAULT_PAGE): void {
-    const projectId = this.projectId();
-    if (!projectId) {
-      return;
-    }
-
-    this.loadStatus.set('loading');
-    this.loadError.set(null);
-
-    this.membersApi.findAll(projectId, { page, limit: DEFAULT_LIMIT }).subscribe({
-      next: (response) => {
-        this.members.set(response.data);
-        this.loadStatus.set('success');
-      },
-      error: (error: unknown) => {
-        this.loadStatus.set('error');
-        this.loadError.set(getApiErrorMessage(error));
-      },
-    });
+  load(): void {
+    this.membersStore.load();
   }
 
   displayName(member: ProjectMemberResponseDto): string {
@@ -163,20 +143,22 @@ export class ProjectMembersPanel {
     this.inviteSubmitting.set(true);
     const { email, role } = this.inviteModel();
 
-    this.membersApi.add(this.projectId(), { email, role }).subscribe({
-      next: () => {
-        this.inviteSubmitting.set(false);
-        this.inviteSuccess.set(this.messages.invite.success);
-        appToast.success(this.messages.invite.success);
-        this.inviteModel.set({ email: '', role: 'MEMBER' });
-        this.inviteShowErrors.set(false);
-        this.load();
+    this.membersStore.invite(
+      { email, role },
+      {
+        onSuccess: () => {
+          this.inviteSubmitting.set(false);
+          this.inviteSuccess.set(this.messages.invite.success);
+          appToast.success(this.messages.invite.success);
+          this.inviteModel.set({ email: '', role: 'MEMBER' });
+          this.inviteShowErrors.set(false);
+        },
+        onError: (message) => {
+          this.inviteSubmitting.set(false);
+          this.inviteServerError.set(message);
+        },
       },
-      error: (error: unknown) => {
-        this.inviteSubmitting.set(false);
-        this.inviteServerError.set(getApiErrorMessage(error));
-      },
-    });
+    );
   }
 
   onRoleChange(member: ProjectMemberResponseDto, event: Event): void {
@@ -190,22 +172,11 @@ export class ProjectMembersPanel {
       return;
     }
 
-    this.actionError.set(null);
-    this.actionUserId.set(member.userId);
-
-    this.membersApi
-      .updateRole(this.projectId(), member.userId, { role })
-      .subscribe({
-        next: () => {
-          this.actionUserId.set(null);
-          this.load();
-        },
-      error: (error: unknown) => {
-          this.actionUserId.set(null);
-          select.value = member.role;
-          this.actionError.set(getApiErrorMessage(error));
-        },
-      });
+    this.membersStore.updateRole(member, role, {
+      onError: () => {
+        select.value = member.role;
+      },
+    });
   }
 
   async onRemove(member: ProjectMemberResponseDto): Promise<void> {
@@ -228,25 +199,16 @@ export class ProjectMembersPanel {
       return;
     }
 
-    this.actionError.set(null);
-    this.actionUserId.set(member.userId);
-
-    this.membersApi.remove(this.projectId(), member.userId).subscribe({
-      next: () => {
-        this.actionUserId.set(null);
+    this.membersStore.remove(member.userId, {
+      onSuccess: () => {
         if (self) {
           appToast.success(this.messages.actions.leave);
           void this.router.navigateByUrl('/projects');
           return;
         }
         appToast.success(this.messages.actions.remove);
-        this.load();
       },
-      error: (error: unknown) => {
-        this.actionUserId.set(null);
-        this.actionError.set(getApiErrorMessage(error));
-        appToast.error(getApiErrorMessage(error));
-      },
+      onError: (message) => appToast.error(message),
     });
   }
 
@@ -265,20 +227,9 @@ export class ProjectMembersPanel {
       return;
     }
 
-    this.actionError.set(null);
-    this.actionUserId.set(member.userId);
-
-    this.membersApi.transferOwnership(this.projectId(), member.userId).subscribe({
-      next: () => {
-        this.actionUserId.set(null);
-        appToast.success(this.messages.actions.transfer);
-        this.load();
-      },
-      error: (error: unknown) => {
-        this.actionUserId.set(null);
-        this.actionError.set(getApiErrorMessage(error));
-        appToast.error(getApiErrorMessage(error));
-      },
+    this.membersStore.transferOwnership(member.userId, {
+      onSuccess: () => appToast.success(this.messages.actions.transfer),
+      onError: (message) => appToast.error(message),
     });
   }
 }
