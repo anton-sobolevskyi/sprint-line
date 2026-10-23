@@ -7,6 +7,9 @@ import { HlmFieldImports } from '@spartan-ng/helm/field';
 import { HlmTextareaImports } from '@spartan-ng/helm/textarea';
 
 import { getApiErrorMessage } from '../../core/api/api-error';
+import { ConfirmDialogService } from '../../core/ui/confirm-dialog.service';
+import { appToast } from '../../core/ui/toast';
+import { UI_MESSAGES } from '../../core/ui/ui.messages';
 import {
   type CommentResponseDto,
   CommentsApiService,
@@ -32,6 +35,7 @@ export class TaskCommentsPanel {
 
   private readonly commentsApi = inject(CommentsApiService);
   private readonly store = inject(Store);
+  private readonly confirmDialog = inject(ConfirmDialogService);
 
   readonly messages = COMMENTS_MESSAGES;
   readonly currentUser = this.store.selectSignal(selectCurrentUser);
@@ -140,6 +144,7 @@ export class TaskCommentsPanel {
         this.createModel.set({ content: '' });
         this.createShowErrors.set(false);
         this.comments.update((list) => [...list, created]);
+        appToast.success(this.messages.create.submit);
       },
       error: (error: unknown) => {
         this.createSubmitting.set(false);
@@ -192,16 +197,18 @@ export class TaskCommentsPanel {
     });
   }
 
-  onDelete(comment: CommentResponseDto): void {
+  async onDelete(comment: CommentResponseDto): Promise<void> {
     if (!this.isAuthor(comment)) {
       return;
     }
 
-    if (
-      !globalThis.confirm(
-        `${this.messages.confirm.deleteTitle}\n\n${this.messages.confirm.deleteBody}`,
-      )
-    ) {
+    const confirmed = await this.confirmDialog.confirm({
+      title: this.messages.confirm.deleteTitle,
+      description: this.messages.confirm.deleteBody,
+      confirmLabel: UI_MESSAGES.dialog.delete,
+      destructive: true,
+    });
+    if (!confirmed) {
       return;
     }
 
@@ -215,10 +222,12 @@ export class TaskCommentsPanel {
           this.cancelEdit();
         }
         this.comments.update((list) => list.filter((item) => item.id !== comment.id));
+        appToast.success(this.messages.actions.delete);
       },
       error: (error: unknown) => {
         this.actionId.set(null);
         this.actionError.set(getApiErrorMessage(error));
+        appToast.error(getApiErrorMessage(error));
       },
     });
   }
