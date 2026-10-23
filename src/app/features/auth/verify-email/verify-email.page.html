@@ -1,0 +1,30 @@
+<main class="bg-background flex min-h-svh items-center justify-center p-4">
+  <section hlmCard class="w-full max-w-md">
+    <header hlmCardHeader>
+      <p class="text-muted-foreground text-xs font-medium tracking-wide uppercase">
+        {{ messages.brand }}
+      </p>
+      <h1 hlmCardTitle>{{ messages.verifyEmail.title }}</h1>
+      <p hlmCardDescription>{{ messages.verifyEmail.description }}</p>
+    </header>
+
+    <div hlmCardContent class="flex flex-col gap-4">
+      @if (status() === 'loading') {
+        <p class="text-muted-foreground text-sm">{{ messages.verifyEmail.description }}</p>
+      } @else if (status() === 'success') {
+        <p class="text-sm" role="status">{{ messages.verifyEmail.success }}</p>
+      } @else if (status() === 'error') {
+        <p class="text-destructive text-sm" role="alert">{{ errorMessage() }}</p>
+      }
+
+      <div class="flex flex-wrap gap-2">
+        @if (isAuthenticated()) {
+          <a hlmBtn routerLink="/">{{ messages.verifyEmail.goHome }}</a>
+          <a hlmBtn variant="outline" routerLink="/profile">Profile</a>
+        } @else {
+          <a hlmBtn routerLink="/login">{{ messages.verifyEmail.goToLogin }}</a>
+        }
+      </div>
+    </div>
+  </section>
+</main>

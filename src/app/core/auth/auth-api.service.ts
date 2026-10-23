@@ -9,6 +9,9 @@ import { AuthSessionService } from './auth-session.service';
 type RegisterDto = components['schemas']['RegisterDto'];
 type LoginDto = components['schemas']['LoginDto'];
 type AuthResponseDto = components['schemas']['AuthResponseDto'];
+type ForgotPasswordDto = components['schemas']['ForgotPasswordDto'];
+type ResetPasswordDto = components['schemas']['ResetPasswordDto'];
+type TokenDto = components['schemas']['TokenDto'];
 
 /**
  * Thin HTTP wrapper for /auth/* endpoints.
@@ -51,5 +54,32 @@ export class AuthApiService {
 
   refresh(): Observable<AuthResponseDto> {
     return this.authSession.refresh();
+  }
+
+  /** Always 204 — does not reveal whether the email exists. */
+  forgotPassword(dto: ForgotPasswordDto): Observable<void> {
+    const url = API_ENDPOINTS.auth.forgotPassword;
+    return this.http.post<void>(url, dto);
+  }
+
+  /**
+   * Sets a new password from the e-mailed token (204).
+   * Backend revokes all refresh tokens for the account.
+   */
+  resetPassword(dto: ResetPasswordDto): Observable<void> {
+    const url = API_ENDPOINTS.auth.resetPassword;
+    return this.http.post<void>(url, dto);
+  }
+
+  /** Confirms e-mail with the e-mailed token (204). */
+  verifyEmail(dto: TokenDto): Observable<void> {
+    const url = API_ENDPOINTS.auth.verifyEmail;
+    return this.http.post<void>(url, dto);
+  }
+
+  /** Authenticated: send verification e-mail again (204). */
+  resendVerification(): Observable<void> {
+    const url = API_ENDPOINTS.auth.resendVerification;
+    return this.http.post<void>(url, null);
   }
 }

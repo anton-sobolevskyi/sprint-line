@@ -17,41 +17,44 @@ Step-by-step frontend plan for [management_app_backend](https://github.com/anton
 | Submit buttons | Disabled when `form().invalid()` or request in flight |
 | Endpoints | `API_PATHS` / `API_ENDPOINTS` (`as const`) |
 | Copy | `*.messages.ts` (`as const`, i18n-ready) |
-| OpenAPI types | `src/core/api/generated/schema.d.ts` (generated) → re-exported as `src/types/api.schema.d.ts` |
+| OpenAPI types | `src/core/api/generated/schema.d.ts` → re-exported as `src/types/api.schema.d.ts` |
 
 ---
 
-## OpenAPI schema notes (2026-10-22)
+## OpenAPI schema notes
 
-Regenerated schema on `feature/projects-phase-3` (`src/core/api/generated/schema.d.ts`).
+**Source of truth:** `src/core/api/generated/schema.d.ts`  
+**App imports:** `import type { components } from '.../types/api.schema'`
 
-### Breaking / important changes vs previous frontend assumptions
+### 2026-10-23 update
 
-| Endpoint | Change | Frontend impact |
-|----------|--------|-----------------|
-| `GET /projects` | Response is **`PaginatedProjectResponseDto`** `{ data, meta }`, not a bare array | `ProjectsApiService.findAll` + list page updated |
-| `GET /projects` query | Optional `page`, `limit` | Passed as `HttpParams` |
-| Members list | `PaginatedProjectMemberResponseDto` | Use in Phase 4 |
-| Tasks / comments lists | Paginated wrappers | Use in Phase 5–6 |
-| `GET /attachments/{id}/download` | Signed URL (`DownloadUrlResponseDto`) | Path already correct in `API_ENDPOINTS` |
-| Avatar upload | `POST /users/avatar`, multipart field **`file`** | Unchanged |
+| Area | Change | Frontend |
+|------|--------|----------|
+| Auth | `POST /auth/forgot-password` (always 204) | `AuthApiService.forgotPassword`, `/forgot-password` |
+| Auth | `POST /auth/reset-password` (`token` + `newPassword`, 204) | `/reset-password?token=` |
+| Auth | `POST /auth/verify-email` (`token`, 204) | `/verify-email?token=` |
+| Auth | `POST /auth/resend-verification` (auth required, 204) | Profile resend button |
+| User | `UserResponseDto.emailVerifiedAt?: string \| null` | Profile verified status |
+| Projects | List remains `PaginatedProjectResponseDto` | Already aligned |
+| Projects | `memberCount` + members cap (20 list / 100 detail) | Docs only |
 
-### Pagination meta shape
+**Public auth paths** (no 401 refresh loop): register, login, refresh, logout, forgot-password, reset-password, verify-email.  
+**Not public:** `resend-verification` (needs Bearer).
 
-```ts
-PaginationMetaDto: { total, page, limit, totalPages }
-```
+Email reset/verify links are expected as `?token=` query params.
 
-### Project list payload notes
+### 2026-10-22 update
 
-- Each project may include up to **20** `members` plus **`memberCount`**.
-- Full member list: `GET /projects/{projectId}/members` (paginated).
+| Endpoint | Change |
+|----------|--------|
+| `GET /projects` | `{ data, meta }` + optional `page` / `limit` |
+| Members / tasks / comments lists | Paginated wrappers |
 
 ### After regenerating schema
 
-1. Overwrite `src/core/api/generated/schema.d.ts` from backend OpenAPI (`openapi-typescript`).
-2. Keep `src/types/api.schema.d.ts` as `export type * from '../core/api/generated/schema'`.
-3. Fix any TypeScript errors in API services / pages.
+1. Replace `src/core/api/generated/schema.d.ts`.
+2. Keep `src/types/api.schema.d.ts` as `export * from '../core/api/generated/schema'`.
+3. Fix TypeScript in API services and pages.
 
 ---
 
@@ -62,33 +65,26 @@ PaginationMetaDto: { total, page, limit, totalPages }
 | Step | Status |
 |------|--------|
 | 0.1 API client + interceptors | **Done** |
-| 0.2 OpenAPI types | **Done** (generated + re-export) |
+| 0.2 OpenAPI types | **Done** |
 | 0.3 Global Sonner toast | Pending |
-| 0.4 Design tokens (status/priority) | Partial |
+| 0.4 Design tokens | Partial |
 | 0.5 Helm aliases | **Done** |
 
-### Phase 1 — Authentication — **Done**
+### Phase 1 — Authentication — **Done** (+ email flows)
 
-Login / register (Signal Forms + Zod), auth store, guards, session restore, logout.
+Login, register, guards, session restore, logout, **forgot / reset / verify email**.
 
 ### Phase 2 — Profile — **Done**
 
-`/profile`, password change (re-login), avatar, delete account, NgRx `user` feature.
+Account details, password change, avatar, delete, **emailVerifiedAt + resend**.
 
-### Phase 3 — Projects — **Done** (aligned with paginated schema)
+### Phase 3 — Projects — **Done**
 
-| Item | Status |
-|------|--------|
-| 3.1 Projects list | **Done** (`data` + `meta`) |
-| 3.2 Create project | **Done** |
-| 3.3 Project hub shell `/projects/:id` | **Done** |
-| 3.4 Update / soft-delete | **Done** |
-| 3.5 Empty / loading / error states | **Done** |
-| List UI pagination controls | Optional follow-up (API ready) |
+List (paginated), create, detail settings, soft-delete.
 
 ### Phase 4 — Members — **Next**
 
-Invite, roles, remove, transfer ownership — use `PaginatedProjectMemberResponseDto`.
+Invite, roles, remove, transfer — `PaginatedProjectMemberResponseDto`.
 
 ### Later
 
@@ -120,4 +116,4 @@ npm run lint && npm run typecheck && npm run test:ci
 
 ---
 
-*Last updated: 2026-10-22 — schema pagination alignment on `feature/projects-phase-3`.*
+*Last updated: 2026-10-23 — email verification & password-reset flows aligned with API schema on `feature/projects-phase-3`.*

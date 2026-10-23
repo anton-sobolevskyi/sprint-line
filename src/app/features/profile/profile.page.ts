@@ -9,6 +9,7 @@ import { HlmFieldImports } from '@spartan-ng/helm/field';
 import { HlmInputImports } from '@spartan-ng/helm/input';
 
 import { getApiErrorMessage } from '../../core/api/api-error';
+import { AuthApiService } from '../../core/auth/auth-api.service';
 import { AuthSessionService } from '../../core/auth/auth-session.service';
 import { UserActions } from '../../core/users/user.actions';
 import {
@@ -41,6 +42,7 @@ import {
 export class ProfilePage {
   private readonly store = inject(Store);
   private readonly usersApi = inject(UsersApiService);
+  private readonly authApi = inject(AuthApiService);
   private readonly authSession = inject(AuthSessionService);
   private readonly router = inject(Router);
 
@@ -65,6 +67,10 @@ export class ProfilePage {
 
   readonly deleteSubmitting = signal(false);
   readonly deleteError = signal<string | null>(null);
+
+  readonly resendSubmitting = signal(false);
+  readonly resendError = signal<string | null>(null);
+  readonly resendSuccess = signal<string | null>(null);
 
   private readonly detailsModel = signal<ProfileDetailsModel>({
     name: '',
@@ -98,6 +104,11 @@ export class ProfilePage {
       this.syncedUserId.set(user.id);
       this.detailsModel.set({ name: user.name, email: user.email });
     });
+  }
+
+  isEmailVerified(): boolean {
+    const verifiedAt = this.currentUser()?.emailVerifiedAt;
+    return verifiedAt != null && verifiedAt.length > 0;
   }
 
   reload(): void {
@@ -138,12 +149,34 @@ export class ProfilePage {
     this.usersApi.updateMe(dto).subscribe({
       next: (user) => {
         this.detailsSubmitting.set(false);
+        this.syncedUserId.set(null);
         this.store.dispatch(UserActions.setCurrentUser({ user }));
         this.detailsSuccess.set(this.messages.profileSection.success);
       },
       error: (error: unknown) => {
         this.detailsSubmitting.set(false);
         this.detailsServerError.set(getApiErrorMessage(error));
+      },
+    });
+  }
+
+  onResendVerification(): void {
+    if (this.resendSubmitting() || this.isEmailVerified()) {
+      return;
+    }
+
+    this.resendError.set(null);
+    this.resendSuccess.set(null);
+    this.resendSubmitting.set(true);
+
+    this.authApi.resendVerification().subscribe({
+      next: () => {
+        this.resendSubmitting.set(false);
+        this.resendSuccess.set(this.messages.profileSection.resendSuccess);
+      },
+      error: (error: unknown) => {
+        this.resendSubmitting.set(false);
+        this.resendError.set(getApiErrorMessage(error));
       },
     });
   }

@@ -75,6 +75,34 @@
             }
           </div>
 
+          <div class="flex flex-col gap-2">
+            @if (isEmailVerified()) {
+              <p class="text-muted-foreground text-sm">{{ messages.profileSection.emailVerified }}</p>
+            } @else {
+              <p class="text-muted-foreground text-sm">{{ messages.profileSection.emailUnverified }}</p>
+              @if (resendError(); as error) {
+                <p class="text-destructive text-sm" role="alert">{{ error }}</p>
+              }
+              @if (resendSuccess(); as success) {
+                <p class="text-sm" role="status">{{ success }}</p>
+              }
+              <button
+                hlmBtn
+                type="button"
+                variant="outline"
+                class="self-start"
+                [disabled]="resendSubmitting()"
+                (click)="onResendVerification()"
+              >
+                {{
+                  resendSubmitting()
+                    ? messages.profileSection.resending
+                    : messages.profileSection.resendVerification
+                }}
+              </button>
+            }
+          </div>
+
           <button
             hlmBtn
             type="submit"
