@@ -1,0 +1,51 @@
+export const MEMBERS_MESSAGES = {
+  title: 'Members',
+  description: 'People who can access this project.',
+  loading: 'Loading members…',
+  retry: 'Try again',
+  empty: 'No members found.',
+  you: 'You',
+  columns: {
+    name: 'Name',
+    email: 'Email',
+    role: 'Role',
+    actions: 'Actions',
+  },
+  roles: {
+    OWNER: 'Owner',
+    ADMIN: 'Admin',
+    MEMBER: 'Member',
+  },
+  invite: {
+    title: 'Invite member',
+    emailLabel: 'Email',
+    emailPlaceholder: 'teammate@example.com',
+    roleLabel: 'Role',
+    submit: 'Invite',
+    submitting: 'Inviting…',
+    success: 'Member invited.',
+  },
+  actions: {
+    remove: 'Remove',
+    removing: 'Removing…',
+    leave: 'Leave project',
+    leaving: 'Leaving…',
+    transfer: 'Make owner',
+    transferring: 'Transferring…',
+    changeRole: 'Change role',
+  },
+  confirm: {
+    removeTitle: 'Remove this member?',
+    removeBody: 'They will lose access to the project.',
+    leaveTitle: 'Leave this project?',
+    leaveBody: 'You will lose access until someone invites you again.',
+    transferTitle: 'Transfer ownership?',
+    transferBody:
+      'You will become an Admin. The selected member becomes the new Owner.',
+  },
+  validation: {
+    emailRequired: 'Email is required.',
+    emailInvalid: 'Enter a valid email address.',
+    roleRequired: 'Choose a role.',
+  },
+} as const;
