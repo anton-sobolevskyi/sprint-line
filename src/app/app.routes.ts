@@ -68,6 +68,13 @@ export const routes: Routes = [
             (m) => m.ProjectDetailPage,
           ),
       },
+      {
+        path: 'projects/:projectId/tasks/:taskId',
+        loadComponent: () =>
+          import('./features/projects/task-detail.page').then(
+            (m) => m.TaskDetailPage,
+          ),
+      },
     ],
   },
   {

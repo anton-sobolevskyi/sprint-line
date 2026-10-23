@@ -107,7 +107,12 @@
               <ul class="flex flex-col gap-2">
                 @for (task of column.tasks; track task.id) {
                   <li class="bg-card rounded-lg border p-3 shadow-xs">
-                    <p class="text-sm font-medium">{{ task.title }}</p>
+                    <a
+                      class="text-sm font-medium hover:underline focus-visible:ring-ring rounded-sm focus-visible:ring-2 focus-visible:outline-none"
+                      [routerLink]="['/projects', projectId(), 'tasks', task.id]"
+                    >
+                      {{ task.title }}
+                    </a>
                     @if (task.description) {
                       <p class="text-muted-foreground mt-1 line-clamp-2 text-xs">
                         {{ task.description }}

@@ -1,5 +1,6 @@
 import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { form, FormField, validateStandardSchema } from '@angular/forms/signals';
+import { RouterLink } from '@angular/router';
 
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmCardImports } from '@spartan-ng/helm/card';
@@ -31,6 +32,7 @@ const DEFAULT_LIMIT = 100 as const;
   selector: 'sl-project-tasks-board-panel',
   imports: [
     FormField,
+    RouterLink,
     TaskCommentsPanel,
     TaskAttachmentsPanel,
     ...HlmButtonImports,
