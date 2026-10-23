@@ -1,11 +1,12 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { form, FormField, validateStandardSchema } from '@angular/forms/signals';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmCardImports } from '@spartan-ng/helm/card';
 import { HlmFieldImports } from '@spartan-ng/helm/field';
 import { HlmInputImports } from '@spartan-ng/helm/input';
+import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
 import { HlmTextareaImports } from '@spartan-ng/helm/textarea';
 
 import { getApiErrorMessage } from '../../core/api/api-error';
@@ -33,6 +34,7 @@ const DEFAULT_LIMIT = 20 as const;
     ...HlmCardImports,
     ...HlmFieldImports,
     ...HlmInputImports,
+    ...HlmSkeletonImports,
     ...HlmTextareaImports,
   ],
   templateUrl: './projects-list.page.html',
@@ -40,6 +42,7 @@ const DEFAULT_LIMIT = 20 as const;
 export class ProjectsListPage implements OnInit {
   private readonly projectsApi = inject(ProjectsApiService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   readonly messages = PROJECTS_MESSAGES;
 
@@ -63,6 +66,15 @@ export class ProjectsListPage implements OnInit {
   });
 
   ngOnInit(): void {
+    if (this.route.snapshot.queryParamMap.get('new') === '1') {
+      this.showCreate.set(true);
+      void this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: { new: null },
+        queryParamsHandling: 'merge',
+        replaceUrl: true,
+      });
+    }
     this.load();
   }
 
@@ -83,15 +95,10 @@ export class ProjectsListPage implements OnInit {
     });
   }
 
-  openCreate(): void {
+  toggleCreate(): void {
+    this.showCreate.update((open) => !open);
     this.createServerError.set(null);
     this.createShowErrors.set(false);
-    this.createModel.set({ name: '', description: '' });
-    this.showCreate.set(true);
-  }
-
-  closeCreate(): void {
-    this.showCreate.set(false);
   }
 
   createFieldError(field: 'name' | 'description'): string | null {
@@ -113,25 +120,30 @@ export class ProjectsListPage implements OnInit {
 
     this.createSubmitting.set(true);
     const { name, description } = this.createModel();
-    const dto = {
-      name,
-      ...(description.trim().length > 0 ? { description: description.trim() } : {}),
-    };
 
-    this.projectsApi.create(dto).subscribe({
-      next: (project) => {
-        this.createSubmitting.set(false);
-        this.showCreate.set(false);
-        void this.router.navigate(['/projects', project.id]);
-      },
-      error: (error: unknown) => {
-        this.createSubmitting.set(false);
-        this.createServerError.set(getApiErrorMessage(error));
-      },
-    });
+    this.projectsApi
+      .create({
+        name,
+        ...(description.trim().length > 0
+          ? { description: description.trim() }
+          : {}),
+      })
+      .subscribe({
+        next: (project) => {
+          this.createSubmitting.set(false);
+          this.showCreate.set(false);
+          this.createModel.set({ name: '', description: '' });
+          this.createShowErrors.set(false);
+          void this.router.navigate(['/projects', project.id]);
+        },
+        error: (error: unknown) => {
+          this.createSubmitting.set(false);
+          this.createServerError.set(getApiErrorMessage(error));
+        },
+      });
   }
 
-  memberCount(project: ProjectResponseDto): number {
-    return project.memberCount ?? project.members?.length ?? 0;
+  goToPage(page: number): void {
+    this.load(page);
   }
 }

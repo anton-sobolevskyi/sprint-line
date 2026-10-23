@@ -4,6 +4,7 @@ import { Store } from '@ngrx/store';
 
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmCardImports } from '@spartan-ng/helm/card';
+import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
 
 import { getApiErrorMessage } from '../../core/api/api-error';
 import {
@@ -18,7 +19,7 @@ const RECENT_LIMIT = 6 as const;
 
 @Component({
   selector: 'sl-home-page',
-  imports: [RouterLink, ...HlmButtonImports, ...HlmCardImports],
+  imports: [RouterLink, ...HlmButtonImports, ...HlmCardImports, ...HlmSkeletonImports],
   templateUrl: './home.page.html',
 })
 export class HomePage implements OnInit {

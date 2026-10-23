@@ -5,7 +5,13 @@
   </header>
 
   @if (loadStatus() === 'loading' && projects().length === 0) {
-    <p class="text-muted-foreground text-sm">{{ messages.loading }}</p>
+    <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-busy="true">
+      <div hlmSkeleton class="h-28 w-full"></div>
+      <div hlmSkeleton class="h-28 w-full sm:col-span-1 lg:col-span-2"></div>
+      <div hlmSkeleton class="h-24 w-full"></div>
+      <div hlmSkeleton class="h-24 w-full"></div>
+      <div hlmSkeleton class="h-24 w-full"></div>
+    </section>
   } @else if (loadStatus() === 'error' && projects().length === 0) {
     <section hlmCard>
       <div hlmCardContent class="flex flex-col gap-3 py-6">
@@ -54,7 +60,9 @@
           <div hlmCardContent class="flex flex-col items-start gap-3 py-8">
             <h3 class="font-medium">{{ messages.recent.emptyTitle }}</h3>
             <p class="text-muted-foreground text-sm">{{ messages.recent.emptyBody }}</p>
-            <a hlmBtn routerLink="/projects">{{ messages.recent.emptyAction }}</a>
+            <a hlmBtn routerLink="/projects" [queryParams]="{ new: '1' }">
+              {{ messages.recent.emptyAction }}
+            </a>
           </div>
         </section>
       } @else {

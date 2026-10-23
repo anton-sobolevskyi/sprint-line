@@ -30,26 +30,15 @@ Step-by-step frontend plan for [management_app_backend](https://github.com/anton
 | Confirm + toasts | **Done** |
 | Task detail | **Done** |
 | Board filters | **Done** |
-| Board drag-and-drop | **Done** (`feat/board-dnd`) |
+| Board drag-and-drop | **Done** |
+| Shell polish | **Done** (`improve/shell-polish`) |
 | Next (optional) | SignalStores, e2e |
 
-### Board filters
+### Shell polish
 
-Server-side via `GET /projects/:id/tasks`:
-
-| Filter | Query param |
-|--------|-------------|
-| Search | `q` |
-| Assigned to me | `assignedToId` = current user |
-| Overdue only | `dueBefore` = now (ISO) |
-
-UI: Apply / Clear. Cards show due date (destructive style when overdue).
-
-### Board drag-and-drop
-
-- Angular CDK `cdkDropListGroup` / `cdkDrag`
-- Drop on another column → optimistic `PATCH` status, rollback on error
-- Same-column reorder ignored (status-only)
+- Email verification banner when `emailVerifiedAt` is empty (resend + profile link)
+- Dashboard “New project” uses `?new=1` → projects list opens create form
+- Home / projects loading use `hlm-skeleton`
 
 ---
 
@@ -65,4 +54,4 @@ UI: Apply / Clear. Cards show due date (destructive style when overdue).
 
 ---
 
-*Last updated: 2026-10-23 — board drag-and-drop.*
+*Last updated: 2026-10-23 — shell polish.*
