@@ -39,27 +39,36 @@ export const routes: Routes = [
       ),
   },
   {
-    path: 'profile',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/profile/profile.page').then((m) => m.ProfilePage),
-  },
-  {
-    path: 'projects',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/projects/projects-list.page').then((m) => m.ProjectsListPage),
-  },
-  {
-    path: 'projects/:id',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/projects/project-detail.page').then((m) => m.ProjectDetailPage),
-  },
-  {
     path: '',
     canActivate: [authGuard],
-    loadComponent: () => import('./features/home/home.page').then((m) => m.HomePage),
+    loadComponent: () =>
+      import('./layout/app-shell.layout').then((m) => m.AppShellLayout),
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import('./features/home/home.page').then((m) => m.HomePage),
+      },
+      {
+        path: 'profile',
+        loadComponent: () =>
+          import('./features/profile/profile.page').then((m) => m.ProfilePage),
+      },
+      {
+        path: 'projects',
+        loadComponent: () =>
+          import('./features/projects/projects-list.page').then(
+            (m) => m.ProjectsListPage,
+          ),
+      },
+      {
+        path: 'projects/:id',
+        loadComponent: () =>
+          import('./features/projects/project-detail.page').then(
+            (m) => m.ProjectDetailPage,
+          ),
+      },
+    ],
   },
   {
     path: '**',

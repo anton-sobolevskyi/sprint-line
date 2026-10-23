@@ -1,21 +1,84 @@
-<main class="bg-background flex min-h-svh items-center justify-center p-4">
-  <section hlmCard class="w-full max-w-lg">
-    <header hlmCardHeader>
-      <h1 hlmCardTitle>{{ messages.home.title }}</h1>
-      <p hlmCardDescription>{{ messages.home.body }}</p>
-    </header>
-    <footer hlmCardFooter class="flex flex-wrap gap-2">
-      <a hlmBtn routerLink="/projects">Projects</a>
-      <a hlmBtn variant="outline" routerLink="/profile">Profile</a>
-      <button
-        hlmBtn
-        variant="outline"
-        type="button"
-        [disabled]="isLoggingOut()"
-        (click)="logout()"
-      >
-        {{ isLoggingOut() ? messages.home.loggingOut : messages.home.logout }}
-      </button>
-    </footer>
-  </section>
+<main class="mx-auto flex w-full max-w-6xl flex-col gap-8 p-4 py-8 md:p-8">
+  <header class="flex flex-col gap-1">
+    <h1 class="text-2xl font-semibold tracking-tight">{{ greeting() }}</h1>
+    <p class="text-muted-foreground text-sm">{{ messages.subtitle }}</p>
+  </header>
+
+  @if (loadStatus() === 'loading' && projects().length === 0) {
+    <p class="text-muted-foreground text-sm">{{ messages.loading }}</p>
+  } @else if (loadStatus() === 'error' && projects().length === 0) {
+    <section hlmCard>
+      <div hlmCardContent class="flex flex-col gap-3 py-6">
+        <p class="text-destructive text-sm" role="alert">{{ loadError() }}</p>
+        <button hlmBtn type="button" variant="outline" class="w-fit" (click)="load()">
+          {{ messages.retry }}
+        </button>
+      </div>
+    </section>
+  } @else {
+    <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <article hlmCard>
+        <header hlmCardHeader>
+          <p class="text-muted-foreground text-xs font-medium tracking-wide uppercase">
+            {{ messages.stats.projects }}
+          </p>
+          <p class="text-3xl font-semibold tabular-nums">{{ totalProjects() }}</p>
+          <p hlmCardDescription>{{ messages.stats.membersHint }}</p>
+        </header>
+      </article>
+
+      <article hlmCard class="sm:col-span-1 lg:col-span-2">
+        <header hlmCardHeader>
+          <h2 hlmCardTitle>{{ messages.quick.title }}</h2>
+        </header>
+        <div hlmCardContent class="flex flex-wrap gap-2">
+          <a hlmBtn routerLink="/projects">{{ messages.quick.projects }}</a>
+          <a hlmBtn variant="outline" routerLink="/projects" [queryParams]="{ new: '1' }">
+            {{ messages.quick.newProject }}
+          </a>
+          <a hlmBtn variant="outline" routerLink="/profile">{{ messages.quick.profile }}</a>
+        </div>
+      </article>
+    </section>
+
+    <section class="flex flex-col gap-4">
+      <div class="flex items-center justify-between gap-3">
+        <h2 class="text-lg font-semibold tracking-tight">{{ messages.recent.title }}</h2>
+        <a hlmBtn variant="link" routerLink="/projects" class="h-auto p-0">
+          {{ messages.recent.viewAll }}
+        </a>
+      </div>
+
+      @if (projects().length === 0) {
+        <section hlmCard>
+          <div hlmCardContent class="flex flex-col items-start gap-3 py-8">
+            <h3 class="font-medium">{{ messages.recent.emptyTitle }}</h3>
+            <p class="text-muted-foreground text-sm">{{ messages.recent.emptyBody }}</p>
+            <a hlmBtn routerLink="/projects">{{ messages.recent.emptyAction }}</a>
+          </div>
+        </section>
+      } @else {
+        <ul class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          @for (project of projects(); track project.id) {
+            <li>
+              <a
+                class="border-border bg-card hover:bg-muted/40 focus-visible:ring-ring block rounded-xl border p-4 transition-colors focus-visible:ring-2 focus-visible:outline-none"
+                [routerLink]="['/projects', project.id]"
+              >
+                <p class="truncate font-medium">{{ project.name }}</p>
+                @if (project.description) {
+                  <p class="text-muted-foreground mt-1 line-clamp-2 text-sm">
+                    {{ project.description }}
+                  </p>
+                }
+                <p class="text-muted-foreground mt-3 text-xs">
+                  {{ memberCount(project) }} {{ messages.recent.members }}
+                </p>
+              </a>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+  }
 </main>

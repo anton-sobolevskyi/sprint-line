@@ -24,21 +24,26 @@ Step-by-step frontend plan for [management_app_backend](https://github.com/anton
 
 | Phase | Status |
 |-------|--------|
-| 0–6 | **Done** |
-| 7 Attachments | **Done** (`feature/attachments-phase-7`) |
-| 8 Dashboard & polish | **Next** |
+| 0 Foundation | Done (Sonner optional) |
+| 1 Auth | **Done** |
+| 2 Profile | **Done** |
+| 3 Projects | **Done** |
+| 4 Members | **Done** |
+| 5 Tasks / board | **Done** |
+| 6 Comments | **Done** |
+| 7 Attachments | **Done** |
+| 8 Dashboard & polish | **Done** (`feature/dashboard-phase-8`) |
 
-### Phase 7 — Attachments
+### Phase 8 — Dashboard & polish
 
-| Capability | Notes |
-|------------|--------|
-| List | `GET /tasks/:taskId/attachments` |
-| Upload | `POST` multipart `file` |
-| Download | `GET /attachments/:id/download` → presigned URL |
-| Delete | `DELETE /attachments/:id` (uploader) |
-| Comment upload | API wired in `AttachmentsApiService` (UI optional later) |
+| Item | Notes |
+|------|--------|
+| App shell | Sticky header: Home · Projects · Profile · Sign out |
+| Nested routes | Authenticated pages under `AppShellLayout` |
+| Dashboard | Greeting, project count, quick actions, recent projects |
+| Empty / error | Loading, retry, empty workspace CTA |
 
-UI: **Files** on task card → `sl-task-attachments-panel`.
+Auth pages (login, register, password reset, verify) stay full-screen without the shell.
 
 ---
 
@@ -48,8 +53,9 @@ UI: **Files** on task card → `sl-task-attachments-panel`.
 2. Spartan/helm only  
 3. Loading / empty / error states  
 4. Endpoints & copy via constants  
-5. Types match OpenAPI schema  
+5. Signal Forms + Zod where forms exist  
+6. Types match OpenAPI schema  
 
 ---
 
-*Last updated: 2026-10-23 — Phase 7 attachments on `feature/attachments-phase-7`.*
+*Last updated: 2026-10-23 — Phase 8 dashboard & shell complete.*
