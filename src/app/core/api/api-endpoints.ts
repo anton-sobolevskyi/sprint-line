@@ -27,6 +27,10 @@ export const API_PATHS = {
     root: '/projects',
     byId: (id: string) => `/projects/${id}` as const,
     members: (projectId: string) => `/projects/${projectId}/members` as const,
+    member: (projectId: string, userId: string) =>
+      `/projects/${projectId}/members/${userId}` as const,
+    transferOwnership: (projectId: string, userId: string) =>
+      `/projects/${projectId}/members/${userId}/transfer-ownership` as const,
   },
   attachments: {
     download: (id: string) => `/attachments/${id}/download` as const,
@@ -57,6 +61,10 @@ export const API_ENDPOINTS = {
     create: apiUrl(API_PATHS.projects.root),
     byId: (id: string) => apiUrl(API_PATHS.projects.byId(id)),
     members: (projectId: string) => apiUrl(API_PATHS.projects.members(projectId)),
+    member: (projectId: string, userId: string) =>
+      apiUrl(API_PATHS.projects.member(projectId, userId)),
+    transferOwnership: (projectId: string, userId: string) =>
+      apiUrl(API_PATHS.projects.transferOwnership(projectId, userId)),
   },
   attachments: {
     downloadUrl: (id: string) => apiUrl(API_PATHS.attachments.download(id)),
@@ -65,7 +73,6 @@ export const API_ENDPOINTS = {
 
 /**
  * Auth routes that must not trigger the 401 refresh-retry loop.
- * Includes unauthenticated flows (login, register, password reset, email verify).
  * `resend-verification` requires a Bearer token and is intentionally omitted.
  */
 export const AUTH_PUBLIC_PATHS = [

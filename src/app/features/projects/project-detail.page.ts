@@ -14,6 +14,7 @@ import {
   ProjectsApiService,
 } from '../../core/projects/projects-api.service';
 import { firstFieldErrorMessage } from '../auth/auth.form-utils';
+import { ProjectMembersPanel } from './project-members.panel';
 import { PROJECTS_MESSAGES } from './projects.messages';
 import {
   type UpdateProjectModel,
@@ -25,6 +26,7 @@ import {
   imports: [
     FormField,
     RouterLink,
+    ProjectMembersPanel,
     ...HlmButtonImports,
     ...HlmCardImports,
     ...HlmFieldImports,
