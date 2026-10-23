@@ -9,6 +9,9 @@ import { HlmFieldImports } from '@spartan-ng/helm/field';
 import { HlmInputImports } from '@spartan-ng/helm/input';
 
 import { getApiErrorMessage } from '../../core/api/api-error';
+import { ConfirmDialogService } from '../../core/ui/confirm-dialog.service';
+import { appToast } from '../../core/ui/toast';
+import { UI_MESSAGES } from '../../core/ui/ui.messages';
 import { AuthApiService } from '../../core/auth/auth-api.service';
 import { AuthSessionService } from '../../core/auth/auth-session.service';
 import { UserActions } from '../../core/users/user.actions';
@@ -45,6 +48,7 @@ export class ProfilePage {
   private readonly authApi = inject(AuthApiService);
   private readonly authSession = inject(AuthSessionService);
   private readonly router = inject(Router);
+  private readonly confirmDialog = inject(ConfirmDialogService);
 
   readonly messages = PROFILE_MESSAGES;
 
@@ -152,6 +156,7 @@ export class ProfilePage {
         this.syncedUserId.set(null);
         this.store.dispatch(UserActions.setCurrentUser({ user }));
         this.detailsSuccess.set(this.messages.profileSection.success);
+        appToast.success(this.messages.profileSection.success);
       },
       error: (error: unknown) => {
         this.detailsSubmitting.set(false);
@@ -173,6 +178,7 @@ export class ProfilePage {
       next: () => {
         this.resendSubmitting.set(false);
         this.resendSuccess.set(this.messages.profileSection.resendSuccess);
+        appToast.success(this.messages.profileSection.resendSuccess);
       },
       error: (error: unknown) => {
         this.resendSubmitting.set(false);
@@ -223,6 +229,7 @@ export class ProfilePage {
       next: () => {
         this.avatarUploading.set(false);
         this.avatarSuccess.set(this.messages.avatarSection.success);
+        appToast.success(this.messages.avatarSection.success);
         this.store.dispatch(UserActions.loadMe());
       },
       error: (error: unknown) => {
@@ -232,11 +239,18 @@ export class ProfilePage {
     });
   }
 
-  onDeleteAccount(): void {
-    const confirmed = globalThis.confirm(
-      `${this.messages.deleteSection.dialogTitle}\n\n${this.messages.deleteSection.dialogBody}`,
-    );
-    if (!confirmed || this.deleteSubmitting()) {
+  async onDeleteAccount(): Promise<void> {
+    if (this.deleteSubmitting()) {
+      return;
+    }
+
+    const confirmed = await this.confirmDialog.confirm({
+      title: this.messages.deleteSection.dialogTitle,
+      description: this.messages.deleteSection.dialogBody,
+      confirmLabel: UI_MESSAGES.dialog.delete,
+      destructive: true,
+    });
+    if (!confirmed) {
       return;
     }
 
@@ -247,11 +261,13 @@ export class ProfilePage {
       next: () => {
         this.deleteSubmitting.set(false);
         this.authSession.clearSession();
+        appToast.success(this.messages.deleteSection.confirm);
         void this.router.navigateByUrl('/login');
       },
       error: (error: unknown) => {
         this.deleteSubmitting.set(false);
         this.deleteError.set(getApiErrorMessage(error));
+        appToast.error(getApiErrorMessage(error));
       },
     });
   }
