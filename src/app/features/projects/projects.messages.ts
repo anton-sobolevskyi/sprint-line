@@ -39,7 +39,6 @@ export const PROJECTS_MESSAGES = {
     deleteConfirmTitle: 'Delete this project?',
     deleteConfirmBody:
       'The project and its tasks will be soft-deleted. This action is intended for project owners.',
-    hubHint: 'Board, members, and tasks will appear here in the next phases.',
   },
   validation: {
     nameRequired: 'Project name is required.',
