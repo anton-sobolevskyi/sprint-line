@@ -136,6 +136,20 @@
                       <button
                         hlmBtn
                         type="button"
+                        variant="outline"
+                        size="sm"
+                        (click)="toggleComments(task.id)"
+                      >
+                        {{
+                          isCommentsOpen(task.id)
+                            ? commentsMessages.close
+                            : commentsMessages.open
+                        }}
+                      </button>
+
+                      <button
+                        hlmBtn
+                        type="button"
                         variant="destructive"
                         size="sm"
                         [disabled]="actionTaskId() === task.id"
@@ -148,6 +162,10 @@
                         }}
                       </button>
                     </div>
+
+                    @if (isCommentsOpen(task.id)) {
+                      <sl-task-comments-panel [taskId]="task.id" />
+                    }
                   </li>
                 }
               </ul>

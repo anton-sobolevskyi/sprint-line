@@ -35,6 +35,10 @@ export const API_PATHS = {
   },
   tasks: {
     byId: (id: string) => `/tasks/${id}` as const,
+    comments: (taskId: string) => `/tasks/${taskId}/comments` as const,
+  },
+  comments: {
+    byId: (id: string) => `/comments/${id}` as const,
   },
   attachments: {
     download: (id: string) => `/attachments/${id}/download` as const,
@@ -73,6 +77,10 @@ export const API_ENDPOINTS = {
   },
   tasks: {
     byId: (id: string) => apiUrl(API_PATHS.tasks.byId(id)),
+    comments: (taskId: string) => apiUrl(API_PATHS.tasks.comments(taskId)),
+  },
+  comments: {
+    byId: (id: string) => apiUrl(API_PATHS.comments.byId(id)),
   },
   attachments: {
     downloadUrl: (id: string) => apiUrl(API_PATHS.attachments.download(id)),
