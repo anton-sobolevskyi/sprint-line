@@ -8,6 +8,9 @@ import { HlmInputImports } from '@spartan-ng/helm/input';
 import { HlmTextareaImports } from '@spartan-ng/helm/textarea';
 
 import { getApiErrorMessage } from '../../core/api/api-error';
+import { ConfirmDialogService } from '../../core/ui/confirm-dialog.service';
+import { appToast } from '../../core/ui/toast';
+import { UI_MESSAGES } from '../../core/ui/ui.messages';
 import {
   type TaskPriority,
   type TaskResponseDto,
@@ -42,6 +45,7 @@ export class ProjectTasksBoardPanel {
   readonly projectId = input.required<string>();
 
   private readonly tasksApi = inject(TasksApiService);
+  private readonly confirmDialog = inject(ConfirmDialogService);
 
   readonly messages = TASKS_MESSAGES;
   readonly commentsMessages = COMMENTS_MESSAGES;
@@ -170,6 +174,7 @@ export class ProjectTasksBoardPanel {
       next: () => {
         this.createSubmitting.set(false);
         this.createSuccess.set(this.messages.create.success);
+        appToast.success(this.messages.create.success);
         this.createModel.set({ title: '', description: '', priority: 'MEDIUM' });
         this.createShowErrors.set(false);
         this.load();
@@ -206,12 +211,14 @@ export class ProjectTasksBoardPanel {
     });
   }
 
-  onDelete(task: TaskResponseDto): void {
-    if (
-      !globalThis.confirm(
-        `${this.messages.confirm.deleteTitle}\n\n${this.messages.confirm.deleteBody}`,
-      )
-    ) {
+  async onDelete(task: TaskResponseDto): Promise<void> {
+    const confirmed = await this.confirmDialog.confirm({
+      title: this.messages.confirm.deleteTitle,
+      description: this.messages.confirm.deleteBody,
+      confirmLabel: UI_MESSAGES.dialog.delete,
+      destructive: true,
+    });
+    if (!confirmed) {
       return;
     }
 
@@ -228,10 +235,12 @@ export class ProjectTasksBoardPanel {
           this.expandedFilesTaskId.set(null);
         }
         this.tasks.update((list) => list.filter((item) => item.id !== task.id));
+        appToast.success(this.messages.actions.delete);
       },
       error: (error: unknown) => {
         this.actionTaskId.set(null);
         this.actionError.set(getApiErrorMessage(error));
+        appToast.error(getApiErrorMessage(error));
       },
     });
   }
