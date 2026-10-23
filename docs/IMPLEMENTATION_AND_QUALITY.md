@@ -11,12 +11,12 @@ Step-by-step frontend plan for [management_app_backend](https://github.com/anton
 
 | Concern | Approach |
 |---------|----------|
-| Global state | `@ngrx/store` |
-| Local / UI state | component signals |
+| Global state | `@ngrx/store` (auth, current user) |
+| Feature data | `@ngrx/signals` `signalStore` (tasks, members) |
+| Local / UI state | component signals (forms, expand panels) |
 | Forms | Signal Forms + Zod |
 | Endpoints | `API_PATHS` / `API_ENDPOINTS` (`as const`) |
 | Copy | `*.messages.ts` (`as const`) |
-| OpenAPI | generated schema → `src/types/api.schema.d.ts` |
 | Confirms | `ConfirmDialogService` |
 | Toasts | `appToast` + root `<hlm-toaster />` |
 
@@ -26,19 +26,19 @@ Step-by-step frontend plan for [management_app_backend](https://github.com/anton
 
 | Phase | Status |
 |-------|--------|
-| 0–8 Core product | **Done** |
-| Confirm + toasts | **Done** |
-| Task detail | **Done** |
-| Board filters | **Done** |
-| Board drag-and-drop | **Done** |
-| Shell polish | **Done** (`improve/shell-polish`) |
-| Next (optional) | SignalStores, e2e |
+| 0–8 + board UX | **Done** |
+| Shell polish | **Done** |
+| Feature SignalStores | **Done** (`refactor/feature-signal-stores`) |
+| Next (optional) | Playwright e2e |
 
-### Shell polish
+### Feature SignalStores
 
-- Email verification banner when `emailVerifiedAt` is empty (resend + profile link)
-- Dashboard “New project” uses `?new=1` → projects list opens create form
-- Home / projects loading use `hlm-skeleton`
+| Store | Scope | Responsibilities |
+|-------|--------|------------------|
+| `ProjectTasksStore` | board panel (`providers`) | tasks, filters, create, status, delete |
+| `ProjectMembersStore` | members panel (`providers`) | members, invite, role, remove, transfer |
+
+UI-only state (create form, expand comments/files, draft filter inputs) stays on the component.
 
 ---
 
@@ -54,4 +54,4 @@ Step-by-step frontend plan for [management_app_backend](https://github.com/anton
 
 ---
 
-*Last updated: 2026-10-23 — shell polish.*
+*Last updated: 2026-10-23 — feature SignalStores.*
