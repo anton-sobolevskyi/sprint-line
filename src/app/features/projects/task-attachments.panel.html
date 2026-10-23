@@ -1,0 +1,79 @@
+<div class="border-border mt-3 flex flex-col gap-3 border-t pt-3">
+  <p class="text-xs font-medium tracking-wide uppercase">{{ messages.title }}</p>
+
+  @if (uploadError(); as error) {
+    <p class="text-destructive text-xs" role="alert">{{ error }}</p>
+  }
+  @if (actionError(); as error) {
+    <p class="text-destructive text-xs" role="alert">{{ error }}</p>
+  }
+
+  @if (loadStatus() === 'loading') {
+    <p class="text-muted-foreground text-xs">{{ messages.loading }}</p>
+  } @else if (loadStatus() === 'error') {
+    <div class="flex flex-col gap-1">
+      <p class="text-destructive text-xs" role="alert">{{ loadError() }}</p>
+      <button hlmBtn type="button" variant="outline" size="sm" class="w-fit" (click)="load()">
+        {{ messages.retry }}
+      </button>
+    </div>
+  } @else if (attachments().length === 0) {
+    <p class="text-muted-foreground text-xs">{{ messages.empty }}</p>
+  } @else {
+    <ul class="flex flex-col gap-2">
+      @for (file of attachments(); track file.id) {
+        <li class="bg-muted/40 flex flex-col gap-1 rounded-lg p-2 sm:flex-row sm:items-center sm:justify-between">
+          <div class="min-w-0">
+            <p class="truncate text-xs font-medium">{{ file.fileName }}</p>
+            <p class="text-muted-foreground text-[11px]">
+              {{ sizeLabel(file.sizeBytes) }} · {{ file.mimeType }}
+            </p>
+          </div>
+          <div class="flex flex-wrap gap-1">
+            <button
+              hlmBtn
+              type="button"
+              variant="outline"
+              size="sm"
+              class="h-7 px-2 text-xs"
+              [disabled]="actionId() === file.id"
+              (click)="onDownload(file)"
+            >
+              {{
+                actionId() === file.id ? messages.downloading : messages.download
+              }}
+            </button>
+            @if (canDelete(file)) {
+              <button
+                hlmBtn
+                type="button"
+                variant="ghost"
+                size="sm"
+                class="text-destructive h-7 px-2 text-xs"
+                [disabled]="actionId() === file.id"
+                (click)="onDelete(file)"
+              >
+                {{
+                  actionId() === file.id ? messages.deleting : messages.delete
+                }}
+              </button>
+            }
+          </div>
+        </li>
+      }
+    </ul>
+  }
+
+  <label class="inline-flex w-fit">
+    <span class="sr-only">{{ messages.upload }}</span>
+    <input
+      type="file"
+      class="text-xs file:bg-secondary file:text-secondary-foreground file:mr-2 file:rounded-full file:border-0 file:px-3 file:py-1"
+      [disabled]="uploading()"
+      (change)="onFileSelected($event)"
+    />
+  </label>
+  @if (uploading()) {
+    <p class="text-muted-foreground text-xs">{{ messages.uploading }}</p>
+  }
+</div>

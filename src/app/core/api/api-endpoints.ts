@@ -36,11 +36,15 @@ export const API_PATHS = {
   tasks: {
     byId: (id: string) => `/tasks/${id}` as const,
     comments: (taskId: string) => `/tasks/${taskId}/comments` as const,
+    attachments: (taskId: string) => `/tasks/${taskId}/attachments` as const,
   },
   comments: {
     byId: (id: string) => `/comments/${id}` as const,
+    attachments: (commentId: string) =>
+      `/comments/${commentId}/attachments` as const,
   },
   attachments: {
+    byId: (id: string) => `/attachments/${id}` as const,
     download: (id: string) => `/attachments/${id}/download` as const,
   },
 } as const;
@@ -78,11 +82,15 @@ export const API_ENDPOINTS = {
   tasks: {
     byId: (id: string) => apiUrl(API_PATHS.tasks.byId(id)),
     comments: (taskId: string) => apiUrl(API_PATHS.tasks.comments(taskId)),
+    attachments: (taskId: string) => apiUrl(API_PATHS.tasks.attachments(taskId)),
   },
   comments: {
     byId: (id: string) => apiUrl(API_PATHS.comments.byId(id)),
+    attachments: (commentId: string) =>
+      apiUrl(API_PATHS.comments.attachments(commentId)),
   },
   attachments: {
+    byId: (id: string) => apiUrl(API_PATHS.attachments.byId(id)),
     downloadUrl: (id: string) => apiUrl(API_PATHS.attachments.download(id)),
   },
 } as const;
