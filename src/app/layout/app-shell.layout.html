@@ -53,6 +53,36 @@
     </div>
   </header>
 
+  @if (needsEmailVerification()) {
+    <div
+      class="border-border bg-muted/40 border-b"
+      role="status"
+    >
+      <div
+        class="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+      >
+        <div class="min-w-0">
+          <p class="text-sm font-medium">{{ messages.verify.title }}</p>
+          <p class="text-muted-foreground text-xs">{{ messages.verify.body }}</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <button
+            hlmBtn
+            type="button"
+            size="sm"
+            [disabled]="resendSubmitting()"
+            (click)="resendVerification()"
+          >
+            {{ resendSubmitting() ? messages.verify.resending : messages.verify.resend }}
+          </button>
+          <a hlmBtn variant="outline" size="sm" routerLink="/profile">
+            {{ messages.verify.profile }}
+          </a>
+        </div>
+      </div>
+    </div>
+  }
+
   <div class="flex-1">
     <router-outlet />
   </div>
