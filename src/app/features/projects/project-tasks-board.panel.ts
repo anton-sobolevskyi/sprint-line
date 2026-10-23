@@ -1,3 +1,9 @@
+import {
+  CdkDrag,
+  CdkDragDrop,
+  CdkDropList,
+  CdkDropListGroup,
+} from '@angular/cdk/drag-drop';
 import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { form, FormField, validateStandardSchema } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
@@ -39,6 +45,9 @@ const DEFAULT_LIMIT = 100 as const;
     RouterLink,
     TaskCommentsPanel,
     TaskAttachmentsPanel,
+    CdkDropListGroup,
+    CdkDropList,
+    CdkDrag,
     ...HlmButtonImports,
     ...HlmCardImports,
     ...HlmFieldImports,
@@ -272,6 +281,47 @@ export class ProjectTasksBoardPanel {
       error: (error: unknown) => {
         this.createSubmitting.set(false);
         this.createServerError.set(getApiErrorMessage(error));
+      },
+    });
+  }
+
+  onTaskDrop(event: CdkDragDrop<TaskStatus, TaskStatus, TaskResponseDto>): void {
+    if (event.previousContainer === event.container) {
+      return;
+    }
+
+    const task = event.item.data;
+    const nextStatus = event.container.data;
+    if (!task || task.status === nextStatus) {
+      return;
+    }
+
+    const previousStatus = task.status;
+    this.actionError.set(null);
+    this.actionTaskId.set(task.id);
+
+    this.tasks.update((list) =>
+      list.map((item) =>
+        item.id === task.id ? { ...item, status: nextStatus } : item,
+      ),
+    );
+
+    this.tasksApi.update(task.id, { status: nextStatus }).subscribe({
+      next: (updated) => {
+        this.actionTaskId.set(null);
+        this.tasks.update((list) =>
+          list.map((item) => (item.id === updated.id ? updated : item)),
+        );
+      },
+      error: (error: unknown) => {
+        this.actionTaskId.set(null);
+        this.tasks.update((list) =>
+          list.map((item) =>
+            item.id === task.id ? { ...item, status: previousStatus } : item,
+          ),
+        );
+        this.actionError.set(getApiErrorMessage(error));
+        appToast.error(getApiErrorMessage(error));
       },
     });
   }
