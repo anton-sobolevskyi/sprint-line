@@ -37,7 +37,17 @@
         </div>
 
         <div hlmField>
-          <label hlmFieldLabel for="login-password">{{ messages.login.passwordLabel }}</label>
+          <div class="flex items-center justify-between gap-2">
+            <label hlmFieldLabel for="login-password">{{ messages.login.passwordLabel }}</label>
+            <a
+              hlmBtn
+              variant="link"
+              routerLink="/forgot-password"
+              class="text-muted-foreground h-auto p-0 text-xs"
+            >
+              {{ messages.login.forgotPasswordLink }}
+            </a>
+          </div>
           <input
             id="login-password"
             type="password"

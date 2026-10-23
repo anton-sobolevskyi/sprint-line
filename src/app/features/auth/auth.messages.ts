@@ -14,6 +14,7 @@ export const AUTH_MESSAGES = {
     submitting: 'Signing in…',
     noAccount: 'Don’t have an account?',
     registerLink: 'Create one',
+    forgotPasswordLink: 'Forgot password?',
   },
   register: {
     title: 'Create account',
@@ -30,6 +31,37 @@ export const AUTH_MESSAGES = {
     hasAccount: 'Already have an account?',
     loginLink: 'Sign in',
   },
+  forgotPassword: {
+    title: 'Forgot password',
+    description:
+      'Enter your email and we will send a reset link if an account exists for that address.',
+    emailLabel: 'Email',
+    emailPlaceholder: 'you@example.com',
+    submit: 'Send reset link',
+    submitting: 'Sending…',
+    success:
+      'If an account exists for that email, a password reset link has been sent.',
+    backToLogin: 'Back to sign in',
+  },
+  resetPassword: {
+    title: 'Set a new password',
+    description: 'Choose a new password for your account.',
+    passwordLabel: 'New password',
+    confirmLabel: 'Confirm password',
+    submit: 'Update password',
+    submitting: 'Updating…',
+    success: 'Password updated. You can sign in with your new password.',
+    missingToken: 'This reset link is missing a token. Request a new email.',
+    backToLogin: 'Back to sign in',
+  },
+  verifyEmail: {
+    title: 'Verify email',
+    description: 'Confirming your email address…',
+    success: 'Your email is verified. You can continue using SprintLine.',
+    missingToken: 'This verification link is missing a token.',
+    goToLogin: 'Sign in',
+    goHome: 'Go to home',
+  },
   validation: {
     emailRequired: 'Email is required.',
     emailInvalid: 'Enter a valid email address.',
@@ -38,6 +70,8 @@ export const AUTH_MESSAGES = {
     passwordPattern: 'Password must include at least one letter and one number.',
     nameRequired: 'Name is required.',
     nameMinLength: 'Name must be at least 2 characters.',
+    confirmRequired: 'Confirm your password.',
+    passwordMismatch: 'Passwords do not match.',
   },
   home: {
     title: 'Welcome to SprintLine',

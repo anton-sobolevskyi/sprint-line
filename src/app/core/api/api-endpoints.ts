@@ -13,6 +13,10 @@ export const API_PATHS = {
     login: '/auth/login',
     refresh: '/auth/refresh',
     logout: '/auth/logout',
+    forgotPassword: '/auth/forgot-password',
+    resetPassword: '/auth/reset-password',
+    verifyEmail: '/auth/verify-email',
+    resendVerification: '/auth/resend-verification',
   },
   users: {
     me: '/users/me',
@@ -22,6 +26,7 @@ export const API_PATHS = {
   projects: {
     root: '/projects',
     byId: (id: string) => `/projects/${id}` as const,
+    members: (projectId: string) => `/projects/${projectId}/members` as const,
   },
   attachments: {
     download: (id: string) => `/attachments/${id}/download` as const,
@@ -37,6 +42,10 @@ export const API_ENDPOINTS = {
     login: apiUrl(API_PATHS.auth.login),
     refresh: apiUrl(API_PATHS.auth.refresh),
     logout: apiUrl(API_PATHS.auth.logout),
+    forgotPassword: apiUrl(API_PATHS.auth.forgotPassword),
+    resetPassword: apiUrl(API_PATHS.auth.resetPassword),
+    verifyEmail: apiUrl(API_PATHS.auth.verifyEmail),
+    resendVerification: apiUrl(API_PATHS.auth.resendVerification),
   },
   users: {
     me: apiUrl(API_PATHS.users.me),
@@ -47,18 +56,26 @@ export const API_ENDPOINTS = {
     list: apiUrl(API_PATHS.projects.root),
     create: apiUrl(API_PATHS.projects.root),
     byId: (id: string) => apiUrl(API_PATHS.projects.byId(id)),
+    members: (projectId: string) => apiUrl(API_PATHS.projects.members(projectId)),
   },
   attachments: {
     downloadUrl: (id: string) => apiUrl(API_PATHS.attachments.download(id)),
   },
 } as const;
 
-/** Auth routes that must not trigger the 401 refresh-retry loop. */
+/**
+ * Auth routes that must not trigger the 401 refresh-retry loop.
+ * Includes unauthenticated flows (login, register, password reset, email verify).
+ * `resend-verification` requires a Bearer token and is intentionally omitted.
+ */
 export const AUTH_PUBLIC_PATHS = [
   API_PATHS.auth.register,
   API_PATHS.auth.login,
   API_PATHS.auth.refresh,
   API_PATHS.auth.logout,
+  API_PATHS.auth.forgotPassword,
+  API_PATHS.auth.resetPassword,
+  API_PATHS.auth.verifyEmail,
 ] as const;
 
 export function apiUrl(path: string): string {
