@@ -17,7 +17,7 @@ Step-by-step frontend plan for [management_app_backend](https://github.com/anton
 | Endpoints | `API_PATHS` / `API_ENDPOINTS` (`as const`) |
 | Copy | `*.messages.ts` (`as const`) |
 | OpenAPI | `src/core/api/generated/schema.d.ts` → `src/types/api.schema.d.ts` |
-| Confirms | `ConfirmDialogService` (no `window.confirm`) |
+| Confirms | `ConfirmDialogService` |
 | Toasts | `appToast` + root `<hlm-toaster />` |
 
 ---
@@ -27,15 +27,17 @@ Step-by-step frontend plan for [management_app_backend](https://github.com/anton
 | Phase | Status |
 |-------|--------|
 | 0–8 Core product | **Done** |
-| Improve: confirm + toasts | **Done** (`improve/confirm-and-toasts`) |
-| Next | Task detail surface |
+| Improve: confirm + toasts | **Done** |
+| Task detail | **Done** (`feat/task-detail`) |
+| Next | Board filters / DnD (optional) |
 
-### Improve — Confirm dialogs & toasts
+### Task detail
 
-- `ConfirmDialogService` via Spartan `HlmDialog`
-- Global Sonner toaster on `App`
-- Destructive flows use accessible confirms
-- Success/error toasts on key mutations
+- Route: `/projects/:projectId/tasks/:taskId`
+- Edit: title, description, status, priority, due date, assignee
+- Comments + files panels
+- Soft-delete with confirm
+- Board title links into detail
 
 ---
 
@@ -51,4 +53,4 @@ Step-by-step frontend plan for [management_app_backend](https://github.com/anton
 
 ---
 
-*Last updated: 2026-10-23 — confirm dialogs & Sonner toasts.*
+*Last updated: 2026-10-23 — task detail surface.*

@@ -14,3 +14,18 @@ export const createTaskSchema = z.object({
 });
 
 export type CreateTaskModel = z.infer<typeof createTaskSchema>;
+
+/** Empty string means unassigned / no due date in the UI model. */
+export const updateTaskSchema = z.object({
+  title: z
+    .string()
+    .min(1, { message: messages.titleRequired })
+    .min(2, { message: messages.titleMinLength }),
+  description: z.string(),
+  status: z.enum(['TODO', 'IN_PROGRESS', 'IN_REVIEW', 'DONE']),
+  priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']),
+  dueDate: z.string(),
+  assignedToId: z.string(),
+});
+
+export type UpdateTaskModel = z.infer<typeof updateTaskSchema>;

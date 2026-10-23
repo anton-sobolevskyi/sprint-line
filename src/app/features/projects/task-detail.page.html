@@ -1,0 +1,161 @@
+<main class="mx-auto flex w-full max-w-3xl flex-col gap-6 p-4 py-8 md:p-8">
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <a
+      hlmBtn
+      variant="ghost"
+      size="sm"
+      [routerLink]="['/projects', projectId()]"
+      class="-ms-2"
+    >
+      ← {{ messages.detail.back }}
+    </a>
+  </div>
+
+  @if (loadStatus() === 'loading' && !task()) {
+    <p class="text-muted-foreground text-sm">{{ messages.detail.loading }}</p>
+  } @else if (loadStatus() === 'error' && !task()) {
+    <section hlmCard>
+      <div hlmCardContent class="flex flex-col gap-3 py-6">
+        <p class="text-destructive text-sm" role="alert">{{ loadError() }}</p>
+        <button hlmBtn type="button" variant="outline" class="w-fit" (click)="reload()">
+          {{ messages.detail.retry }}
+        </button>
+      </div>
+    </section>
+  } @else if (task(); as current) {
+    <section hlmCard>
+      <header hlmCardHeader>
+        <h1 hlmCardTitle class="text-xl">{{ current.title }}</h1>
+      </header>
+
+      <div hlmCardContent>
+        <form class="flex flex-col gap-4" (submit)="onSave($event)">
+          @if (serverError(); as error) {
+            <div
+              class="border-destructive/40 bg-destructive/10 text-destructive rounded-xl border px-3 py-2 text-sm"
+              role="alert"
+            >
+              {{ error }}
+            </div>
+          }
+
+          <div hlmField>
+            <label hlmFieldLabel for="detail-title">{{ messages.detail.titleLabel }}</label>
+            <input
+              id="detail-title"
+              type="text"
+              hlmInput
+              [formField]="editForm.title"
+              [attr.aria-invalid]="fieldError('title') ? true : null"
+            />
+            @if (fieldError('title'); as message) {
+              <hlm-field-error forceShow>{{ message }}</hlm-field-error>
+            }
+          </div>
+
+          <div hlmField>
+            <label hlmFieldLabel for="detail-description">
+              {{ messages.detail.descriptionLabel }}
+            </label>
+            <textarea
+              id="detail-description"
+              hlmTextarea
+              rows="4"
+              [formField]="editForm.description"
+            ></textarea>
+          </div>
+
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div hlmField>
+              <label hlmFieldLabel for="detail-status">{{ messages.detail.statusLabel }}</label>
+              <select
+                id="detail-status"
+                class="border-input bg-input/30 h-9 w-full rounded-4xl border px-3 text-sm outline-none"
+                [formField]="editForm.status"
+              >
+                @for (status of statusOrder; track status) {
+                  <option [value]="status">{{ messages.status[status] }}</option>
+                }
+              </select>
+            </div>
+
+            <div hlmField>
+              <label hlmFieldLabel for="detail-priority">{{ messages.detail.priorityLabel }}</label>
+              <select
+                id="detail-priority"
+                class="border-input bg-input/30 h-9 w-full rounded-4xl border px-3 text-sm outline-none"
+                [formField]="editForm.priority"
+              >
+                <option value="LOW">{{ messages.priority.LOW }}</option>
+                <option value="MEDIUM">{{ messages.priority.MEDIUM }}</option>
+                <option value="HIGH">{{ messages.priority.HIGH }}</option>
+                <option value="URGENT">{{ messages.priority.URGENT }}</option>
+              </select>
+            </div>
+
+            <div hlmField>
+              <label hlmFieldLabel for="detail-due">{{ messages.detail.dueDateLabel }}</label>
+              <input
+                id="detail-due"
+                type="date"
+                hlmInput
+                [formField]="editForm.dueDate"
+              />
+            </div>
+
+            <div hlmField>
+              <label hlmFieldLabel for="detail-assignee">{{ messages.detail.assigneeLabel }}</label>
+              <select
+                id="detail-assignee"
+                class="border-input bg-input/30 h-9 w-full rounded-4xl border px-3 text-sm outline-none"
+                [formField]="editForm.assignedToId"
+              >
+                <option value="">{{ messages.detail.unassigned }}</option>
+                @for (member of members(); track member.userId) {
+                  <option [value]="member.userId">{{ memberLabel(member) }}</option>
+                }
+              </select>
+            </div>
+          </div>
+
+          <button
+            hlmBtn
+            type="submit"
+            class="w-fit"
+            [disabled]="editForm().invalid() || submitting()"
+          >
+            {{ submitting() ? messages.detail.saving : messages.detail.save }}
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <section hlmCard>
+      <header hlmCardHeader>
+        <h2 hlmCardTitle>{{ messages.actions.open }}</h2>
+      </header>
+      <div hlmCardContent class="flex flex-col gap-6">
+        <sl-task-comments-panel [taskId]="current.id" />
+        <sl-task-attachments-panel [taskId]="current.id" />
+      </div>
+    </section>
+
+    <section hlmCard>
+      <header hlmCardHeader>
+        <h2 hlmCardTitle class="text-destructive">{{ messages.detail.dangerTitle }}</h2>
+        <p hlmCardDescription>{{ messages.detail.dangerBody }}</p>
+      </header>
+      <div hlmCardContent>
+        <button
+          hlmBtn
+          type="button"
+          variant="destructive"
+          [disabled]="deleteSubmitting()"
+          (click)="onDelete()"
+        >
+          {{ deleteSubmitting() ? messages.actions.deleting : messages.actions.delete }}
+        </button>
+      </div>
+    </section>
+  }
+</main>
