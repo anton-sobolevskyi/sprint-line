@@ -1,6 +1,7 @@
 import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { form, FormField, validateStandardSchema } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
+import { Store } from '@ngrx/store';
 
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmCardImports } from '@spartan-ng/helm/card';
@@ -16,8 +17,11 @@ import {
   type TaskPriority,
   type TaskResponseDto,
   type TaskStatus,
+  type TasksListQuery,
   TasksApiService,
 } from '../../core/tasks/tasks-api.service';
+import { UserActions } from '../../core/users/user.actions';
+import { selectCurrentUser } from '../../core/users/user.reducer';
 import { firstFieldErrorMessage } from '../auth/auth.form-utils';
 import { ATTACHMENTS_MESSAGES } from './attachments.messages';
 import { COMMENTS_MESSAGES } from './comments.messages';
@@ -48,15 +52,28 @@ export class ProjectTasksBoardPanel {
 
   private readonly tasksApi = inject(TasksApiService);
   private readonly confirmDialog = inject(ConfirmDialogService);
+  private readonly store = inject(Store);
 
   readonly messages = TASKS_MESSAGES;
   readonly commentsMessages = COMMENTS_MESSAGES;
   readonly attachmentsMessages = ATTACHMENTS_MESSAGES;
   readonly statusOrder = TASK_STATUS_ORDER;
 
+  readonly currentUser = this.store.selectSignal(selectCurrentUser);
+
   readonly tasks = signal<TaskResponseDto[]>([]);
   readonly loadStatus = signal<'idle' | 'loading' | 'success' | 'error'>('idle');
   readonly loadError = signal<string | null>(null);
+
+  /** Draft filters (UI). Applied on Apply. */
+  readonly draftQuery = signal('');
+  readonly draftAssignedToMe = signal(false);
+  readonly draftOverdue = signal(false);
+
+  /** Active filters used for the last successful load. */
+  readonly activeQuery = signal('');
+  readonly activeAssignedToMe = signal(false);
+  readonly activeOverdue = signal(false);
 
   readonly createShowErrors = signal(false);
   readonly createSubmitting = signal(false);
@@ -88,9 +105,22 @@ export class ProjectTasksBoardPanel {
     }));
   });
 
+  readonly hasActiveFilters = computed(
+    () =>
+      this.activeQuery().trim().length > 0 ||
+      this.activeAssignedToMe() ||
+      this.activeOverdue(),
+  );
+
+  readonly totalVisible = computed(() => this.tasks().length);
+
   private readonly loadedForProjectId = signal<string | null>(null);
 
   constructor() {
+    if (!this.currentUser()) {
+      this.store.dispatch(UserActions.loadMe());
+    }
+
     effect(() => {
       const projectId = this.projectId();
       if (!projectId || this.loadedForProjectId() === projectId) {
@@ -110,7 +140,9 @@ export class ProjectTasksBoardPanel {
     this.loadStatus.set('loading');
     this.loadError.set(null);
 
-    this.tasksApi.findAll(projectId, { page: 1, limit: DEFAULT_LIMIT }).subscribe({
+    const query = this.buildListQuery();
+
+    this.tasksApi.findAll(projectId, query).subscribe({
       next: (response) => {
         this.tasks.set(response.data);
         this.loadStatus.set('success');
@@ -120,6 +152,62 @@ export class ProjectTasksBoardPanel {
         this.loadError.set(getApiErrorMessage(error));
       },
     });
+  }
+
+  applyFilters(event?: Event): void {
+    event?.preventDefault();
+    this.activeQuery.set(this.draftQuery().trim());
+    this.activeAssignedToMe.set(this.draftAssignedToMe());
+    this.activeOverdue.set(this.draftOverdue());
+    this.load();
+  }
+
+  clearFilters(): void {
+    this.draftQuery.set('');
+    this.draftAssignedToMe.set(false);
+    this.draftOverdue.set(false);
+    this.activeQuery.set('');
+    this.activeAssignedToMe.set(false);
+    this.activeOverdue.set(false);
+    this.load();
+  }
+
+  onAssignedToMeChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.draftAssignedToMe.set(input.checked);
+  }
+
+  onOverdueChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.draftOverdue.set(input.checked);
+  }
+
+  onSearchInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.draftQuery.set(input.value);
+  }
+
+  dueLabel(task: TaskResponseDto): string | null {
+    if (!task.dueDate) {
+      return null;
+    }
+    const date = new Date(task.dueDate);
+    if (Number.isNaN(date.getTime())) {
+      return null;
+    }
+    return date.toLocaleDateString(undefined, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
+  }
+
+  isOverdue(task: TaskResponseDto): boolean {
+    if (!task.dueDate || task.status === 'DONE') {
+      return false;
+    }
+    const due = new Date(task.dueDate).getTime();
+    return !Number.isNaN(due) && due < Date.now();
   }
 
   priorityLabel(priority: TaskPriority): string {
@@ -245,5 +333,27 @@ export class ProjectTasksBoardPanel {
         appToast.error(getApiErrorMessage(error));
       },
     });
+  }
+
+  private buildListQuery(): TasksListQuery {
+    const query: TasksListQuery = { page: 1, limit: DEFAULT_LIMIT };
+
+    const q = this.activeQuery().trim();
+    if (q.length > 0) {
+      query.q = q;
+    }
+
+    if (this.activeAssignedToMe()) {
+      const userId = this.currentUser()?.id;
+      if (userId) {
+        query.assignedToId = userId;
+      }
+    }
+
+    if (this.activeOverdue()) {
+      query.dueBefore = new Date().toISOString();
+    }
+
+    return query;
   }
 }

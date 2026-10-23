@@ -16,7 +16,7 @@ Step-by-step frontend plan for [management_app_backend](https://github.com/anton
 | Forms | Signal Forms + Zod |
 | Endpoints | `API_PATHS` / `API_ENDPOINTS` (`as const`) |
 | Copy | `*.messages.ts` (`as const`) |
-| OpenAPI | `src/core/api/generated/schema.d.ts` → `src/types/api.schema.d.ts` |
+| OpenAPI | generated schema → `src/types/api.schema.d.ts` |
 | Confirms | `ConfirmDialogService` |
 | Toasts | `appToast` + root `<hlm-toaster />` |
 
@@ -27,17 +27,22 @@ Step-by-step frontend plan for [management_app_backend](https://github.com/anton
 | Phase | Status |
 |-------|--------|
 | 0–8 Core product | **Done** |
-| Improve: confirm + toasts | **Done** |
-| Task detail | **Done** (`feat/task-detail`) |
-| Next | Board filters / DnD (optional) |
+| Confirm + toasts | **Done** |
+| Task detail | **Done** |
+| Board filters | **Done** (`feat/board-filters`) |
+| Next (optional) | Drag-and-drop status, SignalStores, e2e |
 
-### Task detail
+### Board filters
 
-- Route: `/projects/:projectId/tasks/:taskId`
-- Edit: title, description, status, priority, due date, assignee
-- Comments + files panels
-- Soft-delete with confirm
-- Board title links into detail
+Server-side via `GET /projects/:id/tasks`:
+
+| Filter | Query param |
+|--------|-------------|
+| Search | `q` |
+| Assigned to me | `assignedToId` = current user |
+| Overdue only | `dueBefore` = now (ISO) |
+
+UI: Apply / Clear. Cards show due date (destructive style when overdue).
 
 ---
 
@@ -53,4 +58,4 @@ Step-by-step frontend plan for [management_app_backend](https://github.com/anton
 
 ---
 
-*Last updated: 2026-10-23 — task detail surface.*
+*Last updated: 2026-10-23 — board filters.*
