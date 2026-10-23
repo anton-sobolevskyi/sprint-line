@@ -4,6 +4,16 @@ export const TASKS_MESSAGES = {
   loading: 'Loading tasks…',
   retry: 'Try again',
   emptyColumn: 'No tasks',
+  emptyFiltered: 'No tasks match these filters.',
+  filters: {
+    title: 'Filters',
+    searchLabel: 'Search',
+    searchPlaceholder: 'Title or description…',
+    assignedToMe: 'Assigned to me',
+    overdue: 'Overdue only',
+    apply: 'Apply',
+    clear: 'Clear',
+  },
   create: {
     title: 'New task',
     titleLabel: 'Title',

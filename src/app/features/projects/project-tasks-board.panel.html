@@ -5,6 +5,62 @@
   </header>
 
   <div hlmCardContent class="flex flex-col gap-6">
+    <form
+      class="border-border bg-muted/20 flex flex-col gap-3 rounded-xl border p-3"
+      (submit)="applyFilters($event)"
+    >
+      <p class="text-sm font-medium">{{ messages.filters.title }}</p>
+
+      <div class="grid gap-3 md:grid-cols-[1fr_auto]">
+        <div hlmField>
+          <label hlmFieldLabel for="board-search">{{ messages.filters.searchLabel }}</label>
+          <input
+            id="board-search"
+            type="search"
+            hlmInput
+            [value]="draftQuery()"
+            [placeholder]="messages.filters.searchPlaceholder"
+            (input)="onSearchInput($event)"
+          />
+        </div>
+
+        <div class="flex flex-col justify-end gap-2 sm:flex-row sm:items-end">
+          <label class="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              class="size-4 rounded border"
+              [checked]="draftAssignedToMe()"
+              (change)="onAssignedToMeChange($event)"
+            />
+            {{ messages.filters.assignedToMe }}
+          </label>
+          <label class="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              class="size-4 rounded border"
+              [checked]="draftOverdue()"
+              (change)="onOverdueChange($event)"
+            />
+            {{ messages.filters.overdue }}
+          </label>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap gap-2">
+        <button hlmBtn type="submit" size="sm">{{ messages.filters.apply }}</button>
+        <button
+          hlmBtn
+          type="button"
+          variant="outline"
+          size="sm"
+          [disabled]="!hasActiveFilters() && draftQuery().trim().length === 0 && !draftAssignedToMe() && !draftOverdue()"
+          (click)="clearFilters()"
+        >
+          {{ messages.filters.clear }}
+        </button>
+      </div>
+    </form>
+
     <form class="flex flex-col gap-3" (submit)="onCreateSubmit($event)">
       <h3 class="text-sm font-medium">{{ messages.create.title }}</h3>
 
@@ -92,6 +148,8 @@
           {{ messages.retry }}
         </button>
       </div>
+    } @else if (hasActiveFilters() && totalVisible() === 0) {
+      <p class="text-muted-foreground text-sm">{{ messages.emptyFiltered }}</p>
     } @else {
       <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         @for (column of columns(); track column.status) {
@@ -118,9 +176,12 @@
                         {{ task.description }}
                       </p>
                     }
-                    <p class="text-muted-foreground mt-2 text-xs">
-                      {{ priorityLabel(task.priority) }}
-                    </p>
+                    <div class="text-muted-foreground mt-2 flex flex-wrap gap-x-2 gap-y-1 text-xs">
+                      <span>{{ priorityLabel(task.priority) }}</span>
+                      @if (dueLabel(task); as due) {
+                        <span [class.text-destructive]="isOverdue(task)">{{ due }}</span>
+                      }
+                    </div>
 
                     <div class="mt-3 flex flex-wrap items-center gap-2">
                       <label class="sr-only" [attr.for]="'status-' + task.id">
