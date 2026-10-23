@@ -67,7 +67,7 @@ export class ProjectsListPage implements OnInit {
 
   ngOnInit(): void {
     if (this.route.snapshot.queryParamMap.get('new') === '1') {
-      this.showCreate.set(true);
+      this.openCreate();
       void this.router.navigate([], {
         relativeTo: this.route,
         queryParams: { new: null },
@@ -95,10 +95,15 @@ export class ProjectsListPage implements OnInit {
     });
   }
 
-  toggleCreate(): void {
-    this.showCreate.update((open) => !open);
+  openCreate(): void {
     this.createServerError.set(null);
     this.createShowErrors.set(false);
+    this.createModel.set({ name: '', description: '' });
+    this.showCreate.set(true);
+  }
+
+  closeCreate(): void {
+    this.showCreate.set(false);
   }
 
   createFieldError(field: 'name' | 'description'): string | null {
@@ -120,30 +125,25 @@ export class ProjectsListPage implements OnInit {
 
     this.createSubmitting.set(true);
     const { name, description } = this.createModel();
+    const dto = {
+      name,
+      ...(description.trim().length > 0 ? { description: description.trim() } : {}),
+    };
 
-    this.projectsApi
-      .create({
-        name,
-        ...(description.trim().length > 0
-          ? { description: description.trim() }
-          : {}),
-      })
-      .subscribe({
-        next: (project) => {
-          this.createSubmitting.set(false);
-          this.showCreate.set(false);
-          this.createModel.set({ name: '', description: '' });
-          this.createShowErrors.set(false);
-          void this.router.navigate(['/projects', project.id]);
-        },
-        error: (error: unknown) => {
-          this.createSubmitting.set(false);
-          this.createServerError.set(getApiErrorMessage(error));
-        },
-      });
+    this.projectsApi.create(dto).subscribe({
+      next: (project) => {
+        this.createSubmitting.set(false);
+        this.showCreate.set(false);
+        void this.router.navigate(['/projects', project.id]);
+      },
+      error: (error: unknown) => {
+        this.createSubmitting.set(false);
+        this.createServerError.set(getApiErrorMessage(error));
+      },
+    });
   }
 
-  goToPage(page: number): void {
-    this.load(page);
+  memberCount(project: ProjectResponseDto): number {
+    return project.memberCount ?? project.members?.length ?? 0;
   }
 }
