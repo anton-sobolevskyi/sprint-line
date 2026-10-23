@@ -37,6 +37,9 @@ export const TASKS_MESSAGES = {
     HIGH: 'High',
     URGENT: 'Urgent',
   },
+  dnd: {
+    hint: 'Drag cards between columns to change status.',
+  },
   actions: {
     changeStatus: 'Status',
     delete: 'Delete',

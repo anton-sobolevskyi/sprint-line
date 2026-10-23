@@ -29,8 +29,9 @@ Step-by-step frontend plan for [management_app_backend](https://github.com/anton
 | 0–8 Core product | **Done** |
 | Confirm + toasts | **Done** |
 | Task detail | **Done** |
-| Board filters | **Done** (`feat/board-filters`) |
-| Next (optional) | Drag-and-drop status, SignalStores, e2e |
+| Board filters | **Done** |
+| Board drag-and-drop | **Done** (`feat/board-dnd`) |
+| Next (optional) | SignalStores, e2e |
 
 ### Board filters
 
@@ -43,6 +44,12 @@ Server-side via `GET /projects/:id/tasks`:
 | Overdue only | `dueBefore` = now (ISO) |
 
 UI: Apply / Clear. Cards show due date (destructive style when overdue).
+
+### Board drag-and-drop
+
+- Angular CDK `cdkDropListGroup` / `cdkDrag`
+- Drop on another column → optimistic `PATCH` status, rollback on error
+- Same-column reorder ignored (status-only)
 
 ---
 
@@ -58,4 +65,4 @@ UI: Apply / Clear. Cards show due date (destructive style when overdue).
 
 ---
 
-*Last updated: 2026-10-23 — board filters.*
+*Last updated: 2026-10-23 — board drag-and-drop.*
