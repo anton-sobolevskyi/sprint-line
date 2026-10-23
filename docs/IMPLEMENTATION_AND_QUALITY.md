@@ -12,7 +12,7 @@ Step-by-step frontend plan for [management_app_backend](https://github.com/anton
 | Concern | Approach |
 |---------|----------|
 | Global state | `@ngrx/store` |
-| Local / UI state | component signals / SignalStore |
+| Local / UI state | component signals |
 | Forms | Signal Forms + Zod |
 | Endpoints | `API_PATHS` / `API_ENDPOINTS` (`as const`) |
 | Copy | `*.messages.ts` (`as const`) |
@@ -24,29 +24,21 @@ Step-by-step frontend plan for [management_app_backend](https://github.com/anton
 
 | Phase | Status |
 |-------|--------|
-| 0 Foundation | Mostly done (Sonner pending) |
-| 1 Auth | **Done** |
-| 2 Profile | **Done** |
-| 3 Projects | **Done** |
-| 4 Members | **Done** |
-| 5 Tasks / board | **Done** (`feature/tasks-phase-5`) |
-| 6 Comments | **Next** |
-| 7 Attachments | Pending |
+| 0–5 | **Done** |
+| 6 Comments | **Done** (`feature/comments-phase-6`) |
+| 7 Attachments | **Next** |
 | 8 Dashboard & polish | Pending |
 
-### Phase 5 — Tasks / board
+### Phase 6 — Comments
 
 | Capability | Notes |
 |------------|--------|
-| List | `GET /projects/:id/tasks` → `PaginatedTaskResponseDto` |
-| Create | title, optional description, priority |
-| Board | Columns: TODO → IN_PROGRESS → IN_REVIEW → DONE |
-| Status update | `PATCH /tasks/:id` |
-| Soft-delete | `DELETE /tasks/:id` |
+| List | `GET /tasks/:taskId/comments` paginated |
+| Create | `POST` with `content` |
+| Update | `PATCH /comments/:id` (author) |
+| Soft-delete | `DELETE /comments/:id` (author) |
 
-UI: `sl-project-tasks-board-panel` on project detail.
-
-Filters (`status`, `q`, assignee, due dates) are supported in `TasksApiService` for later UI.
+UI: expand **Comments** on a task card → `sl-task-comments-panel`.
 
 ---
 
@@ -61,4 +53,4 @@ Filters (`status`, `q`, assignee, due dates) are supported in `TasksApiService` 
 
 ---
 
-*Last updated: 2026-10-23 — Phase 5 tasks board on `feature/tasks-phase-5`.*
+*Last updated: 2026-10-23 — Phase 6 comments on `feature/comments-phase-6`.*

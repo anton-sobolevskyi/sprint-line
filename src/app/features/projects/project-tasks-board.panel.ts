@@ -15,6 +15,8 @@ import {
   TasksApiService,
 } from '../../core/tasks/tasks-api.service';
 import { firstFieldErrorMessage } from '../auth/auth.form-utils';
+import { COMMENTS_MESSAGES } from './comments.messages';
+import { TaskCommentsPanel } from './task-comments.panel';
 import { TASK_STATUS_ORDER, TASKS_MESSAGES } from './tasks.messages';
 import { createTaskSchema, type CreateTaskModel } from './tasks.schemas';
 
@@ -24,6 +26,7 @@ const DEFAULT_LIMIT = 100 as const;
   selector: 'sl-project-tasks-board-panel',
   imports: [
     FormField,
+    TaskCommentsPanel,
     ...HlmButtonImports,
     ...HlmCardImports,
     ...HlmFieldImports,
@@ -38,6 +41,7 @@ export class ProjectTasksBoardPanel {
   private readonly tasksApi = inject(TasksApiService);
 
   readonly messages = TASKS_MESSAGES;
+  readonly commentsMessages = COMMENTS_MESSAGES;
   readonly statusOrder = TASK_STATUS_ORDER;
 
   readonly tasks = signal<TaskResponseDto[]>([]);
@@ -51,6 +55,9 @@ export class ProjectTasksBoardPanel {
 
   readonly actionTaskId = signal<string | null>(null);
   readonly actionError = signal<string | null>(null);
+
+  /** Task id whose comments panel is expanded. */
+  readonly expandedCommentsTaskId = signal<string | null>(null);
 
   private readonly createModel = signal<CreateTaskModel>({
     title: '',
@@ -107,6 +114,16 @@ export class ProjectTasksBoardPanel {
 
   priorityLabel(priority: TaskPriority): string {
     return this.messages.priority[priority];
+  }
+
+  isCommentsOpen(taskId: string): boolean {
+    return this.expandedCommentsTaskId() === taskId;
+  }
+
+  toggleComments(taskId: string): void {
+    this.expandedCommentsTaskId.update((current) =>
+      current === taskId ? null : taskId,
+    );
   }
 
   createFieldError(field: 'title' | 'description' | 'priority'): string | null {
@@ -190,6 +207,9 @@ export class ProjectTasksBoardPanel {
     this.tasksApi.softDelete(task.id).subscribe({
       next: () => {
         this.actionTaskId.set(null);
+        if (this.expandedCommentsTaskId() === task.id) {
+          this.expandedCommentsTaskId.set(null);
+        }
         this.tasks.update((list) => list.filter((item) => item.id !== task.id));
       },
       error: (error: unknown) => {
