@@ -24,21 +24,21 @@ Step-by-step frontend plan for [management_app_backend](https://github.com/anton
 
 | Phase | Status |
 |-------|--------|
-| 0–5 | **Done** |
-| 6 Comments | **Done** (`feature/comments-phase-6`) |
-| 7 Attachments | **Next** |
-| 8 Dashboard & polish | Pending |
+| 0–6 | **Done** |
+| 7 Attachments | **Done** (`feature/attachments-phase-7`) |
+| 8 Dashboard & polish | **Next** |
 
-### Phase 6 — Comments
+### Phase 7 — Attachments
 
 | Capability | Notes |
 |------------|--------|
-| List | `GET /tasks/:taskId/comments` paginated |
-| Create | `POST` with `content` |
-| Update | `PATCH /comments/:id` (author) |
-| Soft-delete | `DELETE /comments/:id` (author) |
+| List | `GET /tasks/:taskId/attachments` |
+| Upload | `POST` multipart `file` |
+| Download | `GET /attachments/:id/download` → presigned URL |
+| Delete | `DELETE /attachments/:id` (uploader) |
+| Comment upload | API wired in `AttachmentsApiService` (UI optional later) |
 
-UI: expand **Comments** on a task card → `sl-task-comments-panel`.
+UI: **Files** on task card → `sl-task-attachments-panel`.
 
 ---
 
@@ -48,9 +48,8 @@ UI: expand **Comments** on a task card → `sl-task-comments-panel`.
 2. Spartan/helm only  
 3. Loading / empty / error states  
 4. Endpoints & copy via constants  
-5. Signal Forms + Zod; invalid submit disabled  
-6. Types match OpenAPI schema  
+5. Types match OpenAPI schema  
 
 ---
 
-*Last updated: 2026-10-23 — Phase 6 comments on `feature/comments-phase-6`.*
+*Last updated: 2026-10-23 — Phase 7 attachments on `feature/attachments-phase-7`.*

@@ -122,7 +122,7 @@
                         {{ messages.actions.changeStatus }}
                       </label>
                       <select
-                        class="border-input bg-input/30 h-8 flex-1 rounded-4xl border px-2 text-xs outline-none"
+                        class="border-input bg-input/30 h-8 min-w-0 flex-1 rounded-4xl border px-2 text-xs outline-none"
                         [id]="'status-' + task.id"
                         [value]="task.status"
                         [disabled]="actionTaskId() === task.id"
@@ -150,6 +150,20 @@
                       <button
                         hlmBtn
                         type="button"
+                        variant="outline"
+                        size="sm"
+                        (click)="toggleFiles(task.id)"
+                      >
+                        {{
+                          isFilesOpen(task.id)
+                            ? attachmentsMessages.close
+                            : attachmentsMessages.open
+                        }}
+                      </button>
+
+                      <button
+                        hlmBtn
+                        type="button"
                         variant="destructive"
                         size="sm"
                         [disabled]="actionTaskId() === task.id"
@@ -165,6 +179,10 @@
 
                     @if (isCommentsOpen(task.id)) {
                       <sl-task-comments-panel [taskId]="task.id" />
+                    }
+
+                    @if (isFilesOpen(task.id)) {
+                      <sl-task-attachments-panel [taskId]="task.id" />
                     }
                   </li>
                 }

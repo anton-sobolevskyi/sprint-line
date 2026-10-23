@@ -15,7 +15,9 @@ import {
   TasksApiService,
 } from '../../core/tasks/tasks-api.service';
 import { firstFieldErrorMessage } from '../auth/auth.form-utils';
+import { ATTACHMENTS_MESSAGES } from './attachments.messages';
 import { COMMENTS_MESSAGES } from './comments.messages';
+import { TaskAttachmentsPanel } from './task-attachments.panel';
 import { TaskCommentsPanel } from './task-comments.panel';
 import { TASK_STATUS_ORDER, TASKS_MESSAGES } from './tasks.messages';
 import { createTaskSchema, type CreateTaskModel } from './tasks.schemas';
@@ -27,6 +29,7 @@ const DEFAULT_LIMIT = 100 as const;
   imports: [
     FormField,
     TaskCommentsPanel,
+    TaskAttachmentsPanel,
     ...HlmButtonImports,
     ...HlmCardImports,
     ...HlmFieldImports,
@@ -42,6 +45,7 @@ export class ProjectTasksBoardPanel {
 
   readonly messages = TASKS_MESSAGES;
   readonly commentsMessages = COMMENTS_MESSAGES;
+  readonly attachmentsMessages = ATTACHMENTS_MESSAGES;
   readonly statusOrder = TASK_STATUS_ORDER;
 
   readonly tasks = signal<TaskResponseDto[]>([]);
@@ -56,8 +60,8 @@ export class ProjectTasksBoardPanel {
   readonly actionTaskId = signal<string | null>(null);
   readonly actionError = signal<string | null>(null);
 
-  /** Task id whose comments panel is expanded. */
   readonly expandedCommentsTaskId = signal<string | null>(null);
+  readonly expandedFilesTaskId = signal<string | null>(null);
 
   private readonly createModel = signal<CreateTaskModel>({
     title: '',
@@ -120,8 +124,18 @@ export class ProjectTasksBoardPanel {
     return this.expandedCommentsTaskId() === taskId;
   }
 
+  isFilesOpen(taskId: string): boolean {
+    return this.expandedFilesTaskId() === taskId;
+  }
+
   toggleComments(taskId: string): void {
     this.expandedCommentsTaskId.update((current) =>
+      current === taskId ? null : taskId,
+    );
+  }
+
+  toggleFiles(taskId: string): void {
+    this.expandedFilesTaskId.update((current) =>
       current === taskId ? null : taskId,
     );
   }
@@ -209,6 +223,9 @@ export class ProjectTasksBoardPanel {
         this.actionTaskId.set(null);
         if (this.expandedCommentsTaskId() === task.id) {
           this.expandedCommentsTaskId.set(null);
+        }
+        if (this.expandedFilesTaskId() === task.id) {
+          this.expandedFilesTaskId.set(null);
         }
         this.tasks.update((list) => list.filter((item) => item.id !== task.id));
       },
