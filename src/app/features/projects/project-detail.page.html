@@ -1,4 +1,4 @@
-<main class="bg-background mx-auto flex min-h-svh w-full max-w-3xl flex-col gap-6 p-4 md:p-8">
+<main class="bg-background mx-auto flex min-h-svh w-full max-w-6xl flex-col gap-6 p-4 md:p-8">
   <a hlmBtn variant="link" routerLink="/projects" class="h-auto w-fit p-0">
     {{ messages.detail.back }}
   </a>
@@ -20,12 +20,13 @@
       @if (current.description) {
         <p class="text-muted-foreground mt-1 text-sm">{{ current.description }}</p>
       }
-      <p class="text-muted-foreground mt-3 text-sm">{{ messages.detail.hubHint }}</p>
     </header>
+
+    <sl-project-tasks-board-panel [projectId]="current.id" />
 
     <sl-project-members-panel [projectId]="current.id" />
 
-    <section hlmCard>
+    <section hlmCard class="max-w-3xl">
       <header hlmCardHeader>
         <h2 hlmCardTitle>{{ messages.detail.settingsTitle }}</h2>
         <p hlmCardDescription>{{ messages.detail.settingsDescription }}</p>
@@ -88,7 +89,7 @@
       </div>
     </section>
 
-    <section hlmCard>
+    <section hlmCard class="max-w-3xl">
       <div hlmCardContent class="flex flex-col gap-3 py-6">
         @if (deleteError(); as error) {
           <p class="text-destructive text-sm" role="alert">{{ error }}</p>

@@ -31,6 +31,10 @@ export const API_PATHS = {
       `/projects/${projectId}/members/${userId}` as const,
     transferOwnership: (projectId: string, userId: string) =>
       `/projects/${projectId}/members/${userId}/transfer-ownership` as const,
+    tasks: (projectId: string) => `/projects/${projectId}/tasks` as const,
+  },
+  tasks: {
+    byId: (id: string) => `/tasks/${id}` as const,
   },
   attachments: {
     download: (id: string) => `/attachments/${id}/download` as const,
@@ -65,6 +69,10 @@ export const API_ENDPOINTS = {
       apiUrl(API_PATHS.projects.member(projectId, userId)),
     transferOwnership: (projectId: string, userId: string) =>
       apiUrl(API_PATHS.projects.transferOwnership(projectId, userId)),
+    tasks: (projectId: string) => apiUrl(API_PATHS.projects.tasks(projectId)),
+  },
+  tasks: {
+    byId: (id: string) => apiUrl(API_PATHS.tasks.byId(id)),
   },
   attachments: {
     downloadUrl: (id: string) => apiUrl(API_PATHS.attachments.download(id)),

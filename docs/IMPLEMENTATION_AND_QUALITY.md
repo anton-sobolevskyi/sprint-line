@@ -11,13 +11,12 @@ Step-by-step frontend plan for [management_app_backend](https://github.com/anton
 
 | Concern | Approach |
 |---------|----------|
-| Global state | `@ngrx/store` (auth, current user, …) |
-| Local / UI state | SignalStore or component signals |
-| Forms | Signal Forms + Zod (`validateStandardSchema`) |
-| Submit buttons | Disabled when `form().invalid()` or request in flight |
+| Global state | `@ngrx/store` |
+| Local / UI state | component signals / SignalStore |
+| Forms | Signal Forms + Zod |
 | Endpoints | `API_PATHS` / `API_ENDPOINTS` (`as const`) |
-| Copy | `*.messages.ts` (`as const`, i18n-ready) |
-| OpenAPI types | `src/core/api/generated/schema.d.ts` → `src/types/api.schema.d.ts` |
+| Copy | `*.messages.ts` (`as const`) |
+| OpenAPI | `src/core/api/generated/schema.d.ts` → `src/types/api.schema.d.ts` |
 
 ---
 
@@ -26,34 +25,28 @@ Step-by-step frontend plan for [management_app_backend](https://github.com/anton
 | Phase | Status |
 |-------|--------|
 | 0 Foundation | Mostly done (Sonner pending) |
-| 1 Auth (+ email verify / password reset) | **Done** |
+| 1 Auth | **Done** |
 | 2 Profile | **Done** |
 | 3 Projects | **Done** |
-| 4 Members | **Done** (`feature/members-phase-4`) |
-| 5 Tasks / board | **Next** |
-| 6 Comments | Pending |
+| 4 Members | **Done** |
+| 5 Tasks / board | **Done** (`feature/tasks-phase-5`) |
+| 6 Comments | **Next** |
 | 7 Attachments | Pending |
 | 8 Dashboard & polish | Pending |
 
-### Phase 4 — Members (delivered)
+### Phase 5 — Tasks / board
 
 | Capability | Notes |
 |------------|--------|
-| List | `GET /projects/:id/members` → `PaginatedProjectMemberResponseDto` |
-| Invite | email + role `MEMBER` \| `ADMIN` (Signal Forms + Zod) |
-| Change role | `PATCH .../members/:userId` |
-| Remove / leave | `DELETE .../members/:userId` |
-| Transfer ownership | `POST .../transfer-ownership` (OWNER only) |
+| List | `GET /projects/:id/tasks` → `PaginatedTaskResponseDto` |
+| Create | title, optional description, priority |
+| Board | Columns: TODO → IN_PROGRESS → IN_REVIEW → DONE |
+| Status update | `PATCH /tasks/:id` |
+| Soft-delete | `DELETE /tasks/:id` |
 
-UI: `sl-project-members-panel` on project detail. Permissions derived from current user’s membership role.
+UI: `sl-project-tasks-board-panel` on project detail.
 
----
-
-## OpenAPI notes (recent)
-
-- Projects & members lists are **paginated** (`data` + `meta`).
-- Auth: forgot / reset / verify / resend verification.
-- `UserResponseDto.emailVerifiedAt`.
+Filters (`status`, `q`, assignee, due dates) are supported in `TasksApiService` for later UI.
 
 ---
 
@@ -62,13 +55,10 @@ UI: `sl-project-members-panel` on project detail. Permissions derived from curre
 1. Acceptance criteria met  
 2. Spartan/helm only  
 3. Loading / empty / error states  
-4. Keyboard + basic a11y  
-5. `lint` / `typecheck` / `test:ci`  
-6. Auth/session safe  
-7. Endpoints & copy via constants  
-8. Signal Forms + Zod; invalid submit disabled  
-9. Types match OpenAPI schema  
+4. Endpoints & copy via constants  
+5. Signal Forms + Zod; invalid submit disabled  
+6. Types match OpenAPI schema  
 
 ---
 
-*Last updated: 2026-10-23 — Phase 4 members on `feature/members-phase-4`.*
+*Last updated: 2026-10-23 — Phase 5 tasks board on `feature/tasks-phase-5`.*
