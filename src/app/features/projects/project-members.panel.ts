@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, OnChanges, signal, SimpleChanges } from '@angular/core';
+import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { form, FormField, validateStandardSchema } from '@angular/forms/signals';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
@@ -14,8 +14,8 @@ import {
   type ProjectMemberRole,
   ProjectMembersApiService,
 } from '../../core/projects/project-members-api.service';
-import { selectCurrentUser } from '../../core/users/user.reducer';
 import { UserActions } from '../../core/users/user.actions';
+import { selectCurrentUser } from '../../core/users/user.reducer';
 import { firstFieldErrorMessage } from '../auth/auth.form-utils';
 import { MEMBERS_MESSAGES } from './members.messages';
 import { inviteMemberSchema, type InviteMemberModel } from './members.schemas';
@@ -34,7 +34,7 @@ const DEFAULT_LIMIT = 50 as const;
   ],
   templateUrl: './project-members.panel.html',
 })
-export class ProjectMembersPanel implements OnChanges {
+export class ProjectMembersPanel {
   readonly projectId = input.required<string>();
 
   private readonly membersApi = inject(ProjectMembersApiService);
@@ -80,16 +80,21 @@ export class ProjectMembersPanel implements OnChanges {
 
   readonly isOwner = computed(() => this.myMembership()?.role === 'OWNER');
 
+  private readonly loadedForProjectId = signal<string | null>(null);
+
   constructor() {
     if (!this.currentUser()) {
       this.store.dispatch(UserActions.loadMe());
     }
-  }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['projectId'] && this.projectId()) {
+    effect(() => {
+      const projectId = this.projectId();
+      if (!projectId || this.loadedForProjectId() === projectId) {
+        return;
+      }
+      this.loadedForProjectId.set(projectId);
       this.load();
-    }
+    });
   }
 
   load(page: number = DEFAULT_PAGE): void {
@@ -177,13 +182,6 @@ export class ProjectMembersPanel implements OnChanges {
     const select = event.target as HTMLSelectElement;
     const role = select.value as ProjectMemberRole;
     if (role === member.role) {
-      return;
-    }
-
-    // Only OWNER may assign OWNER; prefer transfer endpoint for ownership moves.
-    if (role === 'OWNER') {
-      select.value = member.role;
-      this.onTransfer(member);
       return;
     }
 
