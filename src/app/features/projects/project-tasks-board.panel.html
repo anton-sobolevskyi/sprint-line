@@ -89,17 +89,24 @@
           </div>
 
           <div hlmField>
-            <label hlmFieldLabel for="task-priority">{{ messages.create.priorityLabel }}</label>
-            <select
-              id="task-priority"
-              class="border-input bg-background h-9 w-full rounded-lg border px-3 text-sm outline-none"
-              [formField]="createForm.priority"
+            <label hlmFieldLabel id="task-priority-label">{{ messages.create.priorityLabel }}</label>
+            <hlm-select
+              class="w-full"
+              [value]="createPriority()"
+              (valueChange)="setCreatePriority($event)"
+              aria-labelledby="task-priority-label"
             >
-              <option value="LOW">{{ messages.priority.LOW }}</option>
-              <option value="MEDIUM">{{ messages.priority.MEDIUM }}</option>
-              <option value="HIGH">{{ messages.priority.HIGH }}</option>
-              <option value="URGENT">{{ messages.priority.URGENT }}</option>
-            </select>
+              <hlm-select-trigger class="w-full">
+                <hlm-select-value />
+              </hlm-select-trigger>
+              <hlm-select-content *hlmSelectPortal>
+                <hlm-select-group>
+                  @for (priority of priorityOptions; track priority) {
+                    <hlm-select-item [value]="priority">{{ messages.priority[priority] }}</hlm-select-item>
+                  }
+                </hlm-select-group>
+              </hlm-select-content>
+            </hlm-select>
           </div>
         </div>
 
