@@ -5,6 +5,7 @@
   </header>
 
   <div hlmCardContent class="flex flex-col gap-6">
+    <!-- Filters toolbar -->
     <form
       class="border-border bg-muted/20 flex flex-col gap-3 rounded-xl border p-3"
       (submit)="applyFilters($event)"
@@ -61,6 +62,7 @@
       </div>
     </form>
 
+    <!-- Create task (compact) -->
     <form class="flex flex-col gap-3" (submit)="onCreateSubmit($event)">
       <h3 class="text-sm font-medium">{{ messages.create.title }}</h3>
 
@@ -163,16 +165,22 @@
           >
             <div class="flex items-center justify-between gap-2">
               <h3 class="text-sm font-semibold">{{ column.label }}</h3>
-              <span class="text-muted-foreground text-xs">{{ column.tasks.length }}</span>
+              <span
+                class="bg-background text-muted-foreground inline-flex min-w-5 items-center justify-center rounded-full px-1.5 py-0.5 text-xs font-medium tabular-nums"
+              >
+                {{ column.tasks.length }}
+              </span>
             </div>
 
             @if (column.tasks.length === 0) {
-              <p class="text-muted-foreground text-xs">{{ messages.emptyColumn }}</p>
+              <p class="text-muted-foreground border-border/60 rounded-lg border border-dashed px-2 py-6 text-center text-xs">
+                {{ messages.emptyColumn }}
+              </p>
             }
             <ul class="flex min-h-24 flex-1 flex-col gap-2">
               @for (task of column.tasks; track task.id) {
                 <li
-                  class="bg-card cursor-grab rounded-lg border p-3 shadow-xs active:cursor-grabbing"
+                  class="bg-card group hover:border-primary/25 cursor-grab rounded-lg border p-3 shadow-xs transition-colors active:cursor-grabbing"
                   cdkDrag
                   [cdkDragData]="task"
                   [cdkDragDisabled]="actionTaskId() === task.id"
@@ -183,24 +191,41 @@
                   >
                     {{ task.title }}
                   </a>
+
                   @if (task.description) {
                     <p class="text-muted-foreground mt-1 line-clamp-2 text-xs">
                       {{ task.description }}
                     </p>
                   }
-                  <div class="text-muted-foreground mt-2 flex flex-wrap gap-x-2 gap-y-1 text-xs">
-                    <span>{{ priorityLabel(task.priority) }}</span>
+
+                  <!-- Meta chips -->
+                  <div class="mt-2.5 flex flex-wrap items-center gap-1.5">
+                    <span
+                      class="inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide"
+                      [class]="priorityChipClass(task.priority)"
+                    >
+                      {{ priorityLabel(task.priority) }}
+                    </span>
                     @if (dueLabel(task); as due) {
-                      <span [class.text-destructive]="isOverdue(task)">{{ due }}</span>
+                      <span
+                        class="text-muted-foreground text-[11px]"
+                        [class.text-destructive]="isOverdue(task)"
+                        [class.font-medium]="isOverdue(task)"
+                      >
+                        {{ due }}
+                      </span>
                     }
                   </div>
 
-                  <div class="mt-3 flex flex-wrap items-center gap-2">
+                  <!-- Actions: more compact, appear stronger on hover -->
+                  <div
+                    class="mt-3 flex flex-wrap items-center gap-1.5 opacity-90 transition-opacity group-hover:opacity-100"
+                  >
                     <label class="sr-only" [attr.for]="'status-' + task.id">
                       {{ messages.actions.changeStatus }}
                     </label>
                     <select
-                      class="border-input bg-input/30 h-8 min-w-0 flex-1 rounded-4xl border px-2 text-xs outline-none"
+                      class="border-input bg-input/30 h-7 min-w-0 flex-1 rounded-lg border px-1.5 text-[11px] outline-none"
                       [id]="'status-' + task.id"
                       [value]="task.status"
                       [disabled]="actionTaskId() === task.id"
@@ -214,8 +239,9 @@
                     <button
                       hlmBtn
                       type="button"
-                      variant="outline"
+                      variant="ghost"
                       size="sm"
+                      class="h-7 px-2 text-xs"
                       (click)="toggleComments(task.id)"
                     >
                       {{
@@ -228,8 +254,9 @@
                     <button
                       hlmBtn
                       type="button"
-                      variant="outline"
+                      variant="ghost"
                       size="sm"
+                      class="h-7 px-2 text-xs"
                       (click)="toggleFiles(task.id)"
                     >
                       {{
@@ -242,8 +269,9 @@
                     <button
                       hlmBtn
                       type="button"
-                      variant="destructive"
+                      variant="ghost"
                       size="sm"
+                      class="text-destructive hover:bg-destructive/10 h-7 px-2 text-xs"
                       [disabled]="actionTaskId() === task.id"
                       (click)="onDelete(task)"
                     >
@@ -256,11 +284,15 @@
                   </div>
 
                   @if (isCommentsOpen(task.id)) {
-                    <sl-task-comments-panel [taskId]="task.id" />
+                    <div class="mt-3 border-t pt-3">
+                      <sl-task-comments-panel [taskId]="task.id" />
+                    </div>
                   }
 
                   @if (isFilesOpen(task.id)) {
-                    <sl-task-attachments-panel [taskId]="task.id" />
+                    <div class="mt-3 border-t pt-3">
+                      <sl-task-attachments-panel [taskId]="task.id" />
+                    </div>
                   }
                 </li>
               }
