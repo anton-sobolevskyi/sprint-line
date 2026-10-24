@@ -34,8 +34,8 @@ Step-by-step frontend plan for [management_app_backend](https://github.com/anton
 | UI brand + shell + dark mode | **Done** |
 | Board UX (filters, quick-add, slim cards) | **Done** |
 | Shell project context + recent projects | **Done** |
-| **UX Phase A** — tokens, density, task cards | **In progress** |
-| UX Phase B — home, list view, task detail | Planned |
+| **UX Phase A** — tokens, density, task cards | **Done** |
+| UX Phase B — home, list view, task detail | In progress |
 | UX Phase C — command palette, keyboard | Planned |
 | Next (optional) | Authenticated Playwright e2e · Helm Select forms |
 
@@ -64,4 +64,4 @@ UI-only state (create form, draft filters, quick-add draft) stays on the compone
 
 ---
 
-*Last updated: 2026-10-24 — UX/UI improvement guide + Phase A board density.*
+*Last updated: 2026-10-24 — Phase A complete; Phase B home density started.*

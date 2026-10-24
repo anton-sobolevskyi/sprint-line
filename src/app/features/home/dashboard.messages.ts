@@ -7,7 +7,7 @@ export const DASHBOARD_MESSAGES = {
   greetingAfternoonNamed: 'Good afternoon, {name}',
   greetingEvening: 'Good evening',
   greetingEveningNamed: 'Good evening, {name}',
-  subtitle: 'Pick up where you left off or jump into a project.',
+  subtitle: 'Here is what needs attention — open a project or start a new one.',
   stats: {
     projects: 'Projects',
     projectsHint: 'In your workspace',
