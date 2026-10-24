@@ -19,6 +19,7 @@ Step-by-step frontend plan for [management_app_backend](https://github.com/anton
 | Copy | `*.messages.ts` (`as const`) |
 | Confirms | `ConfirmDialogService` |
 | Toasts | `appToast` + root `<hlm-toaster />` |
+| Theme | `ThemeService` + `localStorage` (`sprintline-theme`) |
 
 ---
 
@@ -26,19 +27,23 @@ Step-by-step frontend plan for [management_app_backend](https://github.com/anton
 
 | Phase | Status |
 |-------|--------|
-| 0–8 + board UX | **Done** |
-| Shell polish | **Done** |
-| Feature SignalStores | **Done** (`refactor/feature-signal-stores`) |
-| Next (optional) | Playwright e2e |
+| 0–8 product features | **Done** |
+| Feature SignalStores (tasks, members) | **Done** |
+| UI brand + shell + dark mode | **Done** |
+| Board UX (filters, quick-add, slim cards) | **Done** |
+| Shell project context + recent projects | **Done** |
+| Next (optional) | Authenticated Playwright e2e · Helm Select forms |
+
+See README **UI design system** for tokens and patterns.
 
 ### Feature SignalStores
 
 | Store | Scope | Responsibilities |
 |-------|--------|------------------|
-| `ProjectTasksStore` | board panel (`providers`) | tasks, filters, create, status, delete |
+| `ProjectTasksStore` | board panel (`providers`) | tasks, filters, create, `createInColumn`, status, delete |
 | `ProjectMembersStore` | members panel (`providers`) | members, invite, role, remove, transfer |
 
-UI-only state (create form, expand comments/files, draft filter inputs) stays on the component.
+UI-only state (create form, draft filters, quick-add draft) stays on the component.
 
 ---
 
@@ -54,4 +59,4 @@ UI-only state (create form, expand comments/files, draft filter inputs) stays on
 
 ---
 
-*Last updated: 2026-10-23 — feature SignalStores.*
+*Last updated: 2026-10-24 — UI refresh, shell recent projects.*
