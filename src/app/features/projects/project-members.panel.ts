@@ -110,6 +110,22 @@ export class ProjectMembersPanel {
     return member.user?.email ?? '—';
   }
 
+  memberInitials(member: ProjectMemberResponseDto): string {
+    const name = this.displayName(member).trim();
+    if (!name || name === member.userId) {
+      const email = member.user?.email ?? '';
+      if (email.length >= 2) {
+        return email.slice(0, 2).toUpperCase();
+      }
+      return '?';
+    }
+    const parts = name.split(/\s+/).filter(Boolean);
+    if (parts.length >= 2) {
+      return (parts[0]![0]! + parts[1]![0]!).toUpperCase();
+    }
+    return name.slice(0, 2).toUpperCase();
+  }
+
   roleLabel(role: ProjectMemberRole): string {
     return this.messages.roles[role];
   }

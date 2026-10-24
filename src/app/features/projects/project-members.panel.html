@@ -43,7 +43,7 @@
             <label hlmFieldLabel for="invite-role">{{ messages.invite.roleLabel }}</label>
             <select
               id="invite-role"
-              class="border-input bg-input/30 h-9 rounded-4xl border px-3 text-sm outline-none"
+              class="border-input bg-background h-9 rounded-lg border px-3 text-sm outline-none"
               [formField]="inviteForm.role"
             >
               <option value="MEMBER">{{ messages.roles.MEMBER }}</option>
@@ -86,14 +86,22 @@
       <ul class="divide-border divide-y rounded-xl border">
         @for (member of members(); track member.id) {
           <li class="flex flex-col gap-3 p-3 sm:flex-row sm:items-center sm:justify-between">
-            <div class="min-w-0">
-              <p class="truncate font-medium">
-                {{ displayName(member) }}
-                @if (isSelf(member)) {
-                  <span class="text-muted-foreground text-xs font-normal">({{ messages.you }})</span>
-                }
-              </p>
-              <p class="text-muted-foreground truncate text-sm">{{ displayEmail(member) }}</p>
+            <div class="flex min-w-0 items-center gap-3">
+              <span
+                class="bg-primary/10 text-primary flex size-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold"
+                aria-hidden="true"
+              >
+                {{ memberInitials(member) }}
+              </span>
+              <div class="min-w-0">
+                <p class="truncate font-medium">
+                  {{ displayName(member) }}
+                  @if (isSelf(member)) {
+                    <span class="text-muted-foreground text-xs font-normal">({{ messages.you }})</span>
+                  }
+                </p>
+                <p class="text-muted-foreground truncate text-sm">{{ displayEmail(member) }}</p>
+              </div>
             </div>
 
             <div class="flex flex-wrap items-center gap-2">
@@ -102,7 +110,7 @@
                   {{ messages.actions.changeRole }}
                 </label>
                 <select
-                  class="border-input bg-input/30 h-9 rounded-4xl border px-3 text-sm outline-none"
+                  class="border-input bg-background h-9 rounded-lg border px-3 text-sm outline-none"
                   [id]="'role-' + member.userId"
                   [value]="member.role"
                   [disabled]="actionUserId() === member.userId"

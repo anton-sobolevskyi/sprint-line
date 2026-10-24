@@ -6,6 +6,7 @@ export const SHELL_MESSAGES = {
     projects: 'Projects',
     profile: 'Profile',
   },
+  projectContext: 'Current project',
   logout: 'Sign out',
   loggingOut: 'Signing out…',
   theme: {

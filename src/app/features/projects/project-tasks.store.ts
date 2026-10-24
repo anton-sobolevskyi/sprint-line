@@ -66,53 +66,8 @@ export const ProjectTasksStore = signalStore(
       }));
     }),
   })),
-  withMethods((store, tasksApi = inject(TasksApiService)) => ({
-    setProjectId(projectId: string): void {
-      if (store.projectId() === projectId) {
-        return;
-      }
-      patchState(store, {
-        projectId,
-        tasks: [],
-        loadStatus: 'idle',
-        loadError: null,
-        actionTaskId: null,
-        actionError: null,
-      });
-    },
-
-    setCurrentUserId(userId: string | null): void {
-      patchState(store, { currentUserId: userId });
-    },
-
-    setFilters(filters: {
-      query: string;
-      assignedToMe: boolean;
-      overdue: boolean;
-    }): void {
-      patchState(store, {
-        activeQuery: filters.query.trim(),
-        activeAssignedToMe: filters.assignedToMe,
-        activeOverdue: filters.overdue,
-      });
-    },
-
-    clearFilters(): void {
-      patchState(store, {
-        activeQuery: '',
-        activeAssignedToMe: false,
-        activeOverdue: false,
-      });
-    },
-
-    load(): void {
-      const projectId = store.projectId();
-      if (!projectId) {
-        return;
-      }
-
-      patchState(store, { loadStatus: 'loading', loadError: null });
-
+  withMethods((store, tasksApi = inject(TasksApiService)) => {
+    const reload = (projectId: string): void => {
       const query = buildListQuery(store);
       tasksApi.findAll(projectId, query).subscribe({
         next: (response) => {
@@ -121,164 +76,198 @@ export const ProjectTasksStore = signalStore(
             loadStatus: 'success',
           });
         },
-        error: (error: unknown) => {
-          patchState(store, {
-            loadStatus: 'error',
-            loadError: getApiErrorMessage(error),
-          });
-        },
       });
-    },
+    };
 
-    create(
-      dto: CreateTaskDto,
-      callbacks?: { onSuccess?: () => void; onError?: (message: string) => void },
-    ): void {
-      const projectId = store.projectId();
-      if (!projectId) {
-        return;
-      }
+    return {
+      setProjectId(projectId: string): void {
+        if (store.projectId() === projectId) {
+          return;
+        }
+        patchState(store, {
+          projectId,
+          tasks: [],
+          loadStatus: 'idle',
+          loadError: null,
+          actionTaskId: null,
+          actionError: null,
+        });
+      },
 
-      tasksApi.create(projectId, dto).subscribe({
-        next: () => {
-          callbacks?.onSuccess?.();
-          reloadTasks(store, tasksApi, projectId);
-        },
-        error: (error: unknown) => {
-          callbacks?.onError?.(getApiErrorMessage(error));
-        },
-      });
-    },
+      setCurrentUserId(userId: string | null): void {
+        patchState(store, { currentUserId: userId });
+      },
 
-    /**
-     * Quick-add into a column: create then set status if the API default differs.
-     */
-    createInColumn(
-      title: string,
-      status: TaskStatus,
-      callbacks?: { onSuccess?: () => void; onError?: (message: string) => void },
-    ): void {
-      const projectId = store.projectId();
-      if (!projectId) {
-        return;
-      }
+      setFilters(filters: {
+        query: string;
+        assignedToMe: boolean;
+        overdue: boolean;
+      }): void {
+        patchState(store, {
+          activeQuery: filters.query.trim(),
+          activeAssignedToMe: filters.assignedToMe,
+          activeOverdue: filters.overdue,
+        });
+      },
 
-      tasksApi.create(projectId, { title, priority: 'MEDIUM' }).subscribe({
-        next: (created) => {
-          if (created.status === status) {
+      clearFilters(): void {
+        patchState(store, {
+          activeQuery: '',
+          activeAssignedToMe: false,
+          activeOverdue: false,
+        });
+      },
+
+      load(): void {
+        const projectId = store.projectId();
+        if (!projectId) {
+          return;
+        }
+
+        patchState(store, { loadStatus: 'loading', loadError: null });
+
+        const query = buildListQuery(store);
+        tasksApi.findAll(projectId, query).subscribe({
+          next: (response) => {
+            patchState(store, {
+              tasks: response.data,
+              loadStatus: 'success',
+            });
+          },
+          error: (error: unknown) => {
+            patchState(store, {
+              loadStatus: 'error',
+              loadError: getApiErrorMessage(error),
+            });
+          },
+        });
+      },
+
+      create(
+        dto: CreateTaskDto,
+        callbacks?: { onSuccess?: () => void; onError?: (message: string) => void },
+      ): void {
+        const projectId = store.projectId();
+        if (!projectId) {
+          return;
+        }
+
+        tasksApi.create(projectId, dto).subscribe({
+          next: () => {
             callbacks?.onSuccess?.();
-            reloadTasks(store, tasksApi, projectId);
-            return;
-          }
+            reload(projectId);
+          },
+          error: (error: unknown) => {
+            callbacks?.onError?.(getApiErrorMessage(error));
+          },
+        });
+      },
 
-          tasksApi.update(created.id, { status }).subscribe({
-            next: () => {
+      createInColumn(
+        title: string,
+        status: TaskStatus,
+        callbacks?: { onSuccess?: () => void; onError?: (message: string) => void },
+      ): void {
+        const projectId = store.projectId();
+        if (!projectId) {
+          return;
+        }
+
+        tasksApi.create(projectId, { title, priority: 'MEDIUM' }).subscribe({
+          next: (created) => {
+            if (created.status === status) {
               callbacks?.onSuccess?.();
-              reloadTasks(store, tasksApi, projectId);
-            },
-            error: () => {
-              // Task exists; still refresh so it appears (likely in default column).
-              callbacks?.onSuccess?.();
-              reloadTasks(store, tasksApi, projectId);
-            },
-          });
-        },
-        error: (error: unknown) => {
-          callbacks?.onError?.(getApiErrorMessage(error));
-        },
-      });
-    },
+              reload(projectId);
+              return;
+            }
 
-    updateStatus(
-      task: TaskResponseDto,
-      status: TaskStatus,
-      callbacks?: { onError?: (message: string) => void },
-    ): void {
-      if (task.status === status) {
-        return;
-      }
+            tasksApi.update(created.id, { status }).subscribe({
+              next: () => {
+                callbacks?.onSuccess?.();
+                reload(projectId);
+              },
+              error: () => {
+                callbacks?.onSuccess?.();
+                reload(projectId);
+              },
+            });
+          },
+          error: (error: unknown) => {
+            callbacks?.onError?.(getApiErrorMessage(error));
+          },
+        });
+      },
 
-      const previousStatus = task.status;
-      patchState(store, {
-        actionError: null,
-        actionTaskId: task.id,
-        tasks: store
-          .tasks()
-          .map((item) => (item.id === task.id ? { ...item, status } : item)),
-      });
+      updateStatus(
+        task: TaskResponseDto,
+        status: TaskStatus,
+        callbacks?: { onError?: (message: string) => void },
+      ): void {
+        if (task.status === status) {
+          return;
+        }
 
-      tasksApi.update(task.id, { status }).subscribe({
-        next: (updated) => {
-          patchState(store, {
-            actionTaskId: null,
-            tasks: store
-              .tasks()
-              .map((item) => (item.id === updated.id ? updated : item)),
-          });
-        },
-        error: (error: unknown) => {
-          const message = getApiErrorMessage(error);
-          patchState(store, {
-            actionTaskId: null,
-            actionError: message,
-            tasks: store
-              .tasks()
-              .map((item) =>
-                item.id === task.id ? { ...item, status: previousStatus } : item,
-              ),
-          });
-          callbacks?.onError?.(message);
-        },
-      });
-    },
+        const previousStatus = task.status;
+        patchState(store, {
+          actionError: null,
+          actionTaskId: task.id,
+          tasks: store
+            .tasks()
+            .map((item) => (item.id === task.id ? { ...item, status } : item)),
+        });
 
-    softDelete(
-      task: TaskResponseDto,
-      callbacks?: { onSuccess?: () => void; onError?: (message: string) => void },
-    ): void {
-      patchState(store, { actionError: null, actionTaskId: task.id });
+        tasksApi.update(task.id, { status }).subscribe({
+          next: (updated) => {
+            patchState(store, {
+              actionTaskId: null,
+              tasks: store
+                .tasks()
+                .map((item) => (item.id === updated.id ? updated : item)),
+            });
+          },
+          error: (error: unknown) => {
+            const message = getApiErrorMessage(error);
+            patchState(store, {
+              actionTaskId: null,
+              actionError: message,
+              tasks: store
+                .tasks()
+                .map((item) =>
+                  item.id === task.id ? { ...item, status: previousStatus } : item,
+                ),
+            });
+            callbacks?.onError?.(message);
+          },
+        });
+      },
 
-      tasksApi.softDelete(task.id).subscribe({
-        next: () => {
-          patchState(store, {
-            actionTaskId: null,
-            tasks: store.tasks().filter((item) => item.id !== task.id),
-          });
-          callbacks?.onSuccess?.();
-        },
-        error: (error: unknown) => {
-          const message = getApiErrorMessage(error);
-          patchState(store, {
-            actionTaskId: null,
-            actionError: message,
-          });
-          callbacks?.onError?.(message);
-        },
-      });
-    },
-  })),
+      softDelete(
+        task: TaskResponseDto,
+        callbacks?: { onSuccess?: () => void; onError?: (message: string) => void },
+      ): void {
+        patchState(store, { actionError: null, actionTaskId: task.id });
+
+        tasksApi.softDelete(task.id).subscribe({
+          next: () => {
+            patchState(store, {
+              actionTaskId: null,
+              tasks: store.tasks().filter((item) => item.id !== task.id),
+            });
+            callbacks?.onSuccess?.();
+          },
+          error: (error: unknown) => {
+            const message = getApiErrorMessage(error);
+            patchState(store, {
+              actionTaskId: null,
+              actionError: message,
+            });
+            callbacks?.onError?.(message);
+          },
+        });
+      },
+    };
+  }),
 );
-
-function reloadTasks(
-  store: {
-    activeQuery: () => string;
-    activeAssignedToMe: () => boolean;
-    activeOverdue: () => boolean;
-    currentUserId: () => string | null;
-  },
-  tasksApi: TasksApiService,
-  projectId: string,
-): void {
-  const query = buildListQuery(store);
-  tasksApi.findAll(projectId, query).subscribe({
-    next: (response) => {
-      patchState(store as never, {
-        tasks: response.data,
-        loadStatus: 'success',
-      });
-    },
-  });
-}
 
 function buildListQuery(store: {
   activeQuery: () => string;
