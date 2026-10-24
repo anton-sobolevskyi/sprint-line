@@ -10,7 +10,6 @@
   </header>
 
   <div hlmCardContent class="flex flex-col gap-5">
-    <!-- Instant filters toolbar -->
     <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
       <div class="min-w-0 flex-1">
         <label class="sr-only" for="board-search">{{ messages.filters.searchLabel }}</label>
@@ -52,7 +51,6 @@
       </div>
     </div>
 
-    <!-- Expanded create form -->
     @if (createOpen()) {
       <form
         class="border-border bg-muted/20 flex flex-col gap-3 rounded-xl border p-4"
@@ -94,7 +92,7 @@
             <label hlmFieldLabel for="task-priority">{{ messages.create.priorityLabel }}</label>
             <select
               id="task-priority"
-              class="border-input bg-input/30 h-9 w-full rounded-4xl border px-3 text-sm outline-none"
+              class="border-input bg-background h-9 w-full rounded-lg border px-3 text-sm outline-none"
               [formField]="createForm.priority"
             >
               <option value="LOW">{{ messages.priority.LOW }}</option>
@@ -178,25 +176,39 @@
             <ul class="flex min-h-12 flex-1 flex-col gap-2">
               @for (task of column.tasks; track task.id) {
                 <li
-                  class="bg-card group hover:border-primary/25 cursor-grab rounded-lg border p-3 shadow-xs transition-colors active:cursor-grabbing"
+                  class="bg-card group hover:border-primary/25 cursor-grab rounded-lg border p-2.5 shadow-xs transition-colors active:cursor-grabbing"
                   cdkDrag
                   [cdkDragData]="task"
                   [cdkDragDisabled]="actionTaskId() === task.id"
                 >
-                  <a
-                    class="text-sm font-medium hover:underline focus-visible:ring-ring rounded-sm focus-visible:ring-2 focus-visible:outline-none"
-                    [routerLink]="['/projects', projectId(), 'tasks', task.id]"
-                  >
-                    {{ task.title }}
-                  </a>
+                  <div class="flex items-start gap-2">
+                    <a
+                      class="min-w-0 flex-1 text-sm font-medium leading-snug hover:underline focus-visible:ring-ring rounded-sm focus-visible:ring-2 focus-visible:outline-none"
+                      [routerLink]="['/projects', projectId(), 'tasks', task.id]"
+                    >
+                      {{ task.title }}
+                    </a>
+                    <button
+                      hlmBtn
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      class="text-muted-foreground hover:text-destructive h-6 shrink-0 px-1.5 text-xs opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
+                      [disabled]="actionTaskId() === task.id"
+                      [attr.aria-label]="messages.actions.delete"
+                      (click)="onDelete(task)"
+                    >
+                      ×
+                    </button>
+                  </div>
 
                   @if (task.description) {
-                    <p class="text-muted-foreground mt-1 line-clamp-2 text-xs">
+                    <p class="text-muted-foreground mt-1 line-clamp-1 text-xs">
                       {{ task.description }}
                     </p>
                   }
 
-                  <div class="mt-2.5 flex flex-wrap items-center gap-1.5">
+                  <div class="mt-2 flex flex-wrap items-center gap-1.5">
                     <span
                       class="inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide"
                       [class]="priorityChipClass(task.priority)"
@@ -214,14 +226,12 @@
                     }
                   </div>
 
-                  <div
-                    class="mt-3 flex flex-wrap items-center gap-1.5 opacity-90 transition-opacity group-hover:opacity-100"
-                  >
+                  <div class="mt-2">
                     <label class="sr-only" [attr.for]="'status-' + task.id">
                       {{ messages.actions.changeStatus }}
                     </label>
                     <select
-                      class="border-input bg-input/30 h-7 min-w-0 flex-1 rounded-lg border px-1.5 text-[11px] outline-none"
+                      class="border-input bg-background text-muted-foreground h-7 w-full rounded-md border px-1.5 text-[11px] outline-none"
                       [id]="'status-' + task.id"
                       [value]="task.status"
                       [disabled]="actionTaskId() === task.id"
@@ -231,70 +241,11 @@
                         <option [value]="status">{{ messages.status[status] }}</option>
                       }
                     </select>
-
-                    <button
-                      hlmBtn
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      class="h-7 px-2 text-xs"
-                      (click)="toggleComments(task.id)"
-                    >
-                      {{
-                        isCommentsOpen(task.id)
-                          ? commentsMessages.close
-                          : commentsMessages.open
-                      }}
-                    </button>
-
-                    <button
-                      hlmBtn
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      class="h-7 px-2 text-xs"
-                      (click)="toggleFiles(task.id)"
-                    >
-                      {{
-                        isFilesOpen(task.id)
-                          ? attachmentsMessages.close
-                          : attachmentsMessages.open
-                      }}
-                    </button>
-
-                    <button
-                      hlmBtn
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      class="text-destructive hover:bg-destructive/10 h-7 px-2 text-xs"
-                      [disabled]="actionTaskId() === task.id"
-                      (click)="onDelete(task)"
-                    >
-                      {{
-                        actionTaskId() === task.id
-                          ? messages.actions.deleting
-                          : messages.actions.delete
-                      }}
-                    </button>
                   </div>
-
-                  @if (isCommentsOpen(task.id)) {
-                    <div class="mt-3 border-t pt-3">
-                      <sl-task-comments-panel [taskId]="task.id" />
-                    </div>
-                  }
-
-                  @if (isFilesOpen(task.id)) {
-                    <div class="mt-3 border-t pt-3">
-                      <sl-task-attachments-panel [taskId]="task.id" />
-                    </div>
-                  }
                 </li>
               }
             </ul>
 
-            <!-- Per-column quick add -->
             @if (quickAddStatus() === column.status) {
               <form class="mt-1 flex flex-col gap-2" (submit)="submitQuickAdd(column.status, $event)">
                 <input
