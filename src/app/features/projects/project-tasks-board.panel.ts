@@ -246,7 +246,18 @@ export class ProjectTasksBoardPanel {
   }
 
   priorityLabel(priority: TaskPriority): string {
-    return this.messages.priority[priority];
+    switch (priority) {
+      case 'LOW':
+        return this.messages.priority.LOW;
+      case 'MEDIUM':
+        return this.messages.priority.MEDIUM;
+      case 'HIGH':
+        return this.messages.priority.HIGH;
+      case 'URGENT':
+        return this.messages.priority.URGENT;
+      default:
+        return String(priority);
+    }
   }
 
   priorityChipClass(priority: TaskPriority): string {
