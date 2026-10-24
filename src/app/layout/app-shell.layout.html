@@ -4,11 +4,65 @@
       <div class="flex items-center gap-6">
         <a
           routerLink="/"
-          class="text-foreground text-sm font-semibold tracking-tight"
+          class="text-foreground flex items-center gap-2.5 text-sm font-semibold tracking-tight"
         >
-          {{ messages.brand }}
+          <!-- Brand mark -->
+          <span
+            class="bg-primary text-primary-foreground flex size-7 items-center justify-center rounded-lg shadow-sm"
+            aria-hidden="true"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              class="size-4"
+              stroke="currentColor"
+              stroke-width="2.25"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M5 12.5L9.5 17L19 7" />
+              <path d="M5 8h14" opacity="0.55" />
+            </svg>
+          </span>
+          <span>{{ messages.brand }}</span>
         </a>
-        <nav class="flex items-center gap-1" [attr.aria-label]="messages.navLabel">
+
+        <nav class="hidden items-center gap-1 sm:flex" [attr.aria-label]="messages.navLabel">
+          <a
+            hlmBtn
+            variant="ghost"
+            size="sm"
+            routerLink="/"
+            routerLinkActive="bg-muted text-foreground"
+            [routerLinkActiveOptions]="{ exact: true }"
+          >
+            {{ messages.nav.home }}
+          </a>
+          <a
+            hlmBtn
+            variant="ghost"
+            size="sm"
+            routerLink="/projects"
+            routerLinkActive="bg-muted text-foreground"
+          >
+            {{ messages.nav.projects }}
+          </a>
+          <a
+            hlmBtn
+            variant="ghost"
+            size="sm"
+            routerLink="/profile"
+            routerLinkActive="bg-muted text-foreground"
+          >
+            {{ messages.nav.profile }}
+          </a>
+        </nav>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <!-- Mobile nav (simple links for now) -->
+        <nav class="flex items-center gap-1 sm:hidden" [attr.aria-label]="messages.navLabel">
           <a
             hlmBtn
             variant="ghost"
@@ -28,36 +82,24 @@
           >
             {{ messages.nav.projects }}
           </a>
-          <a
-            hlmBtn
-            variant="ghost"
-            size="sm"
-            routerLink="/profile"
-            routerLinkActive="bg-muted"
-          >
-            {{ messages.nav.profile }}
-          </a>
         </nav>
-      </div>
 
-      <button
-        hlmBtn
-        variant="outline"
-        size="sm"
-        type="button"
-        [disabled]="isLoggingOut()"
-        (click)="logout()"
-      >
-        {{ isLoggingOut() ? messages.loggingOut : messages.logout }}
-      </button>
+        <button
+          hlmBtn
+          variant="outline"
+          size="sm"
+          type="button"
+          [disabled]="isLoggingOut()"
+          (click)="logout()"
+        >
+          {{ isLoggingOut() ? messages.loggingOut : messages.logout }}
+        </button>
+      </div>
     </div>
   </header>
 
   @if (needsEmailVerification()) {
-    <div
-      class="border-border bg-muted/40 border-b"
-      role="status"
-    >
+    <div class="border-border bg-primary/5 border-b" role="status">
       <div
         class="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
       >
