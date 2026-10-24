@@ -1,5 +1,12 @@
-import { Component, computed, inject, signal } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {
+  NavigationEnd,
+  Router,
+  RouterLink,
+  RouterLinkActive,
+  RouterOutlet,
+} from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideFolderKanban,
@@ -11,12 +18,14 @@ import {
   lucideUserRound,
 } from '@ng-icons/lucide';
 import { Store } from '@ngrx/store';
+import { filter } from 'rxjs';
 
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmSidebarImports } from '@spartan-ng/helm/sidebar';
 
 import { getApiErrorMessage } from '../core/api/api-error';
 import { AuthApiService } from '../core/auth/auth-api.service';
+import { ProjectsApiService } from '../core/projects/projects-api.service';
 import { ThemeService } from '../core/ui/theme.service';
 import { appToast } from '../core/ui/toast';
 import { UserActions } from '../core/users/user.actions';
@@ -48,8 +57,10 @@ import { SHELL_MESSAGES } from './shell.messages';
 })
 export class AppShellLayout {
   private readonly authApi = inject(AuthApiService);
+  private readonly projectsApi = inject(ProjectsApiService);
   private readonly router = inject(Router);
   private readonly store = inject(Store);
+  private readonly destroyRef = inject(DestroyRef);
   readonly theme = inject(ThemeService);
 
   readonly messages = SHELL_MESSAGES;
@@ -57,6 +68,10 @@ export class AppShellLayout {
   readonly currentUser = this.store.selectSignal(selectCurrentUser);
 
   readonly resendSubmitting = signal(false);
+
+  /** Project id from /projects/:id or /projects/:projectId/tasks/:taskId */
+  readonly activeProjectId = signal<string | null>(null);
+  readonly activeProjectName = signal<string | null>(null);
 
   readonly needsEmailVerification = computed(() => {
     const user = this.currentUser();
@@ -102,6 +117,46 @@ export class AppShellLayout {
     if (!this.currentUser()) {
       this.store.dispatch(UserActions.loadMe());
     }
+
+    this.syncProjectContext(this.router.url);
+
+    this.router.events
+      .pipe(
+        filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((event) => this.syncProjectContext(event.urlAfterRedirects));
+  }
+
+  private syncProjectContext(url: string): void {
+    const match =
+      url.match(/^\/projects\/([^/]+)(?:\/tasks\/[^/]+)?(?:\?.*)?$/) ??
+      url.match(/^\/projects\/([^/]+)/);
+    const id = match?.[1] && match[1] !== 'new' ? match[1] : null;
+
+    if (!id) {
+      this.activeProjectId.set(null);
+      this.activeProjectName.set(null);
+      return;
+    }
+
+    if (this.activeProjectId() === id && this.activeProjectName()) {
+      return;
+    }
+
+    this.activeProjectId.set(id);
+    this.projectsApi.findOne(id).subscribe({
+      next: (project) => {
+        if (this.activeProjectId() === id) {
+          this.activeProjectName.set(project.name);
+        }
+      },
+      error: () => {
+        if (this.activeProjectId() === id) {
+          this.activeProjectName.set(null);
+        }
+      },
+    });
   }
 
   toggleTheme(): void {
