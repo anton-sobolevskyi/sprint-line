@@ -1,0 +1,35 @@
+import { Component } from '@angular/core';
+import { RouterLink } from '@angular/router';
+
+import { HlmButtonImports } from '@spartan-ng/helm/button';
+import { HlmCardImports } from '@spartan-ng/helm/card';
+
+@Component({
+  selector: 'sl-not-found-page',
+  imports: [RouterLink, ...HlmButtonImports, ...HlmCardImports],
+  template: `
+    <main class="bg-background relative flex min-h-svh items-center justify-center p-4">
+      <div class="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+        <div
+          class="bg-primary/10 absolute -top-32 left-1/2 size-[40rem] -translate-x-1/2 rounded-full blur-3xl"
+        ></div>
+      </div>
+
+      <section hlmCard class="relative w-full max-w-md text-center shadow-sm">
+        <header hlmCardHeader class="items-center">
+          <p class="text-muted-foreground text-xs font-medium tracking-wide uppercase">SprintLine</p>
+          <h1 hlmCardTitle>Page not found</h1>
+          <p hlmCardDescription>
+            That link does not match any screen. Head home or open your projects.
+          </p>
+        </header>
+        <div hlmCardContent class="flex flex-wrap justify-center gap-2">
+          <a hlmBtn routerLink="/">Home</a>
+          <a hlmBtn variant="outline" routerLink="/projects">Projects</a>
+          <a hlmBtn variant="ghost" routerLink="/login">Sign in</a>
+        </div>
+      </section>
+    </main>
+  `,
+})
+export class NotFoundPage {}
