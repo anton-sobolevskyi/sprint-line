@@ -15,96 +15,141 @@
       </div>
     </section>
   } @else if (project(); as current) {
-    <header>
-      <h1 class="text-2xl font-semibold tracking-tight">{{ current.name }}</h1>
-      @if (current.description) {
-        <p class="text-muted-foreground mt-1 text-sm">{{ current.description }}</p>
-      }
+    <header class="flex flex-col gap-4">
+      <div>
+        <h1 class="text-2xl font-semibold tracking-tight md:text-3xl">{{ current.name }}</h1>
+        @if (current.description) {
+          <p class="text-muted-foreground mt-1 text-sm">{{ current.description }}</p>
+        }
+      </div>
+
+      <nav
+        class="border-border flex flex-wrap gap-1 border-b pb-px"
+        [attr.aria-label]="messages.detail.sections.board"
+      >
+        <a
+          hlmBtn
+          variant="ghost"
+          size="sm"
+          href="#project-board"
+          class="text-muted-foreground hover:text-foreground"
+        >
+          {{ messages.detail.sections.board }}
+        </a>
+        <a
+          hlmBtn
+          variant="ghost"
+          size="sm"
+          href="#project-members"
+          class="text-muted-foreground hover:text-foreground"
+        >
+          {{ messages.detail.sections.members }}
+        </a>
+        <a
+          hlmBtn
+          variant="ghost"
+          size="sm"
+          href="#project-settings"
+          class="text-muted-foreground hover:text-foreground"
+        >
+          {{ messages.detail.sections.settings }}
+        </a>
+      </nav>
     </header>
 
-    <sl-project-tasks-board-panel [projectId]="current.id" />
+    <div id="project-board" class="scroll-mt-20">
+      <sl-project-tasks-board-panel [projectId]="current.id" />
+    </div>
 
-    <sl-project-members-panel [projectId]="current.id" />
+    <div id="project-members" class="scroll-mt-20">
+      <sl-project-members-panel [projectId]="current.id" />
+    </div>
 
-    <section hlmCard class="max-w-3xl">
-      <header hlmCardHeader>
-        <h2 hlmCardTitle>{{ messages.detail.settingsTitle }}</h2>
-        <p hlmCardDescription>{{ messages.detail.settingsDescription }}</p>
-      </header>
-      <div hlmCardContent>
-        <form class="flex flex-col gap-4" (submit)="onSaveSettings($event)">
-          @if (settingsServerError(); as error) {
-            <div
-              class="border-destructive/40 bg-destructive/10 text-destructive rounded-xl border px-3 py-2 text-sm"
-              role="alert"
-            >
-              {{ error }}
-            </div>
-          }
-          @if (settingsSuccess(); as success) {
-            <div
-              class="rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-800 dark:text-emerald-200"
-              role="status"
-            >
-              {{ success }}
-            </div>
-          }
-
-          <div hlmField>
-            <label hlmFieldLabel for="settings-name">{{ messages.detail.nameLabel }}</label>
-            <input
-              id="settings-name"
-              type="text"
-              hlmInput
-              [formField]="settingsForm.name"
-              [attr.aria-invalid]="settingsFieldError('name') ? true : null"
-            />
-            @if (settingsFieldError('name'); as message) {
-              <hlm-field-error forceShow>{{ message }}</hlm-field-error>
+    <section id="project-settings" class="scroll-mt-20 flex flex-col gap-6">
+      <section hlmCard class="max-w-3xl">
+        <header hlmCardHeader>
+          <h2 hlmCardTitle>{{ messages.detail.settingsTitle }}</h2>
+          <p hlmCardDescription>{{ messages.detail.settingsDescription }}</p>
+        </header>
+        <div hlmCardContent>
+          <form class="flex flex-col gap-4" (submit)="onSaveSettings($event)">
+            @if (settingsServerError(); as error) {
+              <div
+                class="border-destructive/40 bg-destructive/10 text-destructive rounded-xl border px-3 py-2 text-sm"
+                role="alert"
+              >
+                {{ error }}
+              </div>
             }
-          </div>
+            @if (settingsSuccess(); as success) {
+              <div
+                class="rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-800 dark:text-emerald-200"
+                role="status"
+              >
+                {{ success }}
+              </div>
+            }
 
-          <div hlmField>
-            <label hlmFieldLabel for="settings-description">
-              {{ messages.detail.descriptionLabel }}
-            </label>
-            <textarea
-              id="settings-description"
-              hlmTextarea
-              rows="3"
-              [formField]="settingsForm.description"
-              [placeholder]="messages.detail.descriptionPlaceholder"
-            ></textarea>
-          </div>
+            <div hlmField>
+              <label hlmFieldLabel for="settings-name">{{ messages.detail.nameLabel }}</label>
+              <input
+                id="settings-name"
+                type="text"
+                hlmInput
+                [formField]="settingsForm.name"
+                [attr.aria-invalid]="settingsFieldError('name') ? true : null"
+              />
+              @if (settingsFieldError('name'); as message) {
+                <hlm-field-error forceShow>{{ message }}</hlm-field-error>
+              }
+            </div>
 
+            <div hlmField>
+              <label hlmFieldLabel for="settings-description">
+                {{ messages.detail.descriptionLabel }}
+              </label>
+              <textarea
+                id="settings-description"
+                hlmTextarea
+                rows="3"
+                [formField]="settingsForm.description"
+                [placeholder]="messages.detail.descriptionPlaceholder"
+              ></textarea>
+            </div>
+
+            <button
+              hlmBtn
+              type="submit"
+              class="w-fit"
+              [disabled]="settingsForm().invalid() || settingsSubmitting()"
+            >
+              {{ settingsSubmitting() ? messages.detail.saving : messages.detail.save }}
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <section hlmCard class="border-destructive/20 max-w-3xl">
+        <header hlmCardHeader>
+          <h2 hlmCardTitle class="text-destructive">{{ messages.detail.dangerTitle }}</h2>
+          <p hlmCardDescription>{{ messages.detail.dangerBody }}</p>
+        </header>
+        <div hlmCardContent class="flex flex-col gap-3">
+          @if (deleteError(); as error) {
+            <p class="text-destructive text-sm" role="alert">{{ error }}</p>
+          }
           <button
             hlmBtn
-            type="submit"
+            type="button"
+            variant="destructive"
             class="w-fit"
-            [disabled]="settingsForm().invalid() || settingsSubmitting()"
+            [disabled]="deleteSubmitting()"
+            (click)="onDelete()"
           >
-            {{ settingsSubmitting() ? messages.detail.saving : messages.detail.save }}
+            {{ deleteSubmitting() ? messages.detail.deleting : messages.detail.delete }}
           </button>
-        </form>
-      </div>
-    </section>
-
-    <section hlmCard class="max-w-3xl">
-      <div hlmCardContent class="flex flex-col gap-3 py-6">
-        @if (deleteError(); as error) {
-          <p class="text-destructive text-sm" role="alert">{{ error }}</p>
-        }
-        <button
-          hlmBtn
-          type="button"
-          variant="destructive"
-          class="w-fit"
-          [disabled]="deleteSubmitting()"
-          (click)="onDelete()"
-        >
-          {{ deleteSubmitting() ? messages.detail.deleting : messages.detail.delete }}
-        </button>
-      </div>
+        </div>
+      </section>
     </section>
   }
 </main>

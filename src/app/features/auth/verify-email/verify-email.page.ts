@@ -9,11 +9,12 @@ import { getApiErrorMessage } from '../../../core/api/api-error';
 import { AuthApiService } from '../../../core/auth/auth-api.service';
 import { selectIsAuthenticated } from '../../../core/auth/auth.selectors';
 import { UserActions } from '../../../core/users/user.actions';
+import { AuthThemeToggle } from '../auth-theme-toggle.component';
 import { AUTH_MESSAGES } from '../auth.messages';
 
 @Component({
   selector: 'sl-verify-email-page',
-  imports: [RouterLink, ...HlmButtonImports, ...HlmCardImports],
+  imports: [RouterLink, AuthThemeToggle, ...HlmButtonImports, ...HlmCardImports],
   templateUrl: './verify-email.page.html',
 })
 export class VerifyEmailPage implements OnInit {
