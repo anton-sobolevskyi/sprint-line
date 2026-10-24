@@ -29,7 +29,6 @@ type ProjectTasksState = {
   activeQuery: string;
   activeAssignedToMe: boolean;
   activeOverdue: boolean;
-  /** Used when Assigned to me is active. */
   currentUserId: string | null;
   actionTaskId: string | null;
   actionError: string | null;
@@ -48,9 +47,6 @@ const initialState: ProjectTasksState = {
   actionError: null,
 };
 
-/**
- * Feature-local store for a project board (provided on the board panel).
- */
 export const ProjectTasksStore = signalStore(
   withState(initialState),
   withComputed((store) => ({
@@ -146,14 +142,44 @@ export const ProjectTasksStore = signalStore(
       tasksApi.create(projectId, dto).subscribe({
         next: () => {
           callbacks?.onSuccess?.();
-          // Reload respects active filters.
-          const query = buildListQuery(store);
-          tasksApi.findAll(projectId, query).subscribe({
-            next: (response) => {
-              patchState(store, {
-                tasks: response.data,
-                loadStatus: 'success',
-              });
+          reloadTasks(store, tasksApi, projectId);
+        },
+        error: (error: unknown) => {
+          callbacks?.onError?.(getApiErrorMessage(error));
+        },
+      });
+    },
+
+    /**
+     * Quick-add into a column: create then set status if the API default differs.
+     */
+    createInColumn(
+      title: string,
+      status: TaskStatus,
+      callbacks?: { onSuccess?: () => void; onError?: (message: string) => void },
+    ): void {
+      const projectId = store.projectId();
+      if (!projectId) {
+        return;
+      }
+
+      tasksApi.create(projectId, { title, priority: 'MEDIUM' }).subscribe({
+        next: (created) => {
+          if (created.status === status) {
+            callbacks?.onSuccess?.();
+            reloadTasks(store, tasksApi, projectId);
+            return;
+          }
+
+          tasksApi.update(created.id, { status }).subscribe({
+            next: () => {
+              callbacks?.onSuccess?.();
+              reloadTasks(store, tasksApi, projectId);
+            },
+            error: () => {
+              // Task exists; still refresh so it appears (likely in default column).
+              callbacks?.onSuccess?.();
+              reloadTasks(store, tasksApi, projectId);
             },
           });
         },
@@ -232,6 +258,27 @@ export const ProjectTasksStore = signalStore(
     },
   })),
 );
+
+function reloadTasks(
+  store: {
+    activeQuery: () => string;
+    activeAssignedToMe: () => boolean;
+    activeOverdue: () => boolean;
+    currentUserId: () => string | null;
+  },
+  tasksApi: TasksApiService,
+  projectId: string,
+): void {
+  const query = buildListQuery(store);
+  tasksApi.findAll(projectId, query).subscribe({
+    next: (response) => {
+      patchState(store as never, {
+        tasks: response.data,
+        loadStatus: 'success',
+      });
+    },
+  });
+}
 
 function buildListQuery(store: {
   activeQuery: () => string;
