@@ -1,8 +1,17 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import {
+  lucideFolderKanban,
+  lucideHouse,
+  lucideLogOut,
+  lucidePanelLeft,
+  lucideUserRound,
+} from '@ng-icons/lucide';
 import { Store } from '@ngrx/store';
 
 import { HlmButtonImports } from '@spartan-ng/helm/button';
+import { HlmSidebarImports } from '@spartan-ng/helm/sidebar';
 
 import { getApiErrorMessage } from '../core/api/api-error';
 import { AuthApiService } from '../core/auth/auth-api.service';
@@ -13,7 +22,23 @@ import { SHELL_MESSAGES } from './shell.messages';
 
 @Component({
   selector: 'sl-app-shell',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, ...HlmButtonImports],
+  providers: [
+    provideIcons({
+      lucideHouse,
+      lucideFolderKanban,
+      lucideUserRound,
+      lucideLogOut,
+      lucidePanelLeft,
+    }),
+  ],
+  imports: [
+    RouterOutlet,
+    RouterLink,
+    RouterLinkActive,
+    NgIcon,
+    ...HlmButtonImports,
+    ...HlmSidebarImports,
+  ],
   templateUrl: './app-shell.layout.html',
 })
 export class AppShellLayout {
@@ -34,6 +59,26 @@ export class AppShellLayout {
     }
     const verifiedAt = user.emailVerifiedAt;
     return verifiedAt == null || verifiedAt.length === 0;
+  });
+
+  readonly userDisplayName = computed(() => {
+    const user = this.currentUser();
+    if (!user) {
+      return '';
+    }
+    return user.name?.trim() || user.email || '';
+  });
+
+  readonly userInitials = computed(() => {
+    const name = this.userDisplayName();
+    if (!name) {
+      return '?';
+    }
+    const parts = name.split(/\s+/).filter(Boolean);
+    if (parts.length >= 2) {
+      return (parts[0]![0]! + parts[1]![0]!).toUpperCase();
+    }
+    return name.slice(0, 2).toUpperCase();
   });
 
   constructor() {
