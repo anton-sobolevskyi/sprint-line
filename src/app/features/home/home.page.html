@@ -1,4 +1,4 @@
-<main class="mx-auto flex w-full max-w-6xl flex-col gap-8 p-4 py-8 md:p-8">
+<main class="mx-auto flex w-full max-w-6xl flex-col gap-6 p-4 py-6 md:p-8">
   <header class="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
     <div>
       <h1 class="text-2xl font-semibold tracking-tight md:text-3xl">{{ greeting() }}</h1>
@@ -15,12 +15,12 @@
   </header>
 
   @if (loadStatus() === 'loading' && projects().length === 0) {
-    <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4" aria-busy="true">
-      <div hlmSkeleton class="h-28 w-full"></div>
-      <div hlmSkeleton class="h-28 w-full"></div>
-      <div hlmSkeleton class="h-28 w-full sm:col-span-2"></div>
-      <div hlmSkeleton class="h-36 w-full sm:col-span-2 lg:col-span-2"></div>
-      <div hlmSkeleton class="h-36 w-full sm:col-span-2 lg:col-span-2"></div>
+    <section class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4" aria-busy="true">
+      <div hlmSkeleton class="h-24 w-full"></div>
+      <div hlmSkeleton class="h-24 w-full"></div>
+      <div hlmSkeleton class="h-24 w-full sm:col-span-2"></div>
+      <div hlmSkeleton class="h-32 w-full sm:col-span-2 lg:col-span-2"></div>
+      <div hlmSkeleton class="h-32 w-full sm:col-span-2 lg:col-span-2"></div>
     </section>
   } @else if (loadStatus() === 'error' && projects().length === 0) {
     <section hlmCard>
@@ -32,9 +32,9 @@
       </div>
     </section>
   } @else {
-    <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <section class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
       <article hlmCard>
-        <header hlmCardHeader>
+        <header hlmCardHeader class="!pb-3">
           <p class="text-muted-foreground text-xs font-medium tracking-wide uppercase">
             {{ messages.stats.projects }}
           </p>
@@ -44,7 +44,7 @@
       </article>
 
       <article hlmCard>
-        <header hlmCardHeader>
+        <header hlmCardHeader class="!pb-3">
           <p class="text-muted-foreground text-xs font-medium tracking-wide uppercase">
             {{ messages.stats.members }}
           </p>
@@ -54,46 +54,46 @@
       </article>
 
       <article hlmCard class="sm:col-span-2">
-        <header hlmCardHeader>
+        <header hlmCardHeader class="!pb-2">
           <h2 hlmCardTitle>{{ messages.quick.title }}</h2>
         </header>
         <div hlmCardContent class="flex flex-wrap gap-2">
-          <a hlmBtn routerLink="/projects">{{ messages.quick.projects }}</a>
-          <a hlmBtn variant="outline" routerLink="/projects" [queryParams]="{ new: '1' }">
+          <a hlmBtn size="sm" routerLink="/projects" [queryParams]="{ new: '1' }">
             {{ messages.quick.newProject }}
           </a>
-          <a hlmBtn variant="outline" routerLink="/profile">{{ messages.quick.profile }}</a>
+          <a hlmBtn size="sm" variant="outline" routerLink="/projects">{{ messages.quick.projects }}</a>
+          <a hlmBtn size="sm" variant="ghost" routerLink="/profile">{{ messages.quick.profile }}</a>
         </div>
       </article>
     </section>
 
-    <section class="flex flex-col gap-4">
+    <section class="flex flex-col gap-3">
       <div class="flex items-center justify-between gap-3">
-        <h2 class="text-lg font-semibold tracking-tight">{{ messages.recent.title }}</h2>
-        <a hlmBtn variant="link" routerLink="/projects" class="h-auto p-0">
+        <h2 class="text-base font-semibold tracking-tight">{{ messages.recent.title }}</h2>
+        <a hlmBtn variant="link" routerLink="/projects" class="h-auto p-0 text-sm">
           {{ messages.recent.viewAll }}
         </a>
       </div>
 
       @if (projects().length === 0) {
         <section hlmCard class="border-dashed">
-          <div hlmCardContent class="flex flex-col items-center gap-4 py-12 text-center">
+          <div hlmCardContent class="flex flex-col items-center gap-3 py-10 text-center">
             <span
-              class="bg-primary/10 text-primary flex size-12 items-center justify-center rounded-2xl"
+              class="bg-primary/10 text-primary flex size-11 items-center justify-center rounded-xl"
               aria-hidden="true"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
                 fill="none"
-                class="size-6"
+                class="size-5"
                 stroke="currentColor"
                 stroke-width="2"
                 stroke-linecap="round"
                 stroke-linejoin="round"
               >
-                <path d="M5 12.5L9.5 17L19 7" />
-                <path d="M5 8h14" opacity="0.55" />
+                <path d="M12 5v14" />
+                <path d="M5 12h14" />
               </svg>
             </span>
             <div class="flex max-w-sm flex-col gap-1">
@@ -106,31 +106,31 @@
           </div>
         </section>
       } @else {
-        <ul class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <ul class="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
           @for (project of projects(); track project.id) {
             <li>
               <a
-                class="border-border bg-card hover:border-primary/25 hover:bg-muted/30 focus-visible:ring-ring group flex h-full flex-col rounded-xl border p-4 transition-colors focus-visible:ring-2 focus-visible:outline-none"
+                class="border-border bg-card hover:border-primary/30 focus-visible:ring-ring group flex h-full flex-col rounded-lg border p-3.5 transition-colors focus-visible:ring-2 focus-visible:outline-none"
                 [routerLink]="['/projects', project.id]"
               >
-                <div class="flex items-start gap-3">
+                <div class="flex items-start gap-2.5">
                   <span
-                    class="bg-primary/10 text-primary flex size-10 shrink-0 items-center justify-center rounded-lg text-sm font-semibold"
+                    class="bg-primary/10 text-primary flex size-9 shrink-0 items-center justify-center rounded-md text-sm font-semibold"
                     aria-hidden="true"
                   >
                     {{ projectInitial(project) }}
                   </span>
                   <div class="min-w-0 flex-1">
-                    <p class="truncate font-medium group-hover:underline">{{ project.name }}</p>
+                    <p class="truncate text-[15px] font-medium group-hover:underline">{{ project.name }}</p>
                     @if (project.description) {
-                      <p class="text-muted-foreground mt-1 line-clamp-2 text-sm">
+                      <p class="text-muted-foreground mt-0.5 line-clamp-2 text-sm">
                         {{ project.description }}
                       </p>
                     }
                   </div>
                 </div>
                 <div
-                  class="text-muted-foreground mt-auto flex items-center justify-between gap-2 pt-4 text-xs"
+                  class="text-muted-foreground mt-auto flex items-center justify-between gap-2 pt-3 text-xs"
                 >
                   <span>
                     {{ memberCount(project) }} {{ messages.recent.members }}
