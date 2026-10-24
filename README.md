@@ -42,6 +42,20 @@ Implementation notes and quality conventions: [`docs/IMPLEMENTATION_AND_QUALITY.
 
 ---
 
+## UI design system
+
+| Token / pattern | Notes |
+|-----------------|--------|
+| **Brand** | Indigo primary (`oklch` in `src/styles.scss`), Plus Jakarta Sans, checkmark-line logo mark |
+| **Shell** | Collapsible left sidebar (`hlm-sidebar`), user footer, theme toggle, email verification banner |
+| **Theme** | `ThemeService` — light / dark / system; preference in `localStorage` (`sprintline-theme`); FOUC avoided via inline script in `index.html` |
+| **Auth** | Centered card, soft primary wash, brand mark, theme toggle on guest pages |
+| **Board** | Instant filters (debounced search + chips), header “New task”, per-column quick-add, priority chips |
+| **Empty states** | Dashed card, brand icon, short copy + primary CTA |
+| **Copy** | User-facing strings in `*.messages.ts` (`as const`) |
+
+---
+
 ## Main user stories
 
 Stories are written from the end-user perspective. Priorities reflect product value, not sprint order.
@@ -151,9 +165,9 @@ If dependencies fail to resolve inside the container after changing packages, re
 
 ```
 src/app/
-  core/           API clients, auth, interceptors, shared UI (toast, confirm)
+  core/           API clients, auth, interceptors, shared UI (toast, confirm, theme)
   features/       auth, home, profile, projects (board, members, task detail)
-  layout/         Authenticated shell (nav, email verification banner)
+  layout/         Authenticated shell (sidebar, theme toggle, verification banner)
 libs/ui/          Spartan helm primitives used by the app
 docs/             Implementation & quality guide
 ```
