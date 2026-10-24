@@ -1,6 +1,6 @@
 export const TASKS_MESSAGES = {
   title: 'Board',
-  description: 'Tasks grouped by status.',
+  description: 'Tasks grouped by status. Drag cards to move them.',
   loading: 'Loading tasks…',
   retry: 'Try again',
   emptyColumn: 'No tasks',
@@ -69,6 +69,8 @@ export const TASKS_MESSAGES = {
     dueDateLabel: 'Due date',
     assigneeLabel: 'Assignee',
     unassigned: 'Unassigned',
+    collaborationTitle: 'Comments & files',
+    collaborationDescription: 'Discuss the work and attach related files.',
     dangerTitle: 'Danger zone',
     dangerBody: 'Soft-delete this task. Comments and files remain linked in history.',
   },
