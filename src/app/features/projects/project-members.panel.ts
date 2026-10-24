@@ -127,7 +127,16 @@ export class ProjectMembersPanel {
   }
 
   roleLabel(role: ProjectMemberRole): string {
-    return this.messages.roles[role];
+    switch (role) {
+      case 'OWNER':
+        return this.messages.roles.OWNER;
+      case 'ADMIN':
+        return this.messages.roles.ADMIN;
+      case 'MEMBER':
+        return this.messages.roles.MEMBER;
+      default:
+        return String(role);
+    }
   }
 
   isSelf(member: ProjectMemberResponseDto): boolean {

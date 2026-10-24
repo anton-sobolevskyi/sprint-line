@@ -1,6 +1,6 @@
 <div hlmSidebarWrapper>
   <hlm-sidebar collapsible="offcanvas" side="left">
-    <hlm-sidebar-header class="border-sidebar-border border-b">
+    <div hlmSidebarHeader class="border-sidebar-border border-b">
       <a
         routerLink="/"
         class="text-sidebar-foreground flex items-center gap-2.5 px-2 py-1.5 text-sm font-semibold tracking-tight"
@@ -25,14 +25,14 @@
         </span>
         <span class="truncate group-data-[collapsible=icon]:hidden">{{ messages.brand }}</span>
       </a>
-    </hlm-sidebar-header>
+    </div>
 
-    <hlm-sidebar-content>
-      <hlm-sidebar-group>
-        <hlm-sidebar-group-label>{{ messages.navLabel }}</hlm-sidebar-group-label>
-        <hlm-sidebar-group-content>
-          <hlm-sidebar-menu>
-            <hlm-sidebar-menu-item>
+    <div hlmSidebarContent>
+      <div hlmSidebarGroup>
+        <div hlmSidebarGroupLabel>{{ messages.navLabel }}</div>
+        <div hlmSidebarGroupContent>
+          <ul hlmSidebarMenu>
+            <li hlmSidebarMenuItem>
               <a
                 hlmSidebarMenuButton
                 routerLink="/"
@@ -45,9 +45,9 @@
                 <ng-icon name="lucideHouse" />
                 <span>{{ messages.nav.home }}</span>
               </a>
-            </hlm-sidebar-menu-item>
+            </li>
 
-            <hlm-sidebar-menu-item>
+            <li hlmSidebarMenuItem>
               <a
                 hlmSidebarMenuButton
                 routerLink="/projects"
@@ -59,9 +59,9 @@
                 <ng-icon name="lucideFolderKanban" />
                 <span>{{ messages.nav.projects }}</span>
               </a>
-            </hlm-sidebar-menu-item>
+            </li>
 
-            <hlm-sidebar-menu-item>
+            <li hlmSidebarMenuItem>
               <a
                 hlmSidebarMenuButton
                 routerLink="/profile"
@@ -73,18 +73,18 @@
                 <ng-icon name="lucideUserRound" />
                 <span>{{ messages.nav.profile }}</span>
               </a>
-            </hlm-sidebar-menu-item>
-          </hlm-sidebar-menu>
-        </hlm-sidebar-group-content>
-      </hlm-sidebar-group>
+            </li>
+          </ul>
+        </div>
+      </div>
 
       @if (recentProjects().length > 0) {
-        <hlm-sidebar-group>
-          <hlm-sidebar-group-label>{{ messages.recentLabel }}</hlm-sidebar-group-label>
-          <hlm-sidebar-group-content>
-            <hlm-sidebar-menu>
+        <div hlmSidebarGroup>
+          <div hlmSidebarGroupLabel>{{ messages.recentLabel }}</div>
+          <div hlmSidebarGroupContent>
+            <ul hlmSidebarMenu>
               @for (project of recentProjects(); track project.id) {
-                <hlm-sidebar-menu-item>
+                <li hlmSidebarMenuItem>
                   <a
                     hlmSidebarMenuButton
                     [routerLink]="['/projects', project.id]"
@@ -101,15 +101,15 @@
                     </span>
                     <span class="truncate">{{ project.name }}</span>
                   </a>
-                </hlm-sidebar-menu-item>
+                </li>
               }
-            </hlm-sidebar-menu>
-          </hlm-sidebar-group-content>
-        </hlm-sidebar-group>
+            </ul>
+          </div>
+        </div>
       }
-    </hlm-sidebar-content>
+    </div>
 
-    <hlm-sidebar-footer class="border-sidebar-border border-t">
+    <div hlmSidebarFooter class="border-sidebar-border border-t">
       @if (currentUser(); as user) {
         <a
           routerLink="/profile"
@@ -137,8 +137,8 @@
         </a>
       }
 
-      <hlm-sidebar-menu>
-        <hlm-sidebar-menu-item>
+      <ul hlmSidebarMenu>
+        <li hlmSidebarMenuItem>
           <button
             type="button"
             hlmSidebarMenuButton
@@ -152,9 +152,9 @@
             }
             <span>{{ themeLabel() }}</span>
           </button>
-        </hlm-sidebar-menu-item>
+        </li>
 
-        <hlm-sidebar-menu-item>
+        <li hlmSidebarMenuItem>
           <button
             type="button"
             hlmSidebarMenuButton
@@ -165,14 +165,14 @@
             <ng-icon name="lucideLogOut" />
             <span>{{ isLoggingOut() ? messages.loggingOut : messages.logout }}</span>
           </button>
-        </hlm-sidebar-menu-item>
-      </hlm-sidebar-menu>
-    </hlm-sidebar-footer>
+        </li>
+      </ul>
+    </div>
 
-    <hlm-sidebar-rail />
+    <button type="button" hlmSidebarRail></button>
   </hlm-sidebar>
 
-  <hlm-sidebar-inset class="flex flex-col">
+  <main hlmSidebarInset class="flex flex-col">
     <header
       class="border-border bg-background/80 sticky top-0 z-30 flex h-14 items-center gap-2 border-b px-3 backdrop-blur-md md:px-4"
     >
@@ -225,5 +225,5 @@
     <div class="flex-1">
       <router-outlet />
     </div>
-  </hlm-sidebar-inset>
+  </main>
 </div>
