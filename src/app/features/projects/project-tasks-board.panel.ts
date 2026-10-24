@@ -17,7 +17,6 @@ import { HlmFieldImports } from '@spartan-ng/helm/field';
 import { HlmInputImports } from '@spartan-ng/helm/input';
 import { HlmTextareaImports } from '@spartan-ng/helm/textarea';
 
-import { getApiErrorMessage } from '../../core/api/api-error';
 import { ConfirmDialogService } from '../../core/ui/confirm-dialog.service';
 import { appToast } from '../../core/ui/toast';
 import { UI_MESSAGES } from '../../core/ui/ui.messages';
@@ -25,7 +24,6 @@ import {
   type TaskPriority,
   type TaskResponseDto,
   type TaskStatus,
-  TasksApiService,
 } from '../../core/tasks/tasks-api.service';
 import { UserActions } from '../../core/users/user.actions';
 import { selectCurrentUser } from '../../core/users/user.reducer';
@@ -55,7 +53,6 @@ export class ProjectTasksBoardPanel {
   readonly projectId = input.required<string>();
 
   private readonly tasksStore = inject(ProjectTasksStore);
-  private readonly tasksApi = inject(TasksApiService);
   private readonly confirmDialog = inject(ConfirmDialogService);
   private readonly ngrxStore = inject(Store);
   private readonly destroyRef = inject(DestroyRef);
@@ -206,39 +203,16 @@ export class ProjectTasksBoardPanel {
       return;
     }
 
-    const projectId = this.projectId();
-    if (!projectId) {
-      return;
-    }
-
     this.quickAddSubmitting.set(true);
-    this.tasksApi.create(projectId, { title, priority: 'MEDIUM' }).subscribe({
-      next: (created) => {
-        if (created.status === status) {
-          this.quickAddSubmitting.set(false);
-          this.closeQuickAdd();
-          appToast.success(this.messages.create.success);
-          this.tasksStore.load();
-          return;
-        }
-        this.tasksApi.update(created.id, { status }).subscribe({
-          next: () => {
-            this.quickAddSubmitting.set(false);
-            this.closeQuickAdd();
-            appToast.success(this.messages.create.success);
-            this.tasksStore.load();
-          },
-          error: () => {
-            this.quickAddSubmitting.set(false);
-            this.closeQuickAdd();
-            appToast.success(this.messages.create.success);
-            this.tasksStore.load();
-          },
-        });
-      },
-      error: (error: unknown) => {
+    this.tasksStore.createInColumn(title, status, {
+      onSuccess: () => {
         this.quickAddSubmitting.set(false);
-        appToast.error(getApiErrorMessage(error));
+        this.closeQuickAdd();
+        appToast.success(this.messages.create.success);
+      },
+      onError: (message) => {
+        this.quickAddSubmitting.set(false);
+        appToast.error(message);
       },
     });
   }
