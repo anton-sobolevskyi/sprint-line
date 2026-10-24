@@ -1,17 +1,14 @@
-<main class="bg-background mx-auto flex min-h-svh w-full max-w-3xl flex-col gap-6 p-4 md:p-8">
+<main class="bg-background mx-auto flex min-h-svh w-full max-w-6xl flex-col gap-6 p-4 md:p-8">
   <header class="flex flex-wrap items-center justify-between gap-3">
     <div>
-      <h1 class="text-2xl font-semibold tracking-tight">{{ messages.list.title }}</h1>
+      <h1 class="text-2xl font-semibold tracking-tight md:text-3xl">{{ messages.list.title }}</h1>
       <p class="text-muted-foreground text-sm">{{ messages.list.subtitle }}</p>
     </div>
-    <div class="flex gap-2">
-      <a hlmBtn variant="outline" routerLink="/">Home</a>
-      <button hlmBtn type="button" (click)="openCreate()">{{ messages.list.createCta }}</button>
-    </div>
+    <button hlmBtn type="button" (click)="openCreate()">{{ messages.list.createCta }}</button>
   </header>
 
   @if (showCreate()) {
-    <section hlmCard>
+    <section hlmCard class="max-w-xl">
       <header hlmCardHeader>
         <h2 hlmCardTitle>{{ messages.create.title }}</h2>
         <p hlmCardDescription>{{ messages.create.description }}</p>
@@ -43,9 +40,11 @@
           </div>
 
           <div hlmField>
-            <label hlmFieldLabel for="project-description">{{
+            <label hlmFieldLabel for="project-description">{
+              {
               messages.create.descriptionLabel
-            }}</label>
+            }}
+            }</label>
             <textarea
               id="project-description"
               hlmTextarea
@@ -73,10 +72,10 @@
   }
 
   @if (loadStatus() === 'loading') {
-    <div class="flex flex-col gap-3" aria-busy="true">
-      <div hlmSkeleton class="h-20 w-full"></div>
-      <div hlmSkeleton class="h-20 w-full"></div>
-      <div hlmSkeleton class="h-20 w-full"></div>
+    <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" aria-busy="true">
+      <div hlmSkeleton class="h-28 w-full"></div>
+      <div hlmSkeleton class="h-28 w-full"></div>
+      <div hlmSkeleton class="h-28 w-full"></div>
     </div>
   } @else if (loadStatus() === 'error') {
     <section hlmCard>
@@ -88,40 +87,53 @@
       </div>
     </section>
   } @else if (projects().length === 0) {
-    <section hlmCard>
-      <header hlmCardHeader>
-        <h2 hlmCardTitle>{{ messages.list.emptyTitle }}</h2>
-        <p hlmCardDescription>{{ messages.list.emptyBody }}</p>
-      </header>
-      <footer hlmCardFooter>
+    <section hlmCard class="border-dashed">
+      <div hlmCardContent class="flex flex-col items-center gap-4 py-12 text-center">
+        <span
+          class="bg-primary/10 text-primary flex size-12 items-center justify-center rounded-2xl"
+          aria-hidden="true"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            class="size-6"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M5 12.5L9.5 17L19 7" />
+            <path d="M5 8h14" opacity="0.55" />
+          </svg>
+        </span>
+        <div class="flex max-w-sm flex-col gap-1">
+          <h2 class="font-medium">{{ messages.list.emptyTitle }}</h2>
+          <p class="text-muted-foreground text-sm">{{ messages.list.emptyBody }}</p>
+        </div>
         <button hlmBtn type="button" (click)="openCreate()">{{ messages.list.emptyAction }}</button>
-      </footer>
+      </div>
     </section>
   } @else {
-    <ul class="flex flex-col gap-3">
+    <ul class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
       @for (project of projects(); track project.id) {
-        <li hlmCard>
-          <div class="flex flex-wrap items-center justify-between gap-3 px-(--card-spacing)">
-            <div class="min-w-0">
-              <a
-                class="hover:text-primary text-base font-medium underline-offset-4 hover:underline"
-                [routerLink]="['/projects', project.id]"
-              >
-                {{ project.name }}
-              </a>
-              @if (project.description) {
-                <p class="text-muted-foreground mt-1 line-clamp-2 text-sm">
-                  {{ project.description }}
-                </p>
-              }
-              <p class="text-muted-foreground mt-1 text-xs">
-                {{ memberCount(project) }} {{ messages.list.membersLabel }}
+        <li>
+          <a
+            class="border-border bg-card hover:border-primary/25 hover:bg-muted/40 focus-visible:ring-ring flex h-full flex-col rounded-xl border p-4 transition-colors focus-visible:ring-2 focus-visible:outline-none"
+            [routerLink]="['/projects', project.id]"
+          >
+            <p class="truncate font-medium">{{ project.name }}</p>
+            @if (project.description) {
+              <p class="text-muted-foreground mt-1 line-clamp-2 flex-1 text-sm">
+                {{ project.description }}
               </p>
-            </div>
-            <a hlmBtn variant="outline" [routerLink]="['/projects', project.id]">
-              {{ messages.list.open }}
-            </a>
-          </div>
+            } @else {
+              <span class="flex-1"></span>
+            }
+            <p class="text-muted-foreground mt-3 text-xs">
+              {{ memberCount(project) }} {{ messages.list.membersLabel }}
+            </p>
+          </a>
         </li>
       }
     </ul>
