@@ -1,136 +1,131 @@
 <section hlmCard>
-  <header hlmCardHeader>
-    <h2 hlmCardTitle>{{ messages.title }}</h2>
-    <p hlmCardDescription>{{ messages.description }}</p>
+  <header hlmCardHeader class="flex flex-row flex-wrap items-start justify-between gap-3">
+    <div class="min-w-0">
+      <h2 hlmCardTitle>{{ messages.title }}</h2>
+      <p hlmCardDescription>{{ messages.description }}</p>
+    </div>
+    <button hlmBtn type="button" size="sm" (click)="openCreate()" [disabled]="createOpen()">
+      {{ messages.create.open }}
+    </button>
   </header>
 
-  <div hlmCardContent class="flex flex-col gap-6">
-    <!-- Filters toolbar -->
-    <form
-      class="border-border bg-muted/20 flex flex-col gap-3 rounded-xl border p-3"
-      (submit)="applyFilters($event)"
-    >
-      <p class="text-sm font-medium">{{ messages.filters.title }}</p>
-
-      <div class="grid gap-3 md:grid-cols-[1fr_auto]">
-        <div hlmField>
-          <label hlmFieldLabel for="board-search">{{ messages.filters.searchLabel }}</label>
-          <input
-            id="board-search"
-            type="search"
-            hlmInput
-            [value]="draftQuery()"
-            [placeholder]="messages.filters.searchPlaceholder"
-            (input)="onSearchInput($event)"
-          />
-        </div>
-
-        <div class="flex flex-col justify-end gap-2 sm:flex-row sm:items-end">
-          <label class="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              class="size-4 rounded border"
-              [checked]="draftAssignedToMe()"
-              (change)="onAssignedToMeChange($event)"
-            />
-            {{ messages.filters.assignedToMe }}
-          </label>
-          <label class="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              class="size-4 rounded border"
-              [checked]="draftOverdue()"
-              (change)="onOverdueChange($event)"
-            />
-            {{ messages.filters.overdue }}
-          </label>
-        </div>
+  <div hlmCardContent class="flex flex-col gap-5">
+    <!-- Instant filters toolbar -->
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+      <div class="min-w-0 flex-1">
+        <label class="sr-only" for="board-search">{{ messages.filters.searchLabel }}</label>
+        <input
+          id="board-search"
+          type="search"
+          hlmInput
+          class="w-full"
+          [value]="draftQuery()"
+          [placeholder]="messages.filters.searchPlaceholder"
+          (input)="onSearchInput($event)"
+        />
       </div>
 
-      <div class="flex flex-wrap gap-2">
-        <button hlmBtn type="submit" size="sm">{{ messages.filters.apply }}</button>
+      <div class="flex flex-wrap items-center gap-2">
         <button
           hlmBtn
           type="button"
-          variant="outline"
           size="sm"
-          [disabled]="!hasActiveFilters() && draftQuery().trim().length === 0 && !draftAssignedToMe() && !draftOverdue()"
-          (click)="clearFilters()"
+          [variant]="draftAssignedToMe() ? 'default' : 'outline'"
+          (click)="toggleAssignedToMe()"
         >
-          {{ messages.filters.clear }}
+          {{ messages.filters.assignedToMe }}
         </button>
-      </div>
-    </form>
-
-    <!-- Create task (compact) -->
-    <form class="flex flex-col gap-3" (submit)="onCreateSubmit($event)">
-      <h3 class="text-sm font-medium">{{ messages.create.title }}</h3>
-
-      @if (createServerError(); as error) {
-        <div
-          class="border-destructive/40 bg-destructive/10 text-destructive rounded-xl border px-3 py-2 text-sm"
-          role="alert"
+        <button
+          hlmBtn
+          type="button"
+          size="sm"
+          [variant]="draftOverdue() ? 'default' : 'outline'"
+          (click)="toggleOverdue()"
         >
-          {{ error }}
-        </div>
-      }
-      @if (createSuccess(); as success) {
-        <div class="border-border bg-muted/40 rounded-xl border px-3 py-2 text-sm" role="status">
-          {{ success }}
-        </div>
-      }
-
-      <div class="grid gap-3 md:grid-cols-[1fr_auto]">
-        <div hlmField>
-          <label hlmFieldLabel for="task-title">{{ messages.create.titleLabel }}</label>
-          <input
-            id="task-title"
-            type="text"
-            hlmInput
-            [formField]="createForm.title"
-            [placeholder]="messages.create.titlePlaceholder"
-            [attr.aria-invalid]="createFieldError('title') ? true : null"
-          />
-          @if (createFieldError('title'); as message) {
-            <hlm-field-error forceShow>{{ message }}</hlm-field-error>
-          }
-        </div>
-
-        <div hlmField>
-          <label hlmFieldLabel for="task-priority">{{ messages.create.priorityLabel }}</label>
-          <select
-            id="task-priority"
-            class="border-input bg-input/30 h-9 w-full rounded-4xl border px-3 text-sm outline-none"
-            [formField]="createForm.priority"
-          >
-            <option value="LOW">{{ messages.priority.LOW }}</option>
-            <option value="MEDIUM">{{ messages.priority.MEDIUM }}</option>
-            <option value="HIGH">{{ messages.priority.HIGH }}</option>
-            <option value="URGENT">{{ messages.priority.URGENT }}</option>
-          </select>
-        </div>
+          {{ messages.filters.overdue }}
+        </button>
+        @if (hasActiveFilters() || draftQuery().trim().length > 0) {
+          <button hlmBtn type="button" variant="ghost" size="sm" (click)="clearFilters()">
+            {{ messages.filters.clear }}
+          </button>
+        }
       </div>
+    </div>
 
-      <div hlmField>
-        <label hlmFieldLabel for="task-description">{{ messages.create.descriptionLabel }}</label>
-        <textarea
-          id="task-description"
-          hlmTextarea
-          rows="2"
-          [formField]="createForm.description"
-          [placeholder]="messages.create.descriptionPlaceholder"
-        ></textarea>
-      </div>
-
-      <button
-        hlmBtn
-        type="submit"
-        class="w-fit"
-        [disabled]="createForm().invalid() || createSubmitting()"
+    <!-- Expanded create form -->
+    @if (createOpen()) {
+      <form
+        class="border-border bg-muted/20 flex flex-col gap-3 rounded-xl border p-4"
+        (submit)="onCreateSubmit($event)"
       >
-        {{ createSubmitting() ? messages.create.submitting : messages.create.submit }}
-      </button>
-    </form>
+        <div class="flex items-center justify-between gap-2">
+          <h3 class="text-sm font-medium">{{ messages.create.title }}</h3>
+          <button hlmBtn type="button" variant="ghost" size="sm" (click)="closeCreate()">
+            {{ messages.create.cancel }}
+          </button>
+        </div>
+
+        @if (createServerError(); as error) {
+          <div
+            class="border-destructive/40 bg-destructive/10 text-destructive rounded-xl border px-3 py-2 text-sm"
+            role="alert"
+          >
+            {{ error }}
+          </div>
+        }
+
+        <div class="grid gap-3 md:grid-cols-[1fr_auto]">
+          <div hlmField>
+            <label hlmFieldLabel for="task-title">{{ messages.create.titleLabel }}</label>
+            <input
+              id="task-title"
+              type="text"
+              hlmInput
+              [formField]="createForm.title"
+              [placeholder]="messages.create.titlePlaceholder"
+              [attr.aria-invalid]="createFieldError('title') ? true : null"
+            />
+            @if (createFieldError('title'); as message) {
+              <hlm-field-error forceShow>{{ message }}</hlm-field-error>
+            }
+          </div>
+
+          <div hlmField>
+            <label hlmFieldLabel for="task-priority">{{ messages.create.priorityLabel }}</label>
+            <select
+              id="task-priority"
+              class="border-input bg-input/30 h-9 w-full rounded-4xl border px-3 text-sm outline-none"
+              [formField]="createForm.priority"
+            >
+              <option value="LOW">{{ messages.priority.LOW }}</option>
+              <option value="MEDIUM">{{ messages.priority.MEDIUM }}</option>
+              <option value="HIGH">{{ messages.priority.HIGH }}</option>
+              <option value="URGENT">{{ messages.priority.URGENT }}</option>
+            </select>
+          </div>
+        </div>
+
+        <div hlmField>
+          <label hlmFieldLabel for="task-description">{{ messages.create.descriptionLabel }}</label>
+          <textarea
+            id="task-description"
+            hlmTextarea
+            rows="2"
+            [formField]="createForm.description"
+            [placeholder]="messages.create.descriptionPlaceholder"
+          ></textarea>
+        </div>
+
+        <button
+          hlmBtn
+          type="submit"
+          class="w-fit"
+          [disabled]="createForm().invalid() || createSubmitting()"
+        >
+          {{ createSubmitting() ? messages.create.submitting : messages.create.submit }}
+        </button>
+      </form>
+    }
 
     @if (actionError(); as error) {
       <div
@@ -141,9 +136,9 @@
       </div>
     }
 
-    @if (loadStatus() === 'loading') {
+    @if (loadStatus() === 'loading' && totalVisible() === 0) {
       <p class="text-muted-foreground text-sm">{{ messages.loading }}</p>
-    } @else if (loadStatus() === 'error') {
+    } @else if (loadStatus() === 'error' && totalVisible() === 0) {
       <div class="flex flex-col gap-2">
         <p class="text-destructive text-sm" role="alert">{{ loadError() }}</p>
         <button hlmBtn type="button" variant="outline" class="w-fit" (click)="load()">
@@ -172,12 +167,15 @@
               </span>
             </div>
 
-            @if (column.tasks.length === 0) {
-              <p class="text-muted-foreground border-border/60 rounded-lg border border-dashed px-2 py-6 text-center text-xs">
+            @if (column.tasks.length === 0 && quickAddStatus() !== column.status) {
+              <p
+                class="text-muted-foreground border-border/60 rounded-lg border border-dashed px-2 py-6 text-center text-xs"
+              >
                 {{ messages.emptyColumn }}
               </p>
             }
-            <ul class="flex min-h-24 flex-1 flex-col gap-2">
+
+            <ul class="flex min-h-12 flex-1 flex-col gap-2">
               @for (task of column.tasks; track task.id) {
                 <li
                   class="bg-card group hover:border-primary/25 cursor-grab rounded-lg border p-3 shadow-xs transition-colors active:cursor-grabbing"
@@ -198,7 +196,6 @@
                     </p>
                   }
 
-                  <!-- Meta chips -->
                   <div class="mt-2.5 flex flex-wrap items-center gap-1.5">
                     <span
                       class="inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide"
@@ -217,7 +214,6 @@
                     }
                   </div>
 
-                  <!-- Actions: more compact, appear stronger on hover -->
                   <div
                     class="mt-3 flex flex-wrap items-center gap-1.5 opacity-90 transition-opacity group-hover:opacity-100"
                   >
@@ -297,6 +293,53 @@
                 </li>
               }
             </ul>
+
+            <!-- Per-column quick add -->
+            @if (quickAddStatus() === column.status) {
+              <form class="mt-1 flex flex-col gap-2" (submit)="submitQuickAdd(column.status, $event)">
+                <input
+                  type="text"
+                  hlmInput
+                  class="h-8 text-sm"
+                  [value]="quickAddTitle()"
+                  [placeholder]="messages.create.quickPlaceholder"
+                  (input)="onQuickAddTitleInput($event)"
+                  [attr.aria-label]="messages.create.quickAdd"
+                />
+                <div class="flex gap-1.5">
+                  <button
+                    hlmBtn
+                    type="submit"
+                    size="sm"
+                    class="h-7"
+                    [disabled]="quickAddTitle().trim().length < 2 || quickAddSubmitting()"
+                  >
+                    {{ quickAddSubmitting() ? messages.create.submitting : messages.create.quickAdd }}
+                  </button>
+                  <button
+                    hlmBtn
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    class="h-7"
+                    (click)="closeQuickAdd()"
+                  >
+                    {{ messages.create.cancel }}
+                  </button>
+                </div>
+              </form>
+            } @else {
+              <button
+                hlmBtn
+                type="button"
+                variant="ghost"
+                size="sm"
+                class="text-muted-foreground mt-1 h-8 w-full justify-start"
+                (click)="openQuickAdd(column.status)"
+              >
+                + {{ messages.create.quickAdd }}
+              </button>
+            }
           </div>
         }
       </div>
