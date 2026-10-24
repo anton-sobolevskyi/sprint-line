@@ -8,11 +8,11 @@ export const TASKS_MESSAGES = {
   filters: {
     title: 'Filters',
     searchLabel: 'Search',
-    searchPlaceholder: 'Title or description…',
+    searchPlaceholder: 'Search tasks…',
     assignedToMe: 'Assigned to me',
-    overdue: 'Overdue only',
+    overdue: 'Overdue',
     apply: 'Apply',
-    clear: 'Clear',
+    clear: 'Clear filters',
   },
   create: {
     title: 'New task',
@@ -24,6 +24,10 @@ export const TASKS_MESSAGES = {
     submit: 'Add task',
     submitting: 'Adding…',
     success: 'Task created.',
+    open: 'New task',
+    cancel: 'Cancel',
+    quickAdd: 'Add task',
+    quickPlaceholder: 'Task title',
   },
   status: {
     TODO: 'To do',
