@@ -187,6 +187,21 @@ export class ProjectTasksBoardPanel {
     return this.messages.priority[priority];
   }
 
+  /** Tailwind classes for priority chips on the board. */
+  priorityChipClass(priority: TaskPriority): string {
+    switch (priority) {
+      case 'URGENT':
+        return 'bg-destructive/15 text-destructive';
+      case 'HIGH':
+        return 'bg-orange-500/15 text-orange-700 dark:text-orange-300';
+      case 'MEDIUM':
+        return 'bg-primary/10 text-primary';
+      case 'LOW':
+      default:
+        return 'bg-muted text-muted-foreground';
+    }
+  }
+
   isCommentsOpen(taskId: string): boolean {
     return this.expandedCommentsTaskId() === taskId;
   }
