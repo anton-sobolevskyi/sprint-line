@@ -1,6 +1,6 @@
 export const SHELL_MESSAGES = {
   brand: 'SprintLine',
-  navLabel: 'Main',
+  navLabel: 'Navigation',
   nav: {
     home: 'Home',
     projects: 'Projects',
