@@ -77,6 +77,36 @@
           </hlm-sidebar-menu>
         </hlm-sidebar-group-content>
       </hlm-sidebar-group>
+
+      @if (recentProjects().length > 0) {
+        <hlm-sidebar-group>
+          <hlm-sidebar-group-label>{{ messages.recentLabel }}</hlm-sidebar-group-label>
+          <hlm-sidebar-group-content>
+            <hlm-sidebar-menu>
+              @for (project of recentProjects(); track project.id) {
+                <hlm-sidebar-menu-item>
+                  <a
+                    hlmSidebarMenuButton
+                    [routerLink]="['/projects', project.id]"
+                    routerLinkActive
+                    #projActive="routerLinkActive"
+                    [isActive]="projActive.isActive || activeProjectId() === project.id"
+                    [tooltip]="project.name"
+                  >
+                    <span
+                      class="bg-sidebar-accent text-sidebar-accent-foreground flex size-4 shrink-0 items-center justify-center rounded-sm text-[9px] font-bold"
+                      aria-hidden="true"
+                    >
+                      {{ project.name.slice(0, 1).toUpperCase() }}
+                    </span>
+                    <span class="truncate">{{ project.name }}</span>
+                  </a>
+                </hlm-sidebar-menu-item>
+              }
+            </hlm-sidebar-menu>
+          </hlm-sidebar-group-content>
+        </hlm-sidebar-group>
+      }
     </hlm-sidebar-content>
 
     <hlm-sidebar-footer class="border-sidebar-border border-t">

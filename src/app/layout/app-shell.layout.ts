@@ -25,7 +25,10 @@ import { HlmSidebarImports } from '@spartan-ng/helm/sidebar';
 
 import { getApiErrorMessage } from '../core/api/api-error';
 import { AuthApiService } from '../core/auth/auth-api.service';
-import { ProjectsApiService } from '../core/projects/projects-api.service';
+import {
+  type ProjectResponseDto,
+  ProjectsApiService,
+} from '../core/projects/projects-api.service';
 import { ThemeService } from '../core/ui/theme.service';
 import { appToast } from '../core/ui/toast';
 import { UserActions } from '../core/users/user.actions';
@@ -69,9 +72,11 @@ export class AppShellLayout {
 
   readonly resendSubmitting = signal(false);
 
-  /** Project id from /projects/:id or /projects/:projectId/tasks/:taskId */
   readonly activeProjectId = signal<string | null>(null);
   readonly activeProjectName = signal<string | null>(null);
+
+  /** Recent projects for sidebar (capped). */
+  readonly recentProjects = signal<ProjectResponseDto[]>([]);
 
   readonly needsEmailVerification = computed(() => {
     const user = this.currentUser();
@@ -118,6 +123,7 @@ export class AppShellLayout {
       this.store.dispatch(UserActions.loadMe());
     }
 
+    this.loadRecentProjects();
     this.syncProjectContext(this.router.url);
 
     this.router.events
@@ -125,7 +131,27 @@ export class AppShellLayout {
         filter((event): event is NavigationEnd => event instanceof NavigationEnd),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe((event) => this.syncProjectContext(event.urlAfterRedirects));
+      .subscribe((event) => {
+        this.syncProjectContext(event.urlAfterRedirects);
+        // Refresh recent list when returning to projects list or after project routes
+        if (
+          event.urlAfterRedirects === '/projects' ||
+          event.urlAfterRedirects.startsWith('/projects/')
+        ) {
+          this.loadRecentProjects();
+        }
+      });
+  }
+
+  private loadRecentProjects(): void {
+    this.projectsApi.findAll({ page: 1, limit: 5 }).subscribe({
+      next: (response) => {
+        this.recentProjects.set(response.data ?? []);
+      },
+      error: () => {
+        // Non-blocking; keep previous list if any
+      },
+    });
   }
 
   private syncProjectContext(url: string): void {
@@ -145,6 +171,12 @@ export class AppShellLayout {
     }
 
     this.activeProjectId.set(id);
+
+    const fromRecent = this.recentProjects().find((p) => p.id === id);
+    if (fromRecent) {
+      this.activeProjectName.set(fromRecent.name);
+    }
+
     this.projectsApi.findOne(id).subscribe({
       next: (project) => {
         if (this.activeProjectId() === id) {
@@ -152,7 +184,7 @@ export class AppShellLayout {
         }
       },
       error: () => {
-        if (this.activeProjectId() === id) {
+        if (this.activeProjectId() === id && !fromRecent) {
           this.activeProjectName.set(null);
         }
       },
