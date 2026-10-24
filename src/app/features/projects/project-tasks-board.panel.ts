@@ -15,6 +15,7 @@ import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmCardImports } from '@spartan-ng/helm/card';
 import { HlmFieldImports } from '@spartan-ng/helm/field';
 import { HlmInputImports } from '@spartan-ng/helm/input';
+import { HlmSelectImports } from '@spartan-ng/helm/select';
 import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
 import { HlmTextareaImports } from '@spartan-ng/helm/textarea';
 
@@ -46,6 +47,7 @@ import { createTaskSchema, type CreateTaskModel } from './tasks.schemas';
     ...HlmCardImports,
     ...HlmFieldImports,
     ...HlmInputImports,
+    ...HlmSelectImports,
     ...HlmSkeletonImports,
     ...HlmTextareaImports,
   ],
@@ -61,6 +63,7 @@ export class ProjectTasksBoardPanel {
 
   readonly messages = TASKS_MESSAGES;
   readonly statusOrder = TASK_STATUS_ORDER;
+  readonly priorityOptions = ['LOW', 'MEDIUM', 'HIGH', 'URGENT'] as const;
 
   readonly currentUser = this.ngrxStore.selectSignal(selectCurrentUser);
 
@@ -257,6 +260,16 @@ export class ProjectTasksBoardPanel {
       case 'LOW':
       default:
         return 'bg-muted text-muted-foreground';
+    }
+  }
+
+  createPriority(): TaskPriority {
+    return this.createModel().priority;
+  }
+
+  setCreatePriority(value: unknown): void {
+    if (value === 'LOW' || value === 'MEDIUM' || value === 'HIGH' || value === 'URGENT') {
+      this.createModel.update((current) => ({ ...current, priority: value }));
     }
   }
 
