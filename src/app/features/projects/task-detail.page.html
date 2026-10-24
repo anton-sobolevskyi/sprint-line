@@ -68,30 +68,45 @@
 
           <div class="grid gap-4 sm:grid-cols-2">
             <div hlmField>
-              <label hlmFieldLabel for="detail-status">{{ messages.detail.statusLabel }}</label>
-              <select
-                id="detail-status"
-                class="border-input bg-background h-9 w-full rounded-lg border px-3 text-sm outline-none"
-                [formField]="editForm.status"
+              <label hlmFieldLabel id="detail-status-label">{{ messages.detail.statusLabel }}</label>
+              <hlm-select
+                class="w-full"
+                [value]="editStatus()"
+                (valueChange)="setEditStatus($event)"
+                aria-labelledby="detail-status-label"
               >
-                @for (status of statusOrder; track status) {
-                  <option [value]="status">{{ messages.status[status] }}</option>
-                }
-              </select>
+                <hlm-select-trigger class="w-full">
+                  <hlm-select-value />
+                </hlm-select-trigger>
+                <hlm-select-content *hlmSelectPortal>
+                  <hlm-select-group>
+                    @for (status of statusOrder; track status) {
+                      <hlm-select-item [value]="status">{{ messages.status[status] }}</hlm-select-item>
+                    }
+                  </hlm-select-group>
+                </hlm-select-content>
+              </hlm-select>
             </div>
 
             <div hlmField>
-              <label hlmFieldLabel for="detail-priority">{{ messages.detail.priorityLabel }}</label>
-              <select
-                id="detail-priority"
-                class="border-input bg-background h-9 w-full rounded-lg border px-3 text-sm outline-none"
-                [formField]="editForm.priority"
+              <label hlmFieldLabel id="detail-priority-label">{{ messages.detail.priorityLabel }}</label>
+              <hlm-select
+                class="w-full"
+                [value]="editPriority()"
+                (valueChange)="setEditPriority($event)"
+                aria-labelledby="detail-priority-label"
               >
-                <option value="LOW">{{ messages.priority.LOW }}</option>
-                <option value="MEDIUM">{{ messages.priority.MEDIUM }}</option>
-                <option value="HIGH">{{ messages.priority.HIGH }}</option>
-                <option value="URGENT">{{ messages.priority.URGENT }}</option>
-              </select>
+                <hlm-select-trigger class="w-full">
+                  <hlm-select-value />
+                </hlm-select-trigger>
+                <hlm-select-content *hlmSelectPortal>
+                  <hlm-select-group>
+                    @for (priority of priorityOptions; track priority) {
+                      <hlm-select-item [value]="priority">{{ messages.priority[priority] }}</hlm-select-item>
+                    }
+                  </hlm-select-group>
+                </hlm-select-content>
+              </hlm-select>
             </div>
 
             <div hlmField>
@@ -105,17 +120,25 @@
             </div>
 
             <div hlmField>
-              <label hlmFieldLabel for="detail-assignee">{{ messages.detail.assigneeLabel }}</label>
-              <select
-                id="detail-assignee"
-                class="border-input bg-background h-9 w-full rounded-lg border px-3 text-sm outline-none"
-                [formField]="editForm.assignedToId"
+              <label hlmFieldLabel id="detail-assignee-label">{{ messages.detail.assigneeLabel }}</label>
+              <hlm-select
+                class="w-full"
+                [value]="editAssigneeId()"
+                (valueChange)="setEditAssignee($event)"
+                aria-labelledby="detail-assignee-label"
               >
-                <option value="">{{ messages.detail.unassigned }}</option>
-                @for (member of members(); track member.userId) {
-                  <option [value]="member.userId">{{ memberLabel(member) }}</option>
-                }
-              </select>
+                <hlm-select-trigger class="w-full">
+                  <hlm-select-value />
+                </hlm-select-trigger>
+                <hlm-select-content *hlmSelectPortal>
+                  <hlm-select-group>
+                    <hlm-select-item value="">{{ messages.detail.unassigned }}</hlm-select-item>
+                    @for (member of members(); track member.userId) {
+                      <hlm-select-item [value]="member.userId">{{ memberLabel(member) }}</hlm-select-item>
+                    }
+                  </hlm-select-group>
+                </hlm-select-content>
+              </hlm-select>
             </div>
           </div>
 

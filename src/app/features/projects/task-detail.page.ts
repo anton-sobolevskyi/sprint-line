@@ -6,6 +6,7 @@ import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmCardImports } from '@spartan-ng/helm/card';
 import { HlmFieldImports } from '@spartan-ng/helm/field';
 import { HlmInputImports } from '@spartan-ng/helm/input';
+import { HlmSelectImports } from '@spartan-ng/helm/select';
 import { HlmTextareaImports } from '@spartan-ng/helm/textarea';
 
 import { getApiErrorMessage } from '../../core/api/api-error';
@@ -17,7 +18,9 @@ import {
   ProjectMembersApiService,
 } from '../../core/projects/project-members-api.service';
 import {
+  type TaskPriority,
   type TaskResponseDto,
+  type TaskStatus,
   TasksApiService,
 } from '../../core/tasks/tasks-api.service';
 import { firstFieldErrorMessage } from '../auth/auth.form-utils';
@@ -31,6 +34,8 @@ import {
 
 const MEMBERS_LIMIT = 100 as const;
 
+const PRIORITY_OPTIONS = ['LOW', 'MEDIUM', 'HIGH', 'URGENT'] as const;
+
 @Component({
   selector: 'sl-task-detail-page',
   imports: [
@@ -42,6 +47,7 @@ const MEMBERS_LIMIT = 100 as const;
     ...HlmCardImports,
     ...HlmFieldImports,
     ...HlmInputImports,
+    ...HlmSelectImports,
     ...HlmTextareaImports,
   ],
   templateUrl: './task-detail.page.html',
@@ -55,6 +61,7 @@ export class TaskDetailPage {
 
   readonly messages = TASKS_MESSAGES;
   readonly statusOrder = TASK_STATUS_ORDER;
+  readonly priorityOptions = PRIORITY_OPTIONS;
 
   readonly projectId = signal<string | null>(null);
   readonly taskId = signal<string | null>(null);
@@ -149,6 +156,40 @@ export class TaskDetailPage {
 
   memberLabel(member: ProjectMemberResponseDto): string {
     return member.user?.name ?? member.user?.email ?? member.userId;
+  }
+
+  editStatus(): TaskStatus {
+    return this.model().status;
+  }
+
+  editPriority(): TaskPriority {
+    return this.model().priority;
+  }
+
+  editAssigneeId(): string {
+    return this.model().assignedToId;
+  }
+
+  setEditStatus(value: unknown): void {
+    if (
+      value === 'TODO' ||
+      value === 'IN_PROGRESS' ||
+      value === 'IN_REVIEW' ||
+      value === 'DONE'
+    ) {
+      this.model.update((current) => ({ ...current, status: value }));
+    }
+  }
+
+  setEditPriority(value: unknown): void {
+    if (value === 'LOW' || value === 'MEDIUM' || value === 'HIGH' || value === 'URGENT') {
+      this.model.update((current) => ({ ...current, priority: value }));
+    }
+  }
+
+  setEditAssignee(value: unknown): void {
+    const id = value == null ? '' : String(value);
+    this.model.update((current) => ({ ...current, assignedToId: id }));
   }
 
   fieldError(
