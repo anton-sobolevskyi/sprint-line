@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
 
@@ -34,6 +34,11 @@ export class HomePage implements OnInit {
   readonly loadStatus = signal<'idle' | 'loading' | 'success' | 'error'>('idle');
   readonly loadError = signal<string | null>(null);
 
+  /** Sum of memberCount on the recent page (approximate team presence). */
+  readonly recentMemberSeats = computed(() =>
+    this.projects().reduce((sum, project) => sum + this.memberCount(project), 0),
+  );
+
   ngOnInit(): void {
     if (!this.currentUser()) {
       this.store.dispatch(UserActions.loadMe());
@@ -60,13 +65,36 @@ export class HomePage implements OnInit {
 
   greeting(): string {
     const name = this.currentUser()?.name?.trim();
-    if (!name) {
-      return this.messages.greeting;
+    const hour = new Date().getHours();
+    let plain: string;
+    let named: string;
+
+    if (hour < 12) {
+      plain = this.messages.greetingMorning;
+      named = this.messages.greetingMorningNamed;
+    } else if (hour < 18) {
+      plain = this.messages.greetingAfternoon;
+      named = this.messages.greetingAfternoonNamed;
+    } else {
+      plain = this.messages.greetingEvening;
+      named = this.messages.greetingEveningNamed;
     }
-    return this.messages.greetingNamed.replace('{name}', name);
+
+    if (!name) {
+      return plain;
+    }
+    return named.replace('{name}', name);
   }
 
   memberCount(project: ProjectResponseDto): number {
     return project.memberCount ?? project.members?.length ?? 0;
+  }
+
+  projectInitial(project: ProjectResponseDto): string {
+    const name = project.name?.trim();
+    if (!name) {
+      return '?';
+    }
+    return name.slice(0, 1).toUpperCase();
   }
 }

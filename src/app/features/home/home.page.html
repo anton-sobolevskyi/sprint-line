@@ -1,16 +1,26 @@
 <main class="mx-auto flex w-full max-w-6xl flex-col gap-8 p-4 py-8 md:p-8">
-  <header class="flex flex-col gap-1">
-    <h1 class="text-2xl font-semibold tracking-tight md:text-3xl">{{ greeting() }}</h1>
-    <p class="text-muted-foreground text-sm">{{ messages.subtitle }}</p>
+  <header class="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <h1 class="text-2xl font-semibold tracking-tight md:text-3xl">{{ greeting() }}</h1>
+      <p class="text-muted-foreground text-sm">{{ messages.subtitle }}</p>
+    </div>
+    <div class="mt-3 flex flex-wrap gap-2 sm:mt-0">
+      <a hlmBtn size="sm" routerLink="/projects" [queryParams]="{ new: '1' }">
+        {{ messages.quick.newProject }}
+      </a>
+      <a hlmBtn size="sm" variant="outline" routerLink="/projects">
+        {{ messages.quick.projects }}
+      </a>
+    </div>
   </header>
 
   @if (loadStatus() === 'loading' && projects().length === 0) {
-    <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-busy="true">
+    <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4" aria-busy="true">
       <div hlmSkeleton class="h-28 w-full"></div>
-      <div hlmSkeleton class="h-28 w-full sm:col-span-1 lg:col-span-2"></div>
-      <div hlmSkeleton class="h-24 w-full"></div>
-      <div hlmSkeleton class="h-24 w-full"></div>
-      <div hlmSkeleton class="h-24 w-full"></div>
+      <div hlmSkeleton class="h-28 w-full"></div>
+      <div hlmSkeleton class="h-28 w-full sm:col-span-2"></div>
+      <div hlmSkeleton class="h-36 w-full sm:col-span-2 lg:col-span-2"></div>
+      <div hlmSkeleton class="h-36 w-full sm:col-span-2 lg:col-span-2"></div>
     </section>
   } @else if (loadStatus() === 'error' && projects().length === 0) {
     <section hlmCard>
@@ -22,18 +32,28 @@
       </div>
     </section>
   } @else {
-    <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       <article hlmCard>
         <header hlmCardHeader>
           <p class="text-muted-foreground text-xs font-medium tracking-wide uppercase">
             {{ messages.stats.projects }}
           </p>
           <p class="text-3xl font-semibold tabular-nums">{{ totalProjects() }}</p>
+          <p hlmCardDescription>{{ messages.stats.projectsHint }}</p>
+        </header>
+      </article>
+
+      <article hlmCard>
+        <header hlmCardHeader>
+          <p class="text-muted-foreground text-xs font-medium tracking-wide uppercase">
+            {{ messages.stats.members }}
+          </p>
+          <p class="text-3xl font-semibold tabular-nums">{{ recentMemberSeats() }}</p>
           <p hlmCardDescription>{{ messages.stats.membersHint }}</p>
         </header>
       </article>
 
-      <article hlmCard class="sm:col-span-1 lg:col-span-2">
+      <article hlmCard class="sm:col-span-2">
         <header hlmCardHeader>
           <h2 hlmCardTitle>{{ messages.quick.title }}</h2>
         </header>
@@ -90,18 +110,35 @@
           @for (project of projects(); track project.id) {
             <li>
               <a
-                class="border-border bg-card hover:border-primary/25 hover:bg-muted/40 focus-visible:ring-ring block rounded-xl border p-4 transition-colors focus-visible:ring-2 focus-visible:outline-none"
+                class="border-border bg-card hover:border-primary/25 hover:bg-muted/30 focus-visible:ring-ring group flex h-full flex-col rounded-xl border p-4 transition-colors focus-visible:ring-2 focus-visible:outline-none"
                 [routerLink]="['/projects', project.id]"
               >
-                <p class="truncate font-medium">{{ project.name }}</p>
-                @if (project.description) {
-                  <p class="text-muted-foreground mt-1 line-clamp-2 text-sm">
-                    {{ project.description }}
-                  </p>
-                }
-                <p class="text-muted-foreground mt-3 text-xs">
-                  {{ memberCount(project) }} {{ messages.recent.members }}
-                </p>
+                <div class="flex items-start gap-3">
+                  <span
+                    class="bg-primary/10 text-primary flex size-10 shrink-0 items-center justify-center rounded-lg text-sm font-semibold"
+                    aria-hidden="true"
+                  >
+                    {{ projectInitial(project) }}
+                  </span>
+                  <div class="min-w-0 flex-1">
+                    <p class="truncate font-medium group-hover:underline">{{ project.name }}</p>
+                    @if (project.description) {
+                      <p class="text-muted-foreground mt-1 line-clamp-2 text-sm">
+                        {{ project.description }}
+                      </p>
+                    }
+                  </div>
+                </div>
+                <div
+                  class="text-muted-foreground mt-auto flex items-center justify-between gap-2 pt-4 text-xs"
+                >
+                  <span>
+                    {{ memberCount(project) }} {{ messages.recent.members }}
+                  </span>
+                  <span class="text-primary font-medium opacity-0 transition-opacity group-hover:opacity-100">
+                    {{ messages.recent.openBoard }} →
+                  </span>
+                </div>
               </a>
             </li>
           }
