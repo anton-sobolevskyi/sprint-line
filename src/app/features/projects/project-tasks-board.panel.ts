@@ -15,6 +15,7 @@ import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmCardImports } from '@spartan-ng/helm/card';
 import { HlmFieldImports } from '@spartan-ng/helm/field';
 import { HlmInputImports } from '@spartan-ng/helm/input';
+import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
 import { HlmTextareaImports } from '@spartan-ng/helm/textarea';
 
 import { ConfirmDialogService } from '../../core/ui/confirm-dialog.service';
@@ -45,6 +46,7 @@ import { createTaskSchema, type CreateTaskModel } from './tasks.schemas';
     ...HlmCardImports,
     ...HlmFieldImports,
     ...HlmInputImports,
+    ...HlmSkeletonImports,
     ...HlmTextareaImports,
   ],
   templateUrl: './project-tasks-board.panel.html',
