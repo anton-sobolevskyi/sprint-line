@@ -9,6 +9,7 @@ import { HlmInputImports } from '@spartan-ng/helm/input';
 
 import { getApiErrorMessage } from '../../../core/api/api-error';
 import { AuthApiService } from '../../../core/auth/auth-api.service';
+import { AuthThemeToggle } from '../auth-theme-toggle.component';
 import { firstFieldErrorMessage } from '../auth.form-utils';
 import { AUTH_MESSAGES } from '../auth.messages';
 import {
@@ -21,6 +22,7 @@ import {
   imports: [
     FormField,
     RouterLink,
+    AuthThemeToggle,
     ...HlmButtonImports,
     ...HlmCardImports,
     ...HlmFieldImports,
