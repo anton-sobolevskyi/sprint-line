@@ -39,6 +39,11 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'not-found',
+    loadComponent: () =>
+      import('./features/not-found/not-found.page').then((m) => m.NotFoundPage),
+  },
+  {
     path: '',
     canActivate: [authGuard],
     loadComponent: () =>
@@ -79,6 +84,6 @@ export const routes: Routes = [
   },
   {
     path: '**',
-    redirectTo: '',
+    redirectTo: 'not-found',
   },
 ];
