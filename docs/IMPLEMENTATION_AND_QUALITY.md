@@ -5,6 +5,8 @@ Step-by-step frontend plan for [management_app_backend](https://github.com/anton
 **Stack:** Angular 22 · spartan-ng · Tailwind v4 · NgRx · Zod · Signal Forms · openapi-typescript  
 **a11y target:** WCAG 2.2 AA
 
+**UX/UI roadmap:** see [`docs/UX_UI_IMPROVEMENT_GUIDE.md`](UX_UI_IMPROVEMENT_GUIDE.md).
+
 ---
 
 ## Conventions
@@ -32,9 +34,12 @@ Step-by-step frontend plan for [management_app_backend](https://github.com/anton
 | UI brand + shell + dark mode | **Done** |
 | Board UX (filters, quick-add, slim cards) | **Done** |
 | Shell project context + recent projects | **Done** |
+| **UX Phase A** — tokens, density, task cards | **In progress** |
+| UX Phase B — home, list view, task detail | Planned |
+| UX Phase C — command palette, keyboard | Planned |
 | Next (optional) | Authenticated Playwright e2e · Helm Select forms |
 
-See README **UI design system** for tokens and patterns.
+See README **UI design system** for tokens and patterns. Full design principles and page specs: [UX_UI_IMPROVEMENT_GUIDE.md](UX_UI_IMPROVEMENT_GUIDE.md).
 
 ### Feature SignalStores
 
@@ -59,4 +64,4 @@ UI-only state (create form, draft filters, quick-add draft) stays on the compone
 
 ---
 
-*Last updated: 2026-10-24 — UI refresh, shell recent projects.*
+*Last updated: 2026-10-24 — UX/UI improvement guide + Phase A board density.*
