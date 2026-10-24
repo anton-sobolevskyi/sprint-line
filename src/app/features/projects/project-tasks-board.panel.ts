@@ -260,18 +260,9 @@ export class ProjectTasksBoardPanel {
     }
   }
 
+  /** Semantic priority chips from design tokens (Phase A UX). */
   priorityChipClass(priority: TaskPriority): string {
-    switch (priority) {
-      case 'URGENT':
-        return 'bg-destructive/15 text-destructive';
-      case 'HIGH':
-        return 'bg-orange-500/15 text-orange-700 dark:text-orange-300';
-      case 'MEDIUM':
-        return 'bg-primary/10 text-primary';
-      case 'LOW':
-      default:
-        return 'bg-muted text-muted-foreground';
-    }
+    return `sl-priority-chip sl-priority-chip-${priority}`;
   }
 
   createPriority(): TaskPriority {
