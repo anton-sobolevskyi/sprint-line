@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import { Component, computed, DestroyRef, effect, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   NavigationEnd,
@@ -33,6 +33,7 @@ import { ThemeService } from '../core/ui/theme.service';
 import { appToast } from '../core/ui/toast';
 import { UserActions } from '../core/users/user.actions';
 import { selectCurrentUser } from '../core/users/user.reducer';
+import { UsersApiService } from '../core/users/users-api.service';
 import { SHELL_MESSAGES } from './shell.messages';
 
 @Component({
@@ -61,6 +62,7 @@ import { SHELL_MESSAGES } from './shell.messages';
 export class AppShellLayout {
   private readonly authApi = inject(AuthApiService);
   private readonly projectsApi = inject(ProjectsApiService);
+  private readonly usersApi = inject(UsersApiService);
   private readonly router = inject(Router);
   private readonly store = inject(Store);
   private readonly destroyRef = inject(DestroyRef);
@@ -75,8 +77,10 @@ export class AppShellLayout {
   readonly activeProjectId = signal<string | null>(null);
   readonly activeProjectName = signal<string | null>(null);
 
-  /** Recent projects for sidebar (capped). */
   readonly recentProjects = signal<ProjectResponseDto[]>([]);
+
+  readonly avatarUrl = signal<string | null>(null);
+  private readonly loadedAvatarId = signal<string | null>(null);
 
   readonly needsEmailVerification = computed(() => {
     const user = this.currentUser();
@@ -126,6 +130,31 @@ export class AppShellLayout {
     this.loadRecentProjects();
     this.syncProjectContext(this.router.url);
 
+    effect(() => {
+      const avatarId = this.currentUser()?.avatarId ?? null;
+      if (!avatarId) {
+        this.avatarUrl.set(null);
+        this.loadedAvatarId.set(null);
+        return;
+      }
+      if (this.loadedAvatarId() === avatarId && this.avatarUrl()) {
+        return;
+      }
+      this.loadedAvatarId.set(avatarId);
+      this.usersApi.getAttachmentDownloadUrl(avatarId).subscribe({
+        next: (response) => {
+          if (this.loadedAvatarId() === avatarId) {
+            this.avatarUrl.set(response.url ?? null);
+          }
+        },
+        error: () => {
+          if (this.loadedAvatarId() === avatarId) {
+            this.avatarUrl.set(null);
+          }
+        },
+      });
+    });
+
     this.router.events
       .pipe(
         filter((event): event is NavigationEnd => event instanceof NavigationEnd),
@@ -133,7 +162,6 @@ export class AppShellLayout {
       )
       .subscribe((event) => {
         this.syncProjectContext(event.urlAfterRedirects);
-        // Refresh recent list when returning to projects list or after project routes
         if (
           event.urlAfterRedirects === '/projects' ||
           event.urlAfterRedirects.startsWith('/projects/')
@@ -149,7 +177,7 @@ export class AppShellLayout {
         this.recentProjects.set(response.data ?? []);
       },
       error: () => {
-        // Non-blocking; keep previous list if any
+        // Non-blocking
       },
     });
   }

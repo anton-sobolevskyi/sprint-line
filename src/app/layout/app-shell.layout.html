@@ -111,20 +111,30 @@
 
     <hlm-sidebar-footer class="border-sidebar-border border-t">
       @if (currentUser(); as user) {
-        <div
-          class="flex items-center gap-2.5 px-2 py-1.5 group-data-[collapsible=icon]:justify-center"
+        <a
+          routerLink="/profile"
+          class="hover:bg-sidebar-accent/50 flex items-center gap-2.5 rounded-lg px-2 py-1.5 transition-colors group-data-[collapsible=icon]:justify-center"
+          [attr.aria-label]="messages.nav.profile"
         >
-          <span
-            class="bg-sidebar-accent text-sidebar-accent-foreground flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold"
-            aria-hidden="true"
-          >
-            {{ userInitials() }}
-          </span>
+          @if (avatarUrl(); as url) {
+            <img
+              [src]="url"
+              alt=""
+              class="size-8 shrink-0 rounded-full object-cover"
+            />
+          } @else {
+            <span
+              class="bg-sidebar-accent text-sidebar-accent-foreground flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold"
+              aria-hidden="true"
+            >
+              {{ userInitials() }}
+            </span>
+          }
           <div class="min-w-0 flex-1 group-data-[collapsible=icon]:hidden">
             <p class="truncate text-sm font-medium">{{ userDisplayName() }}</p>
             <p class="text-muted-foreground truncate text-xs">{{ user.email }}</p>
           </div>
-        </div>
+        </a>
       }
 
       <hlm-sidebar-menu>
