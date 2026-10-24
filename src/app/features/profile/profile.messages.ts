@@ -37,6 +37,7 @@ export const PROFILE_MESSAGES = {
     uploading: 'Uploading…',
     success: 'Avatar updated.',
     hint: 'PNG or JPEG, up to a few MB.',
+    previewAlt: 'Your avatar',
   },
   deleteSection: {
     title: 'Delete account',

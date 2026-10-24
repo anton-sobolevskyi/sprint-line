@@ -117,7 +117,7 @@
         <h2 hlmCardTitle>{{ messages.avatarSection.title }}</h2>
         <p hlmCardDescription>{{ messages.avatarSection.hint }}</p>
       </header>
-      <div hlmCardContent class="flex flex-col gap-3">
+      <div hlmCardContent class="flex flex-col gap-4">
         @if (avatarError(); as error) {
           <div
             class="border-destructive/40 bg-destructive/10 text-destructive rounded-xl border px-3 py-2 text-sm"
@@ -131,19 +131,38 @@
             {{ success }}
           </div>
         }
-        <label class="inline-flex">
-          <span class="sr-only">{{ messages.avatarSection.choose }}</span>
-          <input
-            type="file"
-            accept="image/*"
-            class="text-sm file:bg-secondary file:text-secondary-foreground file:mr-3 file:rounded-full file:border-0 file:px-3 file:py-1.5"
-            [disabled]="avatarUploading()"
-            (change)="onAvatarSelected($event)"
-          />
-        </label>
-        @if (avatarUploading()) {
-          <p class="text-muted-foreground text-sm">{{ messages.avatarSection.uploading }}</p>
-        }
+
+        <div class="flex items-center gap-4">
+          @if (avatarUrl(); as url) {
+            <img
+              [src]="url"
+              [alt]="messages.avatarSection.previewAlt"
+              class="border-border size-16 rounded-full border object-cover"
+            />
+          } @else {
+            <span
+              class="bg-primary/10 text-primary flex size-16 shrink-0 items-center justify-center rounded-full text-lg font-semibold"
+              aria-hidden="true"
+            >
+              {{ userInitials() }}
+            </span>
+          }
+          <div class="min-w-0 flex-1">
+            <label class="inline-flex flex-col gap-1">
+              <span class="text-sm font-medium">{{ messages.avatarSection.choose }}</span>
+              <input
+                type="file"
+                accept="image/*"
+                class="text-sm file:bg-secondary file:text-secondary-foreground file:mr-3 file:rounded-full file:border-0 file:px-3 file:py-1.5"
+                [disabled]="avatarUploading()"
+                (change)="onAvatarSelected($event)"
+              />
+            </label>
+            @if (avatarUploading()) {
+              <p class="text-muted-foreground mt-1 text-sm">{{ messages.avatarSection.uploading }}</p>
+            }
+          </div>
+        </div>
       </div>
     </section>
 

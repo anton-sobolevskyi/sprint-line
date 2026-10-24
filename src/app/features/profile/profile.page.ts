@@ -1,6 +1,6 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { form, FormField, validateStandardSchema } from '@angular/forms/signals';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 
 import { HlmButtonImports } from '@spartan-ng/helm/button';
@@ -34,7 +34,6 @@ import {
   selector: 'sl-profile-page',
   imports: [
     FormField,
-    RouterLink,
     ...HlmButtonImports,
     ...HlmCardImports,
     ...HlmFieldImports,
@@ -68,6 +67,8 @@ export class ProfilePage {
   readonly avatarUploading = signal(false);
   readonly avatarError = signal<string | null>(null);
   readonly avatarSuccess = signal<string | null>(null);
+  /** Signed download URL for current avatar, if any. */
+  readonly avatarUrl = signal<string | null>(null);
 
   readonly deleteSubmitting = signal(false);
   readonly deleteError = signal<string | null>(null);
@@ -96,6 +97,24 @@ export class ProfilePage {
   });
 
   private readonly syncedUserId = signal<string | null>(null);
+  private readonly loadedAvatarId = signal<string | null>(null);
+
+  readonly userInitials = computed(() => {
+    const user = this.currentUser();
+    if (!user) {
+      return '?';
+    }
+    const name = user.name?.trim();
+    if (name) {
+      const parts = name.split(/\s+/).filter(Boolean);
+      if (parts.length >= 2) {
+        return (parts[0]![0]! + parts[1]![0]!).toUpperCase();
+      }
+      return name.slice(0, 2).toUpperCase();
+    }
+    const email = user.email ?? '';
+    return email.length >= 2 ? email.slice(0, 2).toUpperCase() : '?';
+  });
 
   constructor() {
     this.store.dispatch(UserActions.loadMe());
@@ -107,6 +126,31 @@ export class ProfilePage {
       }
       this.syncedUserId.set(user.id);
       this.detailsModel.set({ name: user.name, email: user.email });
+    });
+
+    effect(() => {
+      const avatarId = this.currentUser()?.avatarId ?? null;
+      if (!avatarId) {
+        this.avatarUrl.set(null);
+        this.loadedAvatarId.set(null);
+        return;
+      }
+      if (this.loadedAvatarId() === avatarId && this.avatarUrl()) {
+        return;
+      }
+      this.loadedAvatarId.set(avatarId);
+      this.usersApi.getAttachmentDownloadUrl(avatarId).subscribe({
+        next: (response) => {
+          if (this.loadedAvatarId() === avatarId) {
+            this.avatarUrl.set(response.url ?? null);
+          }
+        },
+        error: () => {
+          if (this.loadedAvatarId() === avatarId) {
+            this.avatarUrl.set(null);
+          }
+        },
+      });
     });
   }
 
@@ -230,6 +274,7 @@ export class ProfilePage {
         this.avatarUploading.set(false);
         this.avatarSuccess.set(this.messages.avatarSection.success);
         appToast.success(this.messages.avatarSection.success);
+        this.loadedAvatarId.set(null);
         this.store.dispatch(UserActions.loadMe());
       },
       error: (error: unknown) => {
