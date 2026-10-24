@@ -1,5 +1,5 @@
 <section hlmCard>
-  <header hlmCardHeader class="flex flex-row flex-wrap items-start justify-between gap-3">
+  <header hlmCardHeader class="flex flex-row flex-wrap items-start justify-between gap-3 !pb-3">
     <div class="min-w-0">
       <h2 hlmCardTitle>{{ messages.title }}</h2>
       <p hlmCardDescription>{{ messages.description }}</p>
@@ -9,8 +9,8 @@
     </button>
   </header>
 
-  <div hlmCardContent class="flex flex-col gap-5">
-    <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+  <div hlmCardContent class="flex flex-col gap-4">
+    <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
       <div class="min-w-0 flex-1">
         <label class="sr-only" for="board-search">{{ messages.filters.searchLabel }}</label>
         <input
@@ -24,7 +24,7 @@
         />
       </div>
 
-      <div class="flex flex-wrap items-center gap-2">
+      <div class="flex flex-wrap items-center gap-1.5">
         <button
           hlmBtn
           type="button"
@@ -53,7 +53,7 @@
 
     @if (createOpen()) {
       <form
-        class="border-border bg-muted/20 flex flex-col gap-3 rounded-xl border p-4"
+        class="border-border bg-muted/20 flex flex-col gap-3 rounded-lg border p-3"
         (submit)="onCreateSubmit($event)"
       >
         <div class="flex items-center justify-between gap-2">
@@ -65,7 +65,7 @@
 
         @if (createServerError(); as error) {
           <div
-            class="border-destructive/40 bg-destructive/10 text-destructive rounded-xl border px-3 py-2 text-sm"
+            class="border-destructive/40 bg-destructive/10 text-destructive rounded-lg border px-3 py-2 text-sm"
             role="alert"
           >
             {{ error }}
@@ -134,7 +134,7 @@
 
     @if (actionError(); as error) {
       <div
-        class="border-destructive/40 bg-destructive/10 text-destructive rounded-xl border px-3 py-2 text-sm"
+        class="border-destructive/40 bg-destructive/10 text-destructive rounded-lg border px-3 py-2 text-sm"
         role="alert"
       >
         {{ error }}
@@ -143,19 +143,19 @@
 
     @if (loadStatus() === 'loading' && totalVisible() === 0) {
       <div
-        class="grid gap-3 md:grid-cols-2 xl:grid-cols-4"
+        class="grid gap-2.5 md:grid-cols-2 xl:grid-cols-4"
         aria-busy="true"
         [attr.aria-label]="messages.loading"
       >
         @for (status of statusOrder; track status) {
-          <div class="bg-muted/30 flex min-h-48 flex-col gap-2 rounded-xl border p-3">
+          <div class="sl-board-column">
             <div class="flex items-center justify-between gap-2">
               <div hlmSkeleton class="h-4 w-20"></div>
               <div hlmSkeleton class="h-5 w-6 rounded-full"></div>
             </div>
-            <div hlmSkeleton class="h-16 w-full rounded-lg"></div>
-            <div hlmSkeleton class="h-16 w-full rounded-lg"></div>
-            <div hlmSkeleton class="h-8 w-full rounded-lg"></div>
+            <div hlmSkeleton class="h-14 w-full rounded-md"></div>
+            <div hlmSkeleton class="h-14 w-full rounded-md"></div>
+            <div hlmSkeleton class="h-7 w-full rounded-md"></div>
           </div>
         }
       </div>
@@ -170,19 +170,19 @@
       <p class="text-muted-foreground text-sm">{{ messages.emptyFiltered }}</p>
     } @else {
       <p class="text-muted-foreground text-xs">{{ messages.dnd.hint }}</p>
-      <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-4" cdkDropListGroup>
+      <div class="grid gap-2.5 md:grid-cols-2 xl:grid-cols-4" cdkDropListGroup>
         @for (column of columns(); track column.status) {
           <div
-            class="bg-muted/30 flex min-h-48 flex-col gap-2 rounded-xl border p-3"
+            class="sl-board-column"
             cdkDropList
             [cdkDropListData]="column.status"
             [id]="'col-' + column.status"
             (cdkDropListDropped)="onTaskDrop($event)"
           >
-            <div class="flex items-center justify-between gap-2">
-              <h3 class="text-sm font-semibold">{{ column.label }}</h3>
+            <div class="flex items-center justify-between gap-2 px-0.5">
+              <h3 class="text-xs font-semibold tracking-wide uppercase">{{ column.label }}</h3>
               <span
-                class="bg-background text-muted-foreground inline-flex min-w-5 items-center justify-center rounded-full px-1.5 py-0.5 text-xs font-medium tabular-nums"
+                class="bg-background text-muted-foreground inline-flex min-w-5 items-center justify-center rounded-full px-1.5 py-0.5 text-[11px] font-medium tabular-nums"
               >
                 {{ column.tasks.length }}
               </span>
@@ -190,23 +190,29 @@
 
             @if (column.tasks.length === 0 && quickAddStatus() !== column.status) {
               <p
-                class="text-muted-foreground border-border/60 rounded-lg border border-dashed px-2 py-6 text-center text-xs"
+                class="text-muted-foreground border-border/60 rounded-md border border-dashed px-2 py-5 text-center text-xs"
               >
                 {{ messages.emptyColumn }}
               </p>
             }
 
-            <ul class="flex min-h-12 flex-1 flex-col gap-2">
+            <ul class="flex min-h-10 flex-1 flex-col gap-1.5">
               @for (task of column.tasks; track task.id) {
                 <li
-                  class="bg-card group hover:border-primary/25 cursor-grab rounded-lg border p-2.5 shadow-xs transition-colors active:cursor-grabbing"
+                  class="sl-task-card group"
                   cdkDrag
                   [cdkDragData]="task"
                   [cdkDragDisabled]="actionTaskId() === task.id"
                 >
-                  <div class="flex items-start gap-2">
+                  <span
+                    class="sl-task-card-accent"
+                    [class]="'sl-task-card-accent-' + task.priority"
+                    aria-hidden="true"
+                  ></span>
+
+                  <div class="flex items-start gap-1.5 pl-1.5">
                     <a
-                      class="min-w-0 flex-1 text-sm font-medium leading-snug hover:underline focus-visible:ring-ring rounded-sm focus-visible:ring-2 focus-visible:outline-none"
+                      class="min-w-0 flex-1 text-[13px] leading-snug font-medium hover:underline focus-visible:ring-ring rounded-sm focus-visible:ring-2 focus-visible:outline-none"
                       [routerLink]="['/projects', projectId(), 'tasks', task.id]"
                     >
                       {{ task.title }}
@@ -216,7 +222,7 @@
                       type="button"
                       variant="ghost"
                       size="sm"
-                      class="text-muted-foreground hover:text-destructive h-6 shrink-0 px-1.5 text-xs opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
+                      class="text-muted-foreground hover:text-destructive h-5 shrink-0 px-1 text-xs opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
                       [disabled]="actionTaskId() === task.id"
                       [attr.aria-label]="messages.actions.delete"
                       (click)="onDelete(task)"
@@ -225,17 +231,8 @@
                     </button>
                   </div>
 
-                  @if (task.description) {
-                    <p class="text-muted-foreground mt-1 line-clamp-1 text-xs">
-                      {{ task.description }}
-                    </p>
-                  }
-
-                  <div class="mt-2 flex flex-wrap items-center gap-1.5">
-                    <span
-                      class="inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide"
-                      [class]="priorityChipClass(task.priority)"
-                    >
+                  <div class="mt-1.5 flex flex-wrap items-center gap-1.5 pl-1.5">
+                    <span class="sl-priority-chip" [class]="'sl-priority-chip-' + task.priority">
                       {{ priorityLabel(task.priority) }}
                     </span>
                     @if (dueLabel(task); as due) {
@@ -249,12 +246,12 @@
                     }
                   </div>
 
-                  <div class="mt-2">
+                  <div class="mt-1.5 pl-1.5">
                     <label class="sr-only" [attr.for]="'status-' + task.id">
                       {{ messages.actions.changeStatus }}
                     </label>
                     <select
-                      class="border-input bg-background text-muted-foreground h-7 w-full rounded-md border px-1.5 text-[11px] outline-none"
+                      class="border-input bg-background text-muted-foreground h-6 w-full rounded border px-1 text-[11px] outline-none"
                       [id]="'status-' + task.id"
                       [value]="task.status"
                       [disabled]="actionTaskId() === task.id"
@@ -270,11 +267,11 @@
             </ul>
 
             @if (quickAddStatus() === column.status) {
-              <form class="mt-1 flex flex-col gap-2" (submit)="submitQuickAdd(column.status, $event)">
+              <form class="mt-0.5 flex flex-col gap-1.5" (submit)="submitQuickAdd(column.status, $event)">
                 <input
                   type="text"
                   hlmInput
-                  class="h-8 text-sm"
+                  class="h-7 text-sm"
                   [value]="quickAddTitle()"
                   [placeholder]="messages.create.quickPlaceholder"
                   (input)="onQuickAddTitleInput($event)"
@@ -308,7 +305,7 @@
                 type="button"
                 variant="ghost"
                 size="sm"
-                class="text-muted-foreground mt-1 h-8 w-full justify-start"
+                class="text-muted-foreground mt-0.5 h-7 w-full justify-start"
                 (click)="openQuickAdd(column.status)"
               >
                 + {{ messages.create.quickAdd }}
