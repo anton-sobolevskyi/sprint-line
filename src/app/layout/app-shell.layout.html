@@ -116,21 +116,11 @@
     <hlm-sidebar-rail />
   </hlm-sidebar>
 
-  <hlm-sidebar-inset>
+  <hlm-sidebar-inset class="flex flex-col">
     <header
-      class="border-border bg-background/80 sticky top-0 z-30 flex h-14 items-center gap-2 border-b px-4 backdrop-blur-md"
+      class="border-border bg-background/80 sticky top-0 z-30 flex h-14 items-center gap-2 border-b px-3 backdrop-blur-md md:px-4"
     >
-      <button
-        type="button"
-        hlmSidebarTrigger
-        hlmBtn
-        variant="ghost"
-        size="icon"
-        class="size-8"
-        [attr.aria-label]="messages.navLabel"
-      >
-        <ng-icon name="lucidePanelLeft" />
-      </button>
+      <button type="button" hlmSidebarTrigger></button>
       <div class="flex-1"></div>
     </header>
 
