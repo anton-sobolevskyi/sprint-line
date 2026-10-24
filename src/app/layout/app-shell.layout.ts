@@ -5,7 +5,9 @@ import {
   lucideFolderKanban,
   lucideHouse,
   lucideLogOut,
+  lucideMoon,
   lucidePanelLeft,
+  lucideSun,
   lucideUserRound,
 } from '@ng-icons/lucide';
 import { Store } from '@ngrx/store';
@@ -15,6 +17,7 @@ import { HlmSidebarImports } from '@spartan-ng/helm/sidebar';
 
 import { getApiErrorMessage } from '../core/api/api-error';
 import { AuthApiService } from '../core/auth/auth-api.service';
+import { ThemeService } from '../core/ui/theme.service';
 import { appToast } from '../core/ui/toast';
 import { UserActions } from '../core/users/user.actions';
 import { selectCurrentUser } from '../core/users/user.reducer';
@@ -29,6 +32,8 @@ import { SHELL_MESSAGES } from './shell.messages';
       lucideUserRound,
       lucideLogOut,
       lucidePanelLeft,
+      lucideSun,
+      lucideMoon,
     }),
   ],
   imports: [
@@ -45,6 +50,7 @@ export class AppShellLayout {
   private readonly authApi = inject(AuthApiService);
   private readonly router = inject(Router);
   private readonly store = inject(Store);
+  readonly theme = inject(ThemeService);
 
   readonly messages = SHELL_MESSAGES;
   readonly isLoggingOut = signal(false);
@@ -81,10 +87,25 @@ export class AppShellLayout {
     return name.slice(0, 2).toUpperCase();
   });
 
+  readonly themeLabel = computed(() => {
+    const mode = this.theme.mode();
+    if (mode === 'dark') {
+      return this.messages.theme.dark;
+    }
+    if (mode === 'light') {
+      return this.messages.theme.light;
+    }
+    return this.messages.theme.system;
+  });
+
   constructor() {
     if (!this.currentUser()) {
       this.store.dispatch(UserActions.loadMe());
     }
+  }
+
+  toggleTheme(): void {
+    this.theme.toggleLightDark();
   }
 
   resendVerification(): void {

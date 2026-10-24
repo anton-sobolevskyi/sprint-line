@@ -102,6 +102,22 @@
           <button
             type="button"
             hlmSidebarMenuButton
+            [tooltip]="messages.theme.toggle"
+            (click)="toggleTheme()"
+          >
+            @if (theme.resolved() === 'dark') {
+              <ng-icon name="lucideSun" />
+            } @else {
+              <ng-icon name="lucideMoon" />
+            }
+            <span>{{ themeLabel() }}</span>
+          </button>
+        </hlm-sidebar-menu-item>
+
+        <hlm-sidebar-menu-item>
+          <button
+            type="button"
+            hlmSidebarMenuButton
             [disabled]="isLoggingOut()"
             [tooltip]="messages.logout"
             (click)="logout()"

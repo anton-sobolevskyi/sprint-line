@@ -1,6 +1,6 @@
 <main class="mx-auto flex w-full max-w-6xl flex-col gap-8 p-4 py-8 md:p-8">
   <header class="flex flex-col gap-1">
-    <h1 class="text-2xl font-semibold tracking-tight">{{ greeting() }}</h1>
+    <h1 class="text-2xl font-semibold tracking-tight md:text-3xl">{{ greeting() }}</h1>
     <p class="text-muted-foreground text-sm">{{ messages.subtitle }}</p>
   </header>
 
@@ -56,10 +56,30 @@
       </div>
 
       @if (projects().length === 0) {
-        <section hlmCard>
-          <div hlmCardContent class="flex flex-col items-start gap-3 py-8">
-            <h3 class="font-medium">{{ messages.recent.emptyTitle }}</h3>
-            <p class="text-muted-foreground text-sm">{{ messages.recent.emptyBody }}</p>
+        <section hlmCard class="border-dashed">
+          <div hlmCardContent class="flex flex-col items-center gap-4 py-12 text-center">
+            <span
+              class="bg-primary/10 text-primary flex size-12 items-center justify-center rounded-2xl"
+              aria-hidden="true"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                class="size-6"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M5 12.5L9.5 17L19 7" />
+                <path d="M5 8h14" opacity="0.55" />
+              </svg>
+            </span>
+            <div class="flex max-w-sm flex-col gap-1">
+              <h3 class="font-medium">{{ messages.recent.emptyTitle }}</h3>
+              <p class="text-muted-foreground text-sm">{{ messages.recent.emptyBody }}</p>
+            </div>
             <a hlmBtn routerLink="/projects" [queryParams]="{ new: '1' }">
               {{ messages.recent.emptyAction }}
             </a>
@@ -70,7 +90,7 @@
           @for (project of projects(); track project.id) {
             <li>
               <a
-                class="border-border bg-card hover:bg-muted/40 focus-visible:ring-ring block rounded-xl border p-4 transition-colors focus-visible:ring-2 focus-visible:outline-none"
+                class="border-border bg-card hover:border-primary/25 hover:bg-muted/40 focus-visible:ring-ring block rounded-xl border p-4 transition-colors focus-visible:ring-2 focus-visible:outline-none"
                 [routerLink]="['/projects', project.id]"
               >
                 <p class="truncate font-medium">{{ project.name }}</p>

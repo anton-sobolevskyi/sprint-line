@@ -8,6 +8,12 @@ export const SHELL_MESSAGES = {
   },
   logout: 'Sign out',
   loggingOut: 'Signing out…',
+  theme: {
+    toggle: 'Toggle theme',
+    light: 'Light',
+    dark: 'Dark',
+    system: 'System',
+  },
   verify: {
     title: 'Verify your email',
     body: 'Confirm your address to unlock the full experience and secure your account.',
