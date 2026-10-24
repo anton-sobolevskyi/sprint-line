@@ -4,10 +4,12 @@ import {
   CdkDropList,
   CdkDropListGroup,
 } from '@angular/cdk/drag-drop';
-import { Component, effect, inject, input, signal } from '@angular/core';
+import { Component, DestroyRef, effect, inject, input, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { form, FormField, validateStandardSchema } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
+import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmCardImports } from '@spartan-ng/helm/card';
@@ -22,6 +24,7 @@ import {
   type TaskPriority,
   type TaskResponseDto,
   type TaskStatus,
+  TasksApiService,
 } from '../../core/tasks/tasks-api.service';
 import { UserActions } from '../../core/users/user.actions';
 import { selectCurrentUser } from '../../core/users/user.reducer';
@@ -57,8 +60,10 @@ export class ProjectTasksBoardPanel {
   readonly projectId = input.required<string>();
 
   private readonly tasksStore = inject(ProjectTasksStore);
+  private readonly tasksApi = inject(TasksApiService);
   private readonly confirmDialog = inject(ConfirmDialogService);
   private readonly ngrxStore = inject(Store);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly messages = TASKS_MESSAGES;
   readonly commentsMessages = COMMENTS_MESSAGES;
@@ -67,7 +72,6 @@ export class ProjectTasksBoardPanel {
 
   readonly currentUser = this.ngrxStore.selectSignal(selectCurrentUser);
 
-  /** Expose store signals for the template. */
   readonly tasks = this.tasksStore.tasks;
   readonly loadStatus = this.tasksStore.loadStatus;
   readonly loadError = this.tasksStore.loadError;
@@ -77,18 +81,23 @@ export class ProjectTasksBoardPanel {
   readonly actionTaskId = this.tasksStore.actionTaskId;
   readonly actionError = this.tasksStore.actionError;
 
-  /** Draft filters (UI only until Apply). */
+  /** Live filter drafts (applied immediately / debounced). */
   readonly draftQuery = signal('');
   readonly draftAssignedToMe = signal(false);
   readonly draftOverdue = signal(false);
 
+  readonly createOpen = signal(false);
   readonly createShowErrors = signal(false);
   readonly createSubmitting = signal(false);
   readonly createServerError = signal<string | null>(null);
-  readonly createSuccess = signal<string | null>(null);
 
   readonly expandedCommentsTaskId = signal<string | null>(null);
   readonly expandedFilesTaskId = signal<string | null>(null);
+
+  /** Column quick-add: which column is open + draft title. */
+  readonly quickAddStatus = signal<TaskStatus | null>(null);
+  readonly quickAddTitle = signal('');
+  readonly quickAddSubmitting = signal(false);
 
   private readonly createModel = signal<CreateTaskModel>({
     title: '',
@@ -101,6 +110,7 @@ export class ProjectTasksBoardPanel {
   });
 
   private readonly loadedForProjectId = signal<string | null>(null);
+  private readonly search$ = new Subject<string>();
 
   constructor() {
     if (!this.currentUser()) {
@@ -121,19 +131,20 @@ export class ProjectTasksBoardPanel {
       this.tasksStore.setProjectId(projectId);
       this.tasksStore.load();
     });
+
+    this.search$
+      .pipe(debounceTime(300), distinctUntilChanged(), takeUntilDestroyed(this.destroyRef))
+      .subscribe((query) => {
+        this.tasksStore.setFilters({
+          query,
+          assignedToMe: this.draftAssignedToMe(),
+          overdue: this.draftOverdue(),
+        });
+        this.tasksStore.load();
+      });
   }
 
   load(): void {
-    this.tasksStore.load();
-  }
-
-  applyFilters(event?: Event): void {
-    event?.preventDefault();
-    this.tasksStore.setFilters({
-      query: this.draftQuery(),
-      assignedToMe: this.draftAssignedToMe(),
-      overdue: this.draftOverdue(),
-    });
     this.tasksStore.load();
   }
 
@@ -145,19 +156,108 @@ export class ProjectTasksBoardPanel {
     this.tasksStore.load();
   }
 
-  onAssignedToMeChange(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    this.draftAssignedToMe.set(input.checked);
+  toggleAssignedToMe(): void {
+    const next = !this.draftAssignedToMe();
+    this.draftAssignedToMe.set(next);
+    this.tasksStore.setFilters({
+      query: this.draftQuery(),
+      assignedToMe: next,
+      overdue: this.draftOverdue(),
+    });
+    this.tasksStore.load();
   }
 
-  onOverdueChange(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    this.draftOverdue.set(input.checked);
+  toggleOverdue(): void {
+    const next = !this.draftOverdue();
+    this.draftOverdue.set(next);
+    this.tasksStore.setFilters({
+      query: this.draftQuery(),
+      assignedToMe: this.draftAssignedToMe(),
+      overdue: next,
+    });
+    this.tasksStore.load();
   }
 
   onSearchInput(event: Event): void {
     const input = event.target as HTMLInputElement;
     this.draftQuery.set(input.value);
+    this.search$.next(input.value);
+  }
+
+  openCreate(): void {
+    this.createOpen.set(true);
+    this.createServerError.set(null);
+  }
+
+  closeCreate(): void {
+    this.createOpen.set(false);
+    this.createShowErrors.set(false);
+    this.createServerError.set(null);
+    this.createModel.set({ title: '', description: '', priority: 'MEDIUM' });
+  }
+
+  openQuickAdd(status: TaskStatus): void {
+    this.quickAddStatus.set(status);
+    this.quickAddTitle.set('');
+  }
+
+  closeQuickAdd(): void {
+    this.quickAddStatus.set(null);
+    this.quickAddTitle.set('');
+    this.quickAddSubmitting.set(false);
+  }
+
+  onQuickAddTitleInput(event: Event): void {
+    this.quickAddTitle.set((event.target as HTMLInputElement).value);
+  }
+
+  submitQuickAdd(status: TaskStatus, event?: Event): void {
+    event?.preventDefault();
+    const title = this.quickAddTitle().trim();
+    if (title.length < 2 || this.quickAddSubmitting()) {
+      return;
+    }
+
+    const projectId = this.projectId();
+    if (!projectId) {
+      return;
+    }
+
+    this.quickAddSubmitting.set(true);
+    this.tasksApi.create(projectId, { title, priority: 'MEDIUM' }).subscribe({
+      next: (created) => {
+        if (created.status === status) {
+          this.quickAddSubmitting.set(false);
+          this.closeQuickAdd();
+          appToast.success(this.messages.create.success);
+          this.tasksStore.load();
+          return;
+        }
+        this.tasksApi.update(created.id, { status }).subscribe({
+          next: () => {
+            this.quickAddSubmitting.set(false);
+            this.closeQuickAdd();
+            appToast.success(this.messages.create.success);
+            this.tasksStore.load();
+          },
+          error: () => {
+            // Task exists in default status; still refresh.
+            this.quickAddSubmitting.set(false);
+            this.closeQuickAdd();
+            appToast.success(this.messages.create.success);
+            this.tasksStore.load();
+          },
+        });
+      },
+      error: (error: unknown) => {
+        this.quickAddSubmitting.set(false);
+        appToast.error(
+          typeof error === 'object' && error && 'message' in error
+            ? String((error as { message: unknown }).message)
+            : 'Could not create task.',
+        );
+      },
+    });
   }
 
   dueLabel(task: TaskResponseDto): string | null {
@@ -187,7 +287,6 @@ export class ProjectTasksBoardPanel {
     return this.messages.priority[priority];
   }
 
-  /** Tailwind classes for priority chips on the board. */
   priorityChipClass(priority: TaskPriority): string {
     switch (priority) {
       case 'URGENT':
@@ -233,7 +332,6 @@ export class ProjectTasksBoardPanel {
   onCreateSubmit(event: Event): void {
     event.preventDefault();
     this.createServerError.set(null);
-    this.createSuccess.set(null);
     this.createShowErrors.set(true);
 
     if (this.createForm().invalid() || this.createSubmitting()) {
@@ -251,10 +349,10 @@ export class ProjectTasksBoardPanel {
     this.tasksStore.create(dto, {
       onSuccess: () => {
         this.createSubmitting.set(false);
-        this.createSuccess.set(this.messages.create.success);
         appToast.success(this.messages.create.success);
         this.createModel.set({ title: '', description: '', priority: 'MEDIUM' });
         this.createShowErrors.set(false);
+        this.createOpen.set(false);
       },
       onError: (message) => {
         this.createSubmitting.set(false);
