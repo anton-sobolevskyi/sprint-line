@@ -14,6 +14,7 @@ import {
   lucideLogOut,
   lucideMoon,
   lucidePanelLeft,
+  lucideSearch,
   lucideSun,
   lucideUserRound,
 } from '@ng-icons/lucide';
@@ -29,11 +30,13 @@ import {
   type ProjectResponseDto,
   ProjectsApiService,
 } from '../core/projects/projects-api.service';
+import { CommandPaletteService } from '../core/ui/command-palette.service';
 import { ThemeService } from '../core/ui/theme.service';
 import { appToast } from '../core/ui/toast';
 import { UserActions } from '../core/users/user.actions';
 import { selectCurrentUser } from '../core/users/user.reducer';
 import { UsersApiService } from '../core/users/users-api.service';
+import { CommandPaletteComponent } from './command-palette.component';
 import { SHELL_MESSAGES } from './shell.messages';
 
 @Component({
@@ -47,6 +50,7 @@ import { SHELL_MESSAGES } from './shell.messages';
       lucidePanelLeft,
       lucideSun,
       lucideMoon,
+      lucideSearch,
     }),
   ],
   imports: [
@@ -54,6 +58,7 @@ import { SHELL_MESSAGES } from './shell.messages';
     RouterLink,
     RouterLinkActive,
     NgIcon,
+    CommandPaletteComponent,
     ...HlmButtonImports,
     ...HlmSidebarImports,
   ],
@@ -67,6 +72,7 @@ export class AppShellLayout {
   private readonly store = inject(Store);
   private readonly destroyRef = inject(DestroyRef);
   readonly theme = inject(ThemeService);
+  readonly commandPalette = inject(CommandPaletteService);
 
   readonly messages = SHELL_MESSAGES;
   readonly isLoggingOut = signal(false);
@@ -169,6 +175,10 @@ export class AppShellLayout {
           this.loadRecentProjects();
         }
       });
+  }
+
+  openCommandPalette(): void {
+    this.commandPalette.show();
   }
 
   private loadRecentProjects(): void {
