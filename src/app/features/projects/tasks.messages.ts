@@ -16,6 +16,7 @@ export const TASKS_MESSAGES = {
     status: 'Status',
     priority: 'Priority',
     due: 'Due',
+    assignee: 'Assignee',
     actions: 'Actions',
   },
   filters: {
