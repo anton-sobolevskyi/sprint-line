@@ -8,6 +8,7 @@ import { API_ENDPOINTS } from '../api/api-endpoints';
 export type UserResponseDto = components['schemas']['UserResponseDto'];
 export type UpdateUserDto = components['schemas']['UpdateUserDto'];
 export type ChangePasswordDto = components['schemas']['ChangePasswordDto'];
+export type DeleteAccountDto = components['schemas']['DeleteAccountDto'];
 export type AttachmentResponseDto = components['schemas']['AttachmentResponseDto'];
 export type DownloadUrlResponseDto = components['schemas']['DownloadUrlResponseDto'];
 
@@ -30,9 +31,10 @@ export class UsersApiService {
     return this.http.patch<void>(url, dto);
   }
 
-  deleteMe(): Observable<UserResponseDto> {
+  /** Soft-delete account; body must include currentPassword (API schema). */
+  deleteMe(dto: DeleteAccountDto): Observable<UserResponseDto> {
     const url = API_ENDPOINTS.users.me;
-    return this.http.delete<UserResponseDto>(url);
+    return this.http.delete<UserResponseDto>(url, { body: dto });
   }
 
   /** Multipart upload; field name `file` matches typical Nest Multer config. */
