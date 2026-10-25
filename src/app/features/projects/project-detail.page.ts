@@ -6,6 +6,7 @@ import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmCardImports } from '@spartan-ng/helm/card';
 import { HlmFieldImports } from '@spartan-ng/helm/field';
 import { HlmInputImports } from '@spartan-ng/helm/input';
+import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
 import { HlmTextareaImports } from '@spartan-ng/helm/textarea';
 
 import { getApiErrorMessage } from '../../core/api/api-error';
@@ -36,6 +37,7 @@ import {
     ...HlmCardImports,
     ...HlmFieldImports,
     ...HlmInputImports,
+    ...HlmSkeletonImports,
     ...HlmTextareaImports,
   ],
   templateUrl: './project-detail.page.html',
