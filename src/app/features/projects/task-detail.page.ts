@@ -7,6 +7,7 @@ import { HlmCardImports } from '@spartan-ng/helm/card';
 import { HlmFieldImports } from '@spartan-ng/helm/field';
 import { HlmInputImports } from '@spartan-ng/helm/input';
 import { HlmSelectImports } from '@spartan-ng/helm/select';
+import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
 import { HlmTextareaImports } from '@spartan-ng/helm/textarea';
 
 import { getApiErrorMessage } from '../../core/api/api-error';
@@ -48,6 +49,7 @@ const PRIORITY_OPTIONS = ['LOW', 'MEDIUM', 'HIGH', 'URGENT'] as const;
     ...HlmFieldImports,
     ...HlmInputImports,
     ...HlmSelectImports,
+    ...HlmSkeletonImports,
     ...HlmTextareaImports,
   ],
   templateUrl: './task-detail.page.html',
@@ -156,6 +158,21 @@ export class TaskDetailPage {
 
   memberLabel(member: ProjectMemberResponseDto): string {
     return member.user?.name ?? member.user?.email ?? member.userId;
+  }
+
+  priorityLabel(priority: TaskPriority): string {
+    switch (priority) {
+      case 'LOW':
+        return this.messages.priority.LOW;
+      case 'MEDIUM':
+        return this.messages.priority.MEDIUM;
+      case 'HIGH':
+        return this.messages.priority.HIGH;
+      case 'URGENT':
+        return this.messages.priority.URGENT;
+      default:
+        return String(priority);
+    }
   }
 
   editStatus(): TaskStatus {
