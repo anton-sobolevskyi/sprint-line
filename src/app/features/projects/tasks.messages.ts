@@ -1,10 +1,23 @@
 export const TASKS_MESSAGES = {
-  title: 'Board',
-  description: 'Tasks grouped by status. Drag cards to move them.',
+  title: 'Tasks',
+  description: 'Board or list view. Drag cards on the board to change status.',
   loading: 'Loading tasks…',
   retry: 'Try again',
   emptyColumn: 'No tasks',
   emptyFiltered: 'No tasks match these filters.',
+  emptyList: 'No tasks yet.',
+  view: {
+    board: 'Board',
+    list: 'List',
+    label: 'View',
+  },
+  list: {
+    title: 'Title',
+    status: 'Status',
+    priority: 'Priority',
+    due: 'Due',
+    actions: 'Actions',
+  },
   filters: {
     title: 'Filters',
     searchLabel: 'Search',
