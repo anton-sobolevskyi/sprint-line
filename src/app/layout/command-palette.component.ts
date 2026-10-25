@@ -1,0 +1,242 @@
+import {
+  Component,
+  computed,
+  effect,
+  ElementRef,
+  HostListener,
+  inject,
+  input,
+  signal,
+  viewChild,
+} from '@angular/core';
+import { Router } from '@angular/router';
+
+import { HlmButtonImports } from '@spartan-ng/helm/button';
+import { HlmInputImports } from '@spartan-ng/helm/input';
+
+import { CommandPaletteService } from '../core/ui/command-palette.service';
+import { ThemeService } from '../core/ui/theme.service';
+import type { ProjectResponseDto } from '../core/projects/projects-api.service';
+import { SHELL_MESSAGES } from './shell.messages';
+
+type CommandGroup = 'nav' | 'projects' | 'actions';
+
+type CommandItem = {
+  id: string;
+  group: CommandGroup;
+  label: string;
+  keywords: string;
+  run: () => void;
+};
+
+@Component({
+  selector: 'sl-command-palette',
+  imports: [...HlmButtonImports, ...HlmInputImports],
+  templateUrl: './command-palette.component.html',
+})
+export class CommandPaletteComponent {
+  /** Recent projects from the shell (for Open project actions). */
+  readonly recentProjects = input<ProjectResponseDto[]>([]);
+
+  /** Sign-out handler provided by the shell. */
+  readonly onSignOut = input<() => void>(() => undefined);
+
+  private readonly palette = inject(CommandPaletteService);
+  private readonly router = inject(Router);
+  private readonly theme = inject(ThemeService);
+
+  readonly messages = SHELL_MESSAGES.commandPalette;
+  readonly groupLabels = {
+    nav: SHELL_MESSAGES.commandPalette.groupNav,
+    projects: SHELL_MESSAGES.commandPalette.groupProjects,
+    actions: SHELL_MESSAGES.commandPalette.groupActions,
+  } as const;
+
+  readonly isOpen = this.palette.open;
+  readonly query = signal('');
+  readonly activeIndex = signal(0);
+
+  private readonly searchInput = viewChild<ElementRef<HTMLInputElement>>('searchInput');
+
+  readonly commands = computed(() => {
+    const items: CommandItem[] = [
+      {
+        id: 'nav-home',
+        group: 'nav',
+        label: this.messages.home,
+        keywords: 'home dashboard',
+        run: () => void this.router.navigateByUrl('/'),
+      },
+      {
+        id: 'nav-projects',
+        group: 'nav',
+        label: this.messages.projects,
+        keywords: 'projects list',
+        run: () => void this.router.navigateByUrl('/projects'),
+      },
+      {
+        id: 'nav-new-project',
+        group: 'nav',
+        label: this.messages.newProject,
+        keywords: 'new create project',
+        run: () => void this.router.navigate(['/projects'], { queryParams: { new: '1' } }),
+      },
+      {
+        id: 'nav-profile',
+        group: 'nav',
+        label: this.messages.profile,
+        keywords: 'profile account settings',
+        run: () => void this.router.navigateByUrl('/profile'),
+      },
+    ];
+
+    for (const project of this.recentProjects()) {
+      items.push({
+        id: `project-${project.id}`,
+        group: 'projects',
+        label: this.messages.openProject.replace('{name}', project.name),
+        keywords: `project ${project.name}`,
+        run: () => void this.router.navigate(['/projects', project.id]),
+      });
+    }
+
+    items.push(
+      {
+        id: 'action-theme',
+        group: 'actions',
+        label: this.messages.toggleTheme,
+        keywords: 'theme dark light mode',
+        run: () => this.theme.toggleLightDark(),
+      },
+      {
+        id: 'action-sign-out',
+        group: 'actions',
+        label: this.messages.signOut,
+        keywords: 'logout sign out exit',
+        run: () => this.onSignOut()(),
+      },
+    );
+
+    return items;
+  });
+
+  readonly filtered = computed(() => {
+    const q = this.query().trim().toLowerCase();
+    const all = this.commands();
+    if (!q) {
+      return all;
+    }
+    return all.filter(
+      (item) =>
+        item.label.toLowerCase().includes(q) || item.keywords.toLowerCase().includes(q),
+    );
+  });
+
+  readonly grouped = computed(() => {
+    const items = this.filtered();
+    const order: CommandGroup[] = ['nav', 'projects', 'actions'];
+    return order
+      .map((group) => ({
+        group,
+        label: this.groupLabels[group],
+        items: items.filter((item) => item.group === group),
+      }))
+      .filter((section) => section.items.length > 0);
+  });
+
+  constructor() {
+    effect(() => {
+      if (!this.isOpen()) {
+        return;
+      }
+      this.query.set('');
+      this.activeIndex.set(0);
+      queueMicrotask(() => this.searchInput()?.nativeElement.focus());
+    });
+
+    effect(() => {
+      // Keep active index in range when filter changes
+      const len = this.filtered().length;
+      if (this.activeIndex() >= len) {
+        this.activeIndex.set(Math.max(0, len - 1));
+      }
+    });
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  onDocumentKeydown(event: KeyboardEvent): void {
+    const isModK =
+      (event.key === 'k' || event.key === 'K') && (event.metaKey || event.ctrlKey);
+    if (isModK) {
+      event.preventDefault();
+      this.palette.toggle();
+      return;
+    }
+
+    if (!this.isOpen()) {
+      return;
+    }
+
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      this.palette.hide();
+      return;
+    }
+
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      const len = this.filtered().length;
+      if (len === 0) {
+        return;
+      }
+      this.activeIndex.update((i) => (i + 1) % len);
+      return;
+    }
+
+    if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      const len = this.filtered().length;
+      if (len === 0) {
+        return;
+      }
+      this.activeIndex.update((i) => (i - 1 + len) % len);
+      return;
+    }
+
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      this.runActive();
+    }
+  }
+
+  onQueryInput(event: Event): void {
+    this.query.set((event.target as HTMLInputElement).value);
+    this.activeIndex.set(0);
+  }
+
+  onBackdropClick(): void {
+    this.palette.hide();
+  }
+
+  runAt(index: number): void {
+    const item = this.filtered()[index];
+    if (!item) {
+      return;
+    }
+    this.palette.hide();
+    item.run();
+  }
+
+  runActive(): void {
+    this.runAt(this.activeIndex());
+  }
+
+  isActive(index: number): boolean {
+    return this.activeIndex() === index;
+  }
+
+  /** Flat index of an item within the filtered list (for highlighting). */
+  flatIndex(item: CommandItem): number {
+    return this.filtered().findIndex((c) => c.id === item.id);
+  }
+}
