@@ -1,0 +1,29 @@
+# SprintLine frontend — Render Static Site
+# Docs: https://render.com/docs/blueprint-spec
+#
+# Deploy: Dashboard → New → Blueprint → select this repo
+# Or: connect the repo as a Static Site and point to this file.
+#
+# Production API URL is set in src/environments/environment.ts
+# (currently https://management-app-backend-qs3u.onrender.com).
+# After first deploy, set FRONTEND_URL on the API to this site's URL
+# and COOKIE_SAME_SITE=none for cross-origin auth cookies.
+
+services:
+  - type: web
+    name: sprint-line
+    runtime: static
+    plan: free
+    branch: main
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist/sprint-line/browser
+    envVars:
+      - key: HUSKY
+        value: "0"
+      - key: NODE_VERSION
+        value: "22"
+    routes:
+      # Angular SPA — all client routes fall through to index.html
+      - type: rewrite
+        source: /*
+        destination: /index.html
