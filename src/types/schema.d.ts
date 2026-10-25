@@ -51,12 +51,15 @@ export interface paths {
     post?: never;
     /**
      * Soft-delete current user account
-     * @description Fails with 409 while you are the only OWNER of a project that has other members. Projects where you are the only member are deleted with the account.
+     * @description Requires `currentPassword` in the body. Fails with 409 while you are the only OWNER of a project that has other members. Projects where you are the only member are deleted with the account.
      */
     delete: operations['users-deleteme'];
     options?: never;
     head?: never;
-    /** Update current user profile */
+    /**
+     * Update current user profile
+     * @description Changing `email` requires `currentPassword`, makes the address unverified again, notifies the old address and mails a confirmation link to the new one.
+     */
     patch: operations['users-updateme'];
     trace?: never;
   };
@@ -161,7 +164,10 @@ export interface paths {
     /** List project members (paginated) */
     get: operations['projectmembers-findall'];
     put?: never;
-    /** Add a member by email */
+    /**
+     * Add a member by email
+     * @description Both you and the invited person need a verified e-mail address. An unverified or unknown address answers 404 "User not found".
+     */
     post: operations['projectmembers-add'];
     delete?: never;
     options?: never;
@@ -543,11 +549,17 @@ export interface components {
       /** Format: email */
       email?: string;
       name?: string;
+      /** @description Required when `email` changes: a stolen access token alone must not be enough to move the account to another mailbox. */
+      currentPassword?: string;
     };
     ChangePasswordDto: {
       currentPassword: string;
       /** @description At least 8 characters, including a letter and a number. At most 72 bytes. */
       newPassword: string;
+    };
+    DeleteAccountDto: {
+      /** @description The account password, re-entered to confirm the deletion. */
+      currentPassword: string;
     };
     CreateProjectDto: {
       name: string;
@@ -850,7 +862,11 @@ export interface operations {
       path?: never;
       cookie?: never;
     };
-    requestBody?: never;
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['DeleteAccountDto'];
+      };
+    };
     responses: {
       200: {
         headers: {
@@ -936,7 +952,11 @@ export interface operations {
       };
       cookie?: never;
     };
-    requestBody?: never;
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['DeleteAccountDto'];
+      };
+    };
     responses: {
       200: {
         headers: {

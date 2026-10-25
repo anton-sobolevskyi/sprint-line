@@ -4,4 +4,4 @@
  * Import from this path in feature/core code:
  * `import type { components } from '../../../types/api.schema'`.
  */
-export * from '../core/api/generated/schema';
+export * from './schema.d.ts';

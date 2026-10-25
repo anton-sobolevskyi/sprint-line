@@ -45,4 +45,4 @@ run = "docker compose run --rm e2e"
 
 [tasks.fetch-openapi]
 description = "Fetch OpenAPI spec from backend"
-run = "npx openapi-typescript ${API_URL} -o ./src/core/api/generated/schema.d.ts"
+run = "npx openapi-typescript ${API_URL} -o ./src/types/schema.d.ts"

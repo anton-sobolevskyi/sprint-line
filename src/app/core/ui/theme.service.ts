@@ -7,9 +7,7 @@ const STORAGE_KEY = 'sprintline-theme';
 @Injectable({ providedIn: 'root' })
 export class ThemeService {
   private readonly mediaQuery =
-    typeof window !== 'undefined'
-      ? window.matchMedia('(prefers-color-scheme: dark)')
-      : null;
+    typeof window !== 'undefined' ? window.matchMedia?.('(prefers-color-scheme: dark)') : null;
 
   /** User preference: light | dark | system */
   readonly mode = signal<ThemeMode>(this.readStoredMode());
