@@ -72,6 +72,26 @@
             }
           </div>
 
+          @if (emailChanged()) {
+            <div hlmField>
+              <label hlmFieldLabel for="profile-current-password">
+                {{ messages.profileSection.currentPasswordLabel }}
+              </label>
+              <input
+                id="profile-current-password"
+                type="password"
+                hlmInput
+                autocomplete="current-password"
+                [formField]="detailsForm.currentPassword"
+                [attr.aria-invalid]="detailsFieldError('currentPassword') ? true : null"
+              />
+              <p hlmFieldDescription>{{ messages.profileSection.currentPasswordHint }}</p>
+              @if (detailsFieldError('currentPassword'); as message) {
+                <hlm-field-error forceShow>{{ message }}</hlm-field-error>
+              }
+            </div>
+          }
+
           <div class="flex flex-col gap-2">
             @if (isEmailVerified()) {
               <p class="text-muted-foreground text-sm">{{ messages.profileSection.emailVerified }}</p>
@@ -256,12 +276,26 @@
             {{ error }}
           </div>
         }
+
+        <div hlmField>
+          <label hlmFieldLabel for="delete-password">{{ messages.deleteSection.passwordLabel }}</label>
+          <input
+            id="delete-password"
+            type="password"
+            hlmInput
+            autocomplete="current-password"
+            [value]="deletePassword()"
+            (input)="onDeletePasswordInput($event)"
+          />
+          <p hlmFieldDescription>{{ messages.deleteSection.passwordHint }}</p>
+        </div>
+
         <button
           hlmBtn
           variant="destructive"
           type="button"
           class="self-start"
-          [disabled]="deleteSubmitting()"
+          [disabled]="deleteSubmitting() || !deletePassword().trim()"
           (click)="onDeleteAccount()"
         >
           {{
