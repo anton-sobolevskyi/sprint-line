@@ -1,81 +1,119 @@
-<main class="mx-auto flex w-full max-w-3xl flex-col gap-6 p-4 py-8 md:p-8">
-  <div class="flex flex-wrap items-center justify-between gap-3">
+<main class="mx-auto flex w-full max-w-5xl flex-col gap-4 p-4 py-6 md:p-6 md:py-8">
+  <div class="flex flex-wrap items-center justify-between gap-2">
     <a
       hlmBtn
       variant="ghost"
       size="sm"
       [routerLink]="['/projects', projectId()]"
-      class="-ms-2"
+      class="text-muted-foreground -ms-2"
     >
       ← {{ messages.detail.back }}
     </a>
   </div>
 
   @if (loadStatus() === 'loading' && !task()) {
-    <p class="text-muted-foreground text-sm">{{ messages.detail.loading }}</p>
-  } @else if (loadStatus() === 'error' && !task()) {
-    <section hlmCard>
-      <div hlmCardContent class="flex flex-col gap-3 py-6">
-        <p class="text-destructive text-sm" role="alert">{{ loadError() }}</p>
-        <button hlmBtn type="button" variant="outline" class="w-fit" (click)="reload()">
-          {{ messages.detail.retry }}
-        </button>
+    <div class="grid gap-4 lg:grid-cols-[1fr_16rem]" aria-busy="true" [attr.aria-label]="messages.detail.loading">
+      <div class="flex flex-col gap-3">
+        <div hlmSkeleton class="h-9 w-3/4 rounded-md"></div>
+        <div hlmSkeleton class="h-32 w-full rounded-lg"></div>
+        <div hlmSkeleton class="h-40 w-full rounded-lg"></div>
       </div>
+      <div class="flex flex-col gap-2">
+        <div hlmSkeleton class="h-8 w-full rounded-md"></div>
+        <div hlmSkeleton class="h-8 w-full rounded-md"></div>
+        <div hlmSkeleton class="h-8 w-full rounded-md"></div>
+      </div>
+    </div>
+  } @else if (loadStatus() === 'error' && !task()) {
+    <section class="border-border rounded-xl border p-6">
+      <p class="text-destructive text-sm" role="alert">{{ loadError() }}</p>
+      <button hlmBtn type="button" variant="outline" class="mt-3 w-fit" (click)="reload()">
+        {{ messages.detail.retry }}
+      </button>
     </section>
   } @else if (task(); as current) {
-    <section hlmCard>
-      <header hlmCardHeader>
-        <p class="text-muted-foreground text-xs font-medium tracking-wide uppercase">Task</p>
-        <h1 hlmCardTitle class="text-xl md:text-2xl">{{ current.title }}</h1>
-      </header>
+    <form class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_15.5rem]" (submit)="onSave($event)">
+      <!-- Main column -->
+      <div class="flex min-w-0 flex-col gap-5">
+        @if (serverError(); as error) {
+          <div
+            class="border-destructive/40 bg-destructive/10 text-destructive rounded-lg border px-3 py-2 text-sm"
+            role="alert"
+          >
+            {{ error }}
+          </div>
+        }
 
-      <div hlmCardContent>
-        <form class="flex flex-col gap-4" (submit)="onSave($event)">
-          @if (serverError(); as error) {
-            <div
-              class="border-destructive/40 bg-destructive/10 text-destructive rounded-xl border px-3 py-2 text-sm"
-              role="alert"
-            >
-              {{ error }}
-            </div>
-          }
+        <div class="flex flex-col gap-2">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="sl-priority-chip" [class]="'sl-priority-chip-' + editPriority()">
+              {{ priorityLabel(editPriority()) }}
+            </span>
+            <span class="text-muted-foreground text-xs">{{ messages.status[editStatus()] }}</span>
+          </div>
 
-          <div hlmField>
-            <label hlmFieldLabel for="detail-title">{{ messages.detail.titleLabel }}</label>
+          <div hlmField class="!gap-1">
+            <label class="sr-only" for="detail-title">{{ messages.detail.titleLabel }}</label>
             <input
               id="detail-title"
               type="text"
               hlmInput
+              class="border-border/60 h-auto rounded-lg border-0 bg-transparent px-0 text-xl font-semibold shadow-none md:text-2xl focus-visible:ring-0"
               [formField]="editForm.title"
+              [placeholder]="messages.detail.titlePlaceholder"
               [attr.aria-invalid]="fieldError('title') ? true : null"
             />
             @if (fieldError('title'); as message) {
               <hlm-field-error forceShow>{{ message }}</hlm-field-error>
             }
           </div>
+        </div>
 
-          <div hlmField>
-            <label hlmFieldLabel for="detail-description">
-              {{ messages.detail.descriptionLabel }}
-            </label>
-            <textarea
-              id="detail-description"
-              hlmTextarea
-              rows="4"
-              [formField]="editForm.description"
-            ></textarea>
+        <div hlmField>
+          <label hlmFieldLabel for="detail-description" class="text-muted-foreground text-xs">
+            {{ messages.detail.descriptionLabel }}
+          </label>
+          <textarea
+            id="detail-description"
+            hlmTextarea
+            rows="6"
+            class="min-h-[8rem] resize-y"
+            [formField]="editForm.description"
+            [placeholder]="messages.detail.descriptionPlaceholder"
+          ></textarea>
+        </div>
+
+        <section class="border-border rounded-xl border">
+          <header class="border-border border-b px-4 py-3">
+            <h2 class="text-sm font-semibold">{{ messages.detail.collaborationTitle }}</h2>
+            <p class="text-muted-foreground text-xs">{{ messages.detail.collaborationDescription }}</p>
+          </header>
+          <div class="flex flex-col gap-5 p-4">
+            <sl-task-comments-panel [taskId]="current.id" />
+            <sl-task-attachments-panel [taskId]="current.id" />
           </div>
+        </section>
+      </div>
 
-          <div class="grid gap-4 sm:grid-cols-2">
-            <div hlmField>
-              <label hlmFieldLabel id="detail-status-label">{{ messages.detail.statusLabel }}</label>
+      <!-- Properties rail -->
+      <aside class="flex flex-col gap-4 lg:sticky lg:top-16 lg:self-start">
+        <div class="border-border bg-card rounded-xl border p-3 shadow-xs">
+          <p class="text-muted-foreground mb-2 px-0.5 text-[10px] font-semibold tracking-wide uppercase">
+            {{ messages.detail.propertiesTitle }}
+          </p>
+
+          <div class="flex flex-col gap-3">
+            <div hlmField class="!gap-1">
+              <label hlmFieldLabel id="detail-status-label" class="text-muted-foreground text-[11px]">
+                {{ messages.detail.statusLabel }}
+              </label>
               <hlm-select
                 class="w-full"
                 [value]="editStatus()"
                 (valueChange)="setEditStatus($event)"
                 aria-labelledby="detail-status-label"
               >
-                <hlm-select-trigger class="w-full">
+                <hlm-select-trigger class="h-8 w-full text-sm">
                   <hlm-select-value />
                 </hlm-select-trigger>
                 <hlm-select-content *hlmSelectPortal>
@@ -88,15 +126,17 @@
               </hlm-select>
             </div>
 
-            <div hlmField>
-              <label hlmFieldLabel id="detail-priority-label">{{ messages.detail.priorityLabel }}</label>
+            <div hlmField class="!gap-1">
+              <label hlmFieldLabel id="detail-priority-label" class="text-muted-foreground text-[11px]">
+                {{ messages.detail.priorityLabel }}
+              </label>
               <hlm-select
                 class="w-full"
                 [value]="editPriority()"
                 (valueChange)="setEditPriority($event)"
                 aria-labelledby="detail-priority-label"
               >
-                <hlm-select-trigger class="w-full">
+                <hlm-select-trigger class="h-8 w-full text-sm">
                   <hlm-select-value />
                 </hlm-select-trigger>
                 <hlm-select-content *hlmSelectPortal>
@@ -109,25 +149,30 @@
               </hlm-select>
             </div>
 
-            <div hlmField>
-              <label hlmFieldLabel for="detail-due">{{ messages.detail.dueDateLabel }}</label>
+            <div hlmField class="!gap-1">
+              <label hlmFieldLabel for="detail-due" class="text-muted-foreground text-[11px]">
+                {{ messages.detail.dueDateLabel }}
+              </label>
               <input
                 id="detail-due"
                 type="date"
                 hlmInput
+                class="h-8 text-sm"
                 [formField]="editForm.dueDate"
               />
             </div>
 
-            <div hlmField>
-              <label hlmFieldLabel id="detail-assignee-label">{{ messages.detail.assigneeLabel }}</label>
+            <div hlmField class="!gap-1">
+              <label hlmFieldLabel id="detail-assignee-label" class="text-muted-foreground text-[11px]">
+                {{ messages.detail.assigneeLabel }}
+              </label>
               <hlm-select
                 class="w-full"
                 [value]="editAssigneeId()"
                 (valueChange)="setEditAssignee($event)"
                 aria-labelledby="detail-assignee-label"
               >
-                <hlm-select-trigger class="w-full">
+                <hlm-select-trigger class="h-8 w-full text-sm">
                   <hlm-select-value />
                 </hlm-select-trigger>
                 <hlm-select-content *hlmSelectPortal>
@@ -140,47 +185,35 @@
                 </hlm-select-content>
               </hlm-select>
             </div>
-          </div>
 
+            <button
+              hlmBtn
+              type="submit"
+              size="sm"
+              class="mt-1 w-full"
+              [disabled]="editForm().invalid() || submitting()"
+            >
+              {{ submitting() ? messages.detail.saving : messages.detail.save }}
+            </button>
+          </div>
+        </div>
+
+        <div class="border-destructive/25 rounded-xl border p-3">
+          <p class="text-destructive text-xs font-semibold">{{ messages.detail.dangerTitle }}</p>
+          <p class="text-muted-foreground mt-1 text-[11px] leading-snug">{{ messages.detail.dangerBody }}</p>
           <button
             hlmBtn
-            type="submit"
-            class="w-fit"
-            [disabled]="editForm().invalid() || submitting()"
+            type="button"
+            variant="destructive"
+            size="sm"
+            class="mt-2 w-full"
+            [disabled]="deleteSubmitting()"
+            (click)="onDelete()"
           >
-            {{ submitting() ? messages.detail.saving : messages.detail.save }}
+            {{ deleteSubmitting() ? messages.actions.deleting : messages.actions.delete }}
           </button>
-        </form>
-      </div>
-    </section>
-
-    <section hlmCard>
-      <header hlmCardHeader>
-        <h2 hlmCardTitle>{{ messages.detail.collaborationTitle }}</h2>
-        <p hlmCardDescription>{{ messages.detail.collaborationDescription }}</p>
-      </header>
-      <div hlmCardContent class="flex flex-col gap-6">
-        <sl-task-comments-panel [taskId]="current.id" />
-        <sl-task-attachments-panel [taskId]="current.id" />
-      </div>
-    </section>
-
-    <section hlmCard class="border-destructive/20">
-      <header hlmCardHeader>
-        <h2 hlmCardTitle class="text-destructive">{{ messages.detail.dangerTitle }}</h2>
-        <p hlmCardDescription>{{ messages.detail.dangerBody }}</p>
-      </header>
-      <div hlmCardContent>
-        <button
-          hlmBtn
-          type="button"
-          variant="destructive"
-          [disabled]="deleteSubmitting()"
-          (click)="onDelete()"
-        >
-          {{ deleteSubmitting() ? messages.actions.deleting : messages.actions.delete }}
-        </button>
-      </div>
-    </section>
+        </div>
+      </aside>
+    </form>
   }
 </main>
