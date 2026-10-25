@@ -72,6 +72,7 @@ export class ProfilePage {
 
   readonly deleteSubmitting = signal(false);
   readonly deleteError = signal<string | null>(null);
+  readonly deletePassword = signal('');
 
   readonly resendSubmitting = signal(false);
   readonly resendError = signal<string | null>(null);
@@ -80,6 +81,7 @@ export class ProfilePage {
   private readonly detailsModel = signal<ProfileDetailsModel>({
     name: '',
     email: '',
+    currentPassword: '',
   });
 
   readonly detailsForm = form(this.detailsModel, (schemaPath) => {
@@ -116,6 +118,15 @@ export class ProfilePage {
     return email.length >= 2 ? email.slice(0, 2).toUpperCase() : '?';
   });
 
+  /** True when the email field differs from the loaded user (API needs password). */
+  readonly emailChanged = computed(() => {
+    const user = this.currentUser();
+    if (!user) {
+      return false;
+    }
+    return this.detailsModel().email.trim().toLowerCase() !== user.email.trim().toLowerCase();
+  });
+
   constructor() {
     this.store.dispatch(UserActions.loadMe());
 
@@ -125,7 +136,7 @@ export class ProfilePage {
         return;
       }
       this.syncedUserId.set(user.id);
-      this.detailsModel.set({ name: user.name, email: user.email });
+      this.detailsModel.set({ name: user.name, email: user.email, currentPassword: '' });
     });
 
     effect(() => {
@@ -163,7 +174,7 @@ export class ProfilePage {
     this.store.dispatch(UserActions.loadMe());
   }
 
-  detailsFieldError(field: 'name' | 'email'): string | null {
+  detailsFieldError(field: 'name' | 'email' | 'currentPassword'): string | null {
     const state = this.detailsForm[field]();
     if (!this.detailsShowErrors() && !state.touched()) {
       return null;
@@ -191,14 +202,29 @@ export class ProfilePage {
       return;
     }
 
+    const user = this.currentUser();
+    const { name, email, currentPassword } = this.detailsModel();
+    const emailChanged =
+      !!user && email.trim().toLowerCase() !== user.email.trim().toLowerCase();
+
+    if (emailChanged && !(currentPassword ?? '').trim()) {
+      this.detailsServerError.set(this.messages.validation.currentPasswordRequiredForEmail);
+      return;
+    }
+
     this.detailsSubmitting.set(true);
-    const dto = this.detailsModel();
+    const dto = {
+      name,
+      email,
+      ...(emailChanged ? { currentPassword: (currentPassword ?? '').trim() } : {}),
+    };
 
     this.usersApi.updateMe(dto).subscribe({
-      next: (user) => {
+      next: (nextUser) => {
         this.detailsSubmitting.set(false);
         this.syncedUserId.set(null);
-        this.store.dispatch(UserActions.setCurrentUser({ user }));
+        this.store.dispatch(UserActions.setCurrentUser({ user: nextUser }));
+        this.detailsModel.update((m) => ({ ...m, currentPassword: '' }));
         this.detailsSuccess.set(this.messages.profileSection.success);
         appToast.success(this.messages.profileSection.success);
       },
@@ -284,8 +310,18 @@ export class ProfilePage {
     });
   }
 
+  onDeletePasswordInput(event: Event): void {
+    this.deletePassword.set((event.target as HTMLInputElement).value);
+  }
+
   async onDeleteAccount(): Promise<void> {
     if (this.deleteSubmitting()) {
+      return;
+    }
+
+    const password = this.deletePassword().trim();
+    if (!password) {
+      this.deleteError.set(this.messages.validation.currentPasswordRequired);
       return;
     }
 
@@ -302,7 +338,7 @@ export class ProfilePage {
     this.deleteError.set(null);
     this.deleteSubmitting.set(true);
 
-    this.usersApi.deleteMe().subscribe({
+    this.usersApi.deleteMe({ currentPassword: password }).subscribe({
       next: () => {
         this.deleteSubmitting.set(false);
         this.authSession.clearSession();
