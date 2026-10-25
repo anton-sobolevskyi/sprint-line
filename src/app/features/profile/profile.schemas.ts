@@ -15,7 +15,7 @@ export const profileDetailsSchema = z.object({
     .min(1, { message: messages.emailRequired })
     .email({ message: messages.emailInvalid }),
   /** Required by API when email changes; optional otherwise. */
-  currentPassword: z.string().optional(),
+  currentPassword: z.string(),
 });
 
 export type ProfileDetailsModel = z.infer<typeof profileDetailsSchema>;
