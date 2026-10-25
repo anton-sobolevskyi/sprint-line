@@ -207,8 +207,7 @@
         <kbd
           class="bg-muted text-muted-foreground pointer-events-none ml-1 hidden rounded border px-1.5 py-0.5 font-mono text-[10px] font-medium sm:inline"
         >
-          {{ messages.commandPalette.triggerHint }}
-        </kbd>
+          {{ messages.commandPalette.triggerHint }}\n        </kbd>
       </button>
       <button
         hlmBtn
@@ -255,5 +254,5 @@
     </div>
   </main>
 
-  <sl-command-palette [recentProjects]="recentProjects()" [onSignOut]="logout.bind(this)" />
+  <sl-command-palette [recentProjects]="recentProjects()" [onSignOut]="signOutAction" />
 </div>
