@@ -88,6 +88,11 @@ export class AppShellLayout {
   readonly avatarUrl = signal<string | null>(null);
   private readonly loadedAvatarId = signal<string | null>(null);
 
+  /** Stable callback for the command palette Sign out action. */
+  readonly signOutAction = (): void => {
+    this.logout();
+  };
+
   readonly needsEmailVerification = computed(() => {
     const user = this.currentUser();
     if (!user) {
