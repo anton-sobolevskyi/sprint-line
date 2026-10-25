@@ -4,7 +4,7 @@ import {
   CdkDropList,
   CdkDropListGroup,
 } from '@angular/cdk/drag-drop';
-import { Component, DestroyRef, effect, inject, input, signal } from '@angular/core';
+import { Component, DestroyRef, computed, effect, inject, input, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { form, FormField, validateStandardSchema } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
@@ -33,6 +33,15 @@ import { firstFieldErrorMessage } from '../auth/auth.form-utils';
 import { ProjectTasksStore } from './project-tasks.store';
 import { TASK_STATUS_ORDER, TASKS_MESSAGES } from './tasks.messages';
 import { createTaskSchema, type CreateTaskModel } from './tasks.schemas';
+
+export type TasksViewMode = 'board' | 'list';
+
+const PRIORITY_RANK: Record<TaskPriority, number> = {
+  URGENT: 0,
+  HIGH: 1,
+  MEDIUM: 2,
+  LOW: 3,
+};
 
 @Component({
   selector: 'sl-project-tasks-board-panel',
@@ -75,6 +84,24 @@ export class ProjectTasksBoardPanel {
   readonly totalVisible = this.tasksStore.totalVisible;
   readonly actionTaskId = this.tasksStore.actionTaskId;
   readonly actionError = this.tasksStore.actionError;
+
+  /** Board (Kanban) or dense list — same data & filters. */
+  readonly viewMode = signal<TasksViewMode>('board');
+
+  /** Flat list ordered by status then priority (for list view). */
+  readonly listTasks = computed(() => {
+    const statusIndex = new Map(
+      TASK_STATUS_ORDER.map((status, index) => [status, index] as const),
+    );
+    return [...this.tasks()].sort((a, b) => {
+      const statusDiff =
+        (statusIndex.get(a.status) ?? 99) - (statusIndex.get(b.status) ?? 99);
+      if (statusDiff !== 0) {
+        return statusDiff;
+      }
+      return (PRIORITY_RANK[a.priority] ?? 9) - (PRIORITY_RANK[b.priority] ?? 9);
+    });
+  });
 
   readonly draftQuery = signal('');
   readonly draftAssignedToMe = signal(false);
@@ -132,6 +159,10 @@ export class ProjectTasksBoardPanel {
         });
         this.tasksStore.load();
       });
+  }
+
+  setViewMode(mode: TasksViewMode): void {
+    this.viewMode.set(mode);
   }
 
   load(): void {
@@ -243,6 +274,21 @@ export class ProjectTasksBoardPanel {
     }
     const due = new Date(task.dueDate).getTime();
     return !Number.isNaN(due) && due < Date.now();
+  }
+
+  statusLabel(status: TaskStatus): string {
+    switch (status) {
+      case 'TODO':
+        return this.messages.status.TODO;
+      case 'IN_PROGRESS':
+        return this.messages.status.IN_PROGRESS;
+      case 'IN_REVIEW':
+        return this.messages.status.IN_REVIEW;
+      case 'DONE':
+        return this.messages.status.DONE;
+      default:
+        return String(status);
+    }
   }
 
   priorityLabel(priority: TaskPriority): string {
