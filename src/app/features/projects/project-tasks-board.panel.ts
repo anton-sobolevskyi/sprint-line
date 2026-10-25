@@ -19,6 +19,10 @@ import { HlmSelectImports } from '@spartan-ng/helm/select';
 import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
 import { HlmTextareaImports } from '@spartan-ng/helm/textarea';
 
+import {
+  type ProjectMemberResponseDto,
+  ProjectMembersApiService,
+} from '../../core/projects/project-members-api.service';
 import { ConfirmDialogService } from '../../core/ui/confirm-dialog.service';
 import { appToast } from '../../core/ui/toast';
 import { UI_MESSAGES } from '../../core/ui/ui.messages';
@@ -43,6 +47,8 @@ const PRIORITY_RANK: Record<TaskPriority, number> = {
   LOW: 3,
 };
 
+const MEMBERS_LIMIT = 100 as const;
+
 @Component({
   selector: 'sl-project-tasks-board-panel',
   providers: [ProjectTasksStore],
@@ -66,6 +72,7 @@ export class ProjectTasksBoardPanel {
   readonly projectId = input.required<string>();
 
   private readonly tasksStore = inject(ProjectTasksStore);
+  private readonly membersApi = inject(ProjectMembersApiService);
   private readonly confirmDialog = inject(ConfirmDialogService);
   private readonly ngrxStore = inject(Store);
   private readonly destroyRef = inject(DestroyRef);
@@ -84,6 +91,9 @@ export class ProjectTasksBoardPanel {
   readonly totalVisible = this.tasksStore.totalVisible;
   readonly actionTaskId = this.tasksStore.actionTaskId;
   readonly actionError = this.tasksStore.actionError;
+
+  /** Members keyed by userId for assignee chips. */
+  private readonly membersByUserId = signal<Map<string, ProjectMemberResponseDto>>(new Map());
 
   /** Board (Kanban) or dense list — same data & filters. */
   readonly viewMode = signal<TasksViewMode>('board');
@@ -147,6 +157,7 @@ export class ProjectTasksBoardPanel {
       this.loadedForProjectId.set(projectId);
       this.tasksStore.setProjectId(projectId);
       this.tasksStore.load();
+      this.loadMembers(projectId);
     });
 
     this.search$
@@ -159,6 +170,21 @@ export class ProjectTasksBoardPanel {
         });
         this.tasksStore.load();
       });
+  }
+
+  private loadMembers(projectId: string): void {
+    this.membersApi.findAll(projectId, { page: 1, limit: MEMBERS_LIMIT }).subscribe({
+      next: (response) => {
+        const map = new Map<string, ProjectMemberResponseDto>();
+        for (const member of response.data ?? []) {
+          map.set(member.userId, member);
+        }
+        this.membersByUserId.set(map);
+      },
+      error: () => {
+        this.membersByUserId.set(new Map());
+      },
+    });
   }
 
   setViewMode(mode: TasksViewMode): void {
@@ -274,6 +300,32 @@ export class ProjectTasksBoardPanel {
     }
     const due = new Date(task.dueDate).getTime();
     return !Number.isNaN(due) && due < Date.now();
+  }
+
+  /** Display name for the assignee, or null if unassigned / unknown. */
+  assigneeName(task: TaskResponseDto): string | null {
+    const id = task.assignedToId;
+    if (!id) {
+      return null;
+    }
+    const member = this.membersByUserId().get(id);
+    if (!member) {
+      return null;
+    }
+    return member.user?.name?.trim() || member.user?.email || null;
+  }
+
+  /** One- or two-letter initials for the assignee avatar chip. */
+  assigneeInitials(task: TaskResponseDto): string | null {
+    const name = this.assigneeName(task);
+    if (!name) {
+      return null;
+    }
+    const parts = name.split(/\s+/).filter(Boolean);
+    if (parts.length >= 2) {
+      return (parts[0]![0]! + parts[1]![0]!).toUpperCase();
+    }
+    return name.slice(0, 2).toUpperCase();
   }
 
   statusLabel(status: TaskStatus): string {
