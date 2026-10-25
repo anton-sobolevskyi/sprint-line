@@ -193,6 +193,34 @@
       } @else {
         <div class="flex-1"></div>
       }
+
+      <button
+        hlmBtn
+        type="button"
+        variant="outline"
+        size="sm"
+        class="text-muted-foreground hidden h-8 gap-2 sm:inline-flex"
+        (click)="openCommandPalette()"
+      >
+        <ng-icon name="lucideSearch" class="size-3.5" />
+        <span>{{ messages.commandPalette.trigger }}</span>
+        <kbd
+          class="bg-muted text-muted-foreground pointer-events-none ml-1 hidden rounded border px-1.5 py-0.5 font-mono text-[10px] font-medium sm:inline"
+        >
+          {{ messages.commandPalette.triggerHint }}
+        </kbd>
+      </button>
+      <button
+        hlmBtn
+        type="button"
+        variant="ghost"
+        size="sm"
+        class="h-8 w-8 p-0 sm:hidden"
+        [attr.aria-label]="messages.commandPalette.trigger"
+        (click)="openCommandPalette()"
+      >
+        <ng-icon name="lucideSearch" class="size-4" />
+      </button>
     </header>
 
     @if (needsEmailVerification()) {
@@ -226,4 +254,6 @@
       <router-outlet />
     </div>
   </main>
+
+  <sl-command-palette [recentProjects]="recentProjects()" [onSignOut]="logout.bind(this)" />
 </div>
