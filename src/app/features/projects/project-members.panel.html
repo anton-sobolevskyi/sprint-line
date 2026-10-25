@@ -1,35 +1,36 @@
-<section hlmCard>
-  <header hlmCardHeader>
-    <h2 hlmCardTitle>{{ messages.title }}</h2>
-    <p hlmCardDescription>{{ messages.description }}</p>
+<section class="border-border bg-card rounded-xl border">
+  <header class="border-border border-b px-4 py-3">
+    <h2 class="text-sm font-semibold">{{ messages.title }}</h2>
+    <p class="text-muted-foreground text-xs">{{ messages.description }}</p>
   </header>
 
-  <div hlmCardContent class="flex flex-col gap-6">
+  <div class="flex flex-col gap-4 p-4">
     @if (canManageMembers()) {
-      <form class="flex flex-col gap-3" (submit)="onInviteSubmit($event)">
-        <h3 class="text-sm font-medium">{{ messages.invite.title }}</h3>
+      <form class="flex flex-col gap-2" (submit)="onInviteSubmit($event)">
+        <h3 class="text-xs font-medium">{{ messages.invite.title }}</h3>
 
         @if (inviteServerError(); as error) {
           <div
-            class="border-destructive/40 bg-destructive/10 text-destructive rounded-xl border px-3 py-2 text-sm"
+            class="border-destructive/40 bg-destructive/10 text-destructive rounded-lg border px-3 py-2 text-sm"
             role="alert"
           >
             {{ error }}
           </div>
         }
         @if (inviteSuccess(); as success) {
-          <div class="border-border bg-muted/40 rounded-xl border px-3 py-2 text-sm" role="status">
+          <div class="border-border bg-muted/40 rounded-lg border px-3 py-2 text-sm" role="status">
             {{ success }}
           </div>
         }
 
-        <div class="grid gap-3 sm:grid-cols-[1fr_auto_auto] sm:items-end">
-          <div hlmField>
-            <label hlmFieldLabel for="invite-email">{{ messages.invite.emailLabel }}</label>
+        <div class="grid gap-2 sm:grid-cols-[1fr_auto_auto] sm:items-end">
+          <div hlmField class="!gap-1">
+            <label hlmFieldLabel for="invite-email" class="text-xs">{{ messages.invite.emailLabel }}</label>
             <input
               id="invite-email"
               type="email"
               hlmInput
+              class="h-8"
               [formField]="inviteForm.email"
               [placeholder]="messages.invite.emailPlaceholder"
               [attr.aria-invalid]="inviteFieldError('email') ? true : null"
@@ -39,11 +40,11 @@
             }
           </div>
 
-          <div hlmField>
-            <label hlmFieldLabel for="invite-role">{{ messages.invite.roleLabel }}</label>
+          <div hlmField class="!gap-1">
+            <label hlmFieldLabel for="invite-role" class="text-xs">{{ messages.invite.roleLabel }}</label>
             <select
               id="invite-role"
-              class="border-input bg-background h-9 rounded-lg border px-3 text-sm outline-none"
+              class="border-input bg-background h-8 rounded-md border px-2 text-sm outline-none"
               [formField]="inviteForm.role"
             >
               <option value="MEMBER">{{ messages.roles.MEMBER }}</option>
@@ -54,6 +55,8 @@
           <button
             hlmBtn
             type="submit"
+            size="sm"
+            class="h-8"
             [disabled]="inviteForm().invalid() || inviteSubmitting()"
           >
             {{ inviteSubmitting() ? messages.invite.submitting : messages.invite.submit }}
@@ -64,7 +67,7 @@
 
     @if (actionError(); as error) {
       <div
-        class="border-destructive/40 bg-destructive/10 text-destructive rounded-xl border px-3 py-2 text-sm"
+        class="border-destructive/40 bg-destructive/10 text-destructive rounded-lg border px-3 py-2 text-sm"
         role="alert"
       >
         {{ error }}
@@ -76,41 +79,41 @@
     } @else if (loadStatus() === 'error') {
       <div class="flex flex-col gap-2">
         <p class="text-destructive text-sm" role="alert">{{ loadError() }}</p>
-        <button hlmBtn type="button" variant="outline" class="w-fit" (click)="load()">
+        <button hlmBtn type="button" variant="outline" size="sm" class="w-fit" (click)="load()">
           {{ messages.retry }}
         </button>
       </div>
     } @else if (members().length === 0) {
       <p class="text-muted-foreground text-sm">{{ messages.empty }}</p>
     } @else {
-      <ul class="divide-border divide-y rounded-xl border">
+      <ul class="divide-border border-border divide-y overflow-hidden rounded-lg border">
         @for (member of members(); track member.id) {
-          <li class="flex flex-col gap-3 p-3 sm:flex-row sm:items-center sm:justify-between">
-            <div class="flex min-w-0 items-center gap-3">
+          <li class="flex flex-col gap-2 px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex min-w-0 items-center gap-2.5">
               <span
-                class="bg-primary/10 text-primary flex size-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold"
+                class="bg-primary/10 text-primary flex size-8 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold"
                 aria-hidden="true"
               >
                 {{ memberInitials(member) }}
               </span>
               <div class="min-w-0">
-                <p class="truncate font-medium">
+                <p class="truncate text-sm font-medium">
                   {{ displayName(member) }}
                   @if (isSelf(member)) {
                     <span class="text-muted-foreground text-xs font-normal">({{ messages.you }})</span>
                   }
                 </p>
-                <p class="text-muted-foreground truncate text-sm">{{ displayEmail(member) }}</p>
+                <p class="text-muted-foreground truncate text-xs">{{ displayEmail(member) }}</p>
               </div>
             </div>
 
-            <div class="flex flex-wrap items-center gap-2">
+            <div class="flex flex-wrap items-center gap-1.5">
               @if (canManageMembers() && !isSelf(member) && member.role !== 'OWNER') {
                 <label class="sr-only" [attr.for]="'role-' + member.userId">
                   {{ messages.actions.changeRole }}
                 </label>
                 <select
-                  class="border-input bg-background h-9 rounded-lg border px-3 text-sm outline-none"
+                  class="border-input bg-background h-7 rounded-md border px-2 text-xs outline-none"
                   [id]="'role-' + member.userId"
                   [value]="member.role"
                   [disabled]="actionUserId() === member.userId"
@@ -120,7 +123,7 @@
                   <option value="ADMIN">{{ messages.roles.ADMIN }}</option>
                 </select>
               } @else {
-                <span class="bg-muted rounded-full px-2.5 py-1 text-xs font-medium">
+                <span class="bg-muted rounded-md px-2 py-0.5 text-[11px] font-medium">
                   {{ roleLabel(member.role) }}
                 </span>
               }
@@ -131,6 +134,7 @@
                   type="button"
                   variant="outline"
                   size="sm"
+                  class="h-7 text-xs"
                   [disabled]="actionUserId() === member.userId"
                   (click)="onTransfer(member)"
                 >
@@ -146,8 +150,9 @@
                 <button
                   hlmBtn
                   type="button"
-                  variant="destructive"
+                  variant="ghost"
                   size="sm"
+                  class="text-destructive hover:text-destructive h-7 text-xs"
                   [disabled]="actionUserId() === member.userId"
                   (click)="onRemove(member)"
                 >
