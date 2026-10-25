@@ -2,7 +2,7 @@
 # Docs: https://render.com/docs/blueprint-spec
 #
 # Deploy: Dashboard → New → Blueprint → select this repo
-# Or: connect the repo as a Static Site and point to this file.
+# Or: connect the repo as a Static Site and use the same build/publish settings.
 #
 # Production API URL is set in src/environments/environment.ts
 # (currently https://management-app-backend-qs3u.onrender.com).
@@ -13,7 +13,6 @@ services:
   - type: web
     name: sprint-line
     runtime: static
-    plan: free
     branch: main
     buildCommand: npm ci && npm run build
     staticPublishPath: dist/sprint-line/browser
