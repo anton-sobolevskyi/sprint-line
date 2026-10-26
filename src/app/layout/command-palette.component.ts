@@ -14,9 +14,12 @@ import { Router } from '@angular/router';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmInputImports } from '@spartan-ng/helm/input';
 
+import {
+  type ProjectResponseDto,
+  ProjectsApiService,
+} from '../core/projects/projects-api.service';
 import { CommandPaletteService } from '../core/ui/command-palette.service';
 import { ThemeService } from '../core/ui/theme.service';
-import type { ProjectResponseDto } from '../core/projects/projects-api.service';
 import { SHELL_MESSAGES } from './shell.messages';
 
 type CommandGroup = 'nav' | 'projects' | 'actions';
@@ -29,13 +32,15 @@ type CommandItem = {
   run: () => void;
 };
 
+const PROJECTS_LIMIT = 50 as const;
+
 @Component({
   selector: 'sl-command-palette',
   imports: [...HlmButtonImports, ...HlmInputImports],
   templateUrl: './command-palette.component.html',
 })
 export class CommandPaletteComponent {
-  /** Recent projects from the shell (for Open project actions). */
+  /** Recent projects from the shell (fallback while full list loads). */
   readonly recentProjects = input<ProjectResponseDto[]>([]);
 
   /** Sign-out handler provided by the shell. */
@@ -44,6 +49,7 @@ export class CommandPaletteComponent {
   private readonly palette = inject(CommandPaletteService);
   private readonly router = inject(Router);
   private readonly theme = inject(ThemeService);
+  private readonly projectsApi = inject(ProjectsApiService);
 
   readonly messages = SHELL_MESSAGES.commandPalette;
   readonly groupLabels = {
@@ -56,7 +62,12 @@ export class CommandPaletteComponent {
   readonly query = signal('');
   readonly activeIndex = signal(0);
 
+  /** Full project list for search (loaded when palette opens). */
+  private readonly searchableProjects = signal<ProjectResponseDto[]>([]);
+  readonly projectsLoading = signal(false);
+
   private readonly searchInput = viewChild<ElementRef<HTMLInputElement>>('searchInput');
+  private projectsLoadedOnce = false;
 
   readonly commands = computed(() => {
     const items: CommandItem[] = [
@@ -71,7 +82,7 @@ export class CommandPaletteComponent {
         id: 'nav-projects',
         group: 'nav',
         label: this.messages.projects,
-        keywords: 'projects list',
+        keywords: 'projects list all',
         run: () => void this.router.navigateByUrl('/projects'),
       },
       {
@@ -90,12 +101,17 @@ export class CommandPaletteComponent {
       },
     ];
 
-    for (const project of this.recentProjects()) {
+    const projects =
+      this.searchableProjects().length > 0
+        ? this.searchableProjects()
+        : this.recentProjects();
+
+    for (const project of projects) {
       items.push({
         id: `project-${project.id}`,
         group: 'projects',
         label: this.messages.openProject.replace('{name}', project.name),
-        keywords: `project ${project.name}`,
+        keywords: `project ${project.name} ${project.description ?? ''}`,
         run: () => void this.router.navigate(['/projects', project.id]),
       });
     }
@@ -152,14 +168,31 @@ export class CommandPaletteComponent {
       this.query.set('');
       this.activeIndex.set(0);
       queueMicrotask(() => this.searchInput()?.nativeElement.focus());
+      this.ensureProjectsLoaded();
     });
 
     effect(() => {
-      // Keep active index in range when filter changes
       const len = this.filtered().length;
       if (this.activeIndex() >= len) {
         this.activeIndex.set(Math.max(0, len - 1));
       }
+    });
+  }
+
+  private ensureProjectsLoaded(): void {
+    if (this.projectsLoadedOnce || this.projectsLoading()) {
+      return;
+    }
+    this.projectsLoading.set(true);
+    this.projectsApi.findAll({ page: 1, limit: PROJECTS_LIMIT }).subscribe({
+      next: (response) => {
+        this.searchableProjects.set(response.data ?? []);
+        this.projectsLoadedOnce = true;
+        this.projectsLoading.set(false);
+      },
+      error: () => {
+        this.projectsLoading.set(false);
+      },
     });
   }
 
