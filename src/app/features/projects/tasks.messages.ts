@@ -73,6 +73,7 @@ export const TASKS_MESSAGES = {
   },
   detail: {
     back: 'Back to project',
+    close: 'Close task',
     loading: 'Loading task…',
     retry: 'Try again',
     notFound: 'Task not found.',
