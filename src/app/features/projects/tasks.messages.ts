@@ -1,6 +1,6 @@
 export const TASKS_MESSAGES = {
   title: 'Tasks',
-  description: 'Board or list view. Drag cards on the board to change status.',
+  description: 'Board or list. Shortcuts: N new task · / search · 1 board · 2 list · Esc close.',
   loading: 'Loading tasks…',
   retry: 'Try again',
   emptyColumn: 'No tasks',
