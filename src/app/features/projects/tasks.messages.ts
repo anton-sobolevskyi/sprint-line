@@ -4,8 +4,11 @@ export const TASKS_MESSAGES = {
   loading: 'Loading tasks…',
   retry: 'Try again',
   emptyColumn: 'No tasks',
-  emptyFiltered: 'No tasks match these filters.',
-  emptyList: 'No tasks yet.',
+  emptyColumnCta: '+ Add a task',
+  emptyFilteredTitle: 'No matches',
+  emptyFiltered: 'Nothing matches these filters. Clear them to see all tasks.',
+  emptyListTitle: 'No tasks yet',
+  emptyList: 'Add your first task to start tracking work on this board.',
   view: {
     board: 'Board',
     list: 'List',
