@@ -34,6 +34,69 @@
         {{ messages.retry }}
       </button>
     </section>
+  } @else if (totalProjects() === 0) {
+    <!-- First-run onboarding -->
+    <section
+      class="border-border bg-card overflow-hidden rounded-2xl border"
+      [attr.aria-label]="messages.onboarding.title"
+    >
+      <div class="border-border border-b bg-[var(--brand-violet)] px-5 py-5 text-[var(--brand-violet-foreground)]">
+        <h2 class="text-lg font-semibold tracking-tight">{{ messages.onboarding.title }}</h2>
+        <p class="mt-1 text-sm opacity-90">{{ messages.onboarding.body }}</p>
+      </div>
+
+      <ol class="divide-border divide-y">
+        <li class="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+          <div class="flex gap-3">
+            <span
+              class="bg-primary/15 text-primary flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-bold"
+              aria-hidden="true"
+            >
+              1
+            </span>
+            <div class="min-w-0">
+              <p class="text-sm font-semibold">{{ messages.onboarding.step1Title }}</p>
+              <p class="text-muted-foreground text-sm">{{ messages.onboarding.step1Body }}</p>
+            </div>
+          </div>
+          <a
+            hlmBtn
+            size="sm"
+            class="w-fit shrink-0"
+            routerLink="/projects"
+            [queryParams]="{ new: '1' }"
+          >
+            {{ messages.onboarding.step1Action }}
+          </a>
+        </li>
+
+        <li class="flex gap-3 px-5 py-4">
+          <span
+            class="bg-muted text-muted-foreground flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-bold"
+            aria-hidden="true"
+          >
+            2
+          </span>
+          <div class="min-w-0">
+            <p class="text-sm font-semibold">{{ messages.onboarding.step2Title }}</p>
+            <p class="text-muted-foreground text-sm">{{ messages.onboarding.step2Body }}</p>
+          </div>
+        </li>
+
+        <li class="flex gap-3 px-5 py-4">
+          <span
+            class="bg-muted text-muted-foreground flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-bold"
+            aria-hidden="true"
+          >
+            3
+          </span>
+          <div class="min-w-0">
+            <p class="text-sm font-semibold">{{ messages.onboarding.step3Title }}</p>
+            <p class="text-muted-foreground text-sm">{{ messages.onboarding.step3Body }}</p>
+          </div>
+        </li>
+      </ol>
+    </section>
   } @else {
     <section class="grid grid-cols-2 gap-2 sm:grid-cols-4">
       <div class="border-border bg-card rounded-3xl border px-4 py-3">
@@ -165,75 +228,63 @@
         </a>
       </div>
 
-      @if (projects().length === 0) {
-        <section class="border-border rounded-xl border border-dashed px-4 py-10 text-center">
-          <p class="text-sm font-medium">{{ messages.recent.emptyTitle }}</p>
-          <p class="text-muted-foreground mx-auto mt-1 max-w-sm text-sm">
-            {{ messages.recent.emptyBody }}
-          </p>
-          <a hlmBtn size="sm" class="mt-4" routerLink="/projects" [queryParams]="{ new: '1' }">
-            {{ messages.recent.emptyAction }}
-          </a>
-        </section>
-      } @else {
-        <ul class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          @for (project of projects(); track project.id) {
-            <li>
-              <a
-                class="border-border bg-card hover:border-primary/40 focus-visible:ring-ring group flex h-full flex-col rounded-3xl border p-4 transition-colors focus-visible:ring-2 focus-visible:outline-none"
-                [routerLink]="['/projects', project.id]"
-              >
-                <div class="flex items-start gap-2.5">
-                  <span
-                    class="flex size-10 shrink-0 items-center justify-center rounded-2xl text-sm font-extrabold"
-                    [class]="projectTone(project)"
-                    aria-hidden="true"
-                  >
-                    {{ projectInitial(project) }}
-                  </span>
-                  <div class="min-w-0 flex-1">
-                    <p class="truncate text-sm font-medium group-hover:underline">
-                      {{ project.name }}
+      <ul class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+        @for (project of projects(); track project.id) {
+          <li>
+            <a
+              class="border-border bg-card hover:border-primary/40 focus-visible:ring-ring group flex h-full flex-col rounded-3xl border p-4 transition-colors focus-visible:ring-2 focus-visible:outline-none"
+              [routerLink]="['/projects', project.id]"
+            >
+              <div class="flex items-start gap-2.5">
+                <span
+                  class="flex size-10 shrink-0 items-center justify-center rounded-2xl text-sm font-extrabold"
+                  [class]="projectTone(project)"
+                  aria-hidden="true"
+                >
+                  {{ projectInitial(project) }}
+                </span>
+                <div class="min-w-0 flex-1">
+                  <p class="truncate text-sm font-medium group-hover:underline">
+                    {{ project.name }}
+                  </p>
+                  @if (project.description) {
+                    <p class="text-muted-foreground mt-0.5 line-clamp-2 text-xs">
+                      {{ project.description }}
                     </p>
-                    @if (project.description) {
-                      <p class="text-muted-foreground mt-0.5 line-clamp-2 text-xs">
-                        {{ project.description }}
-                      </p>
-                    }
-                  </div>
-                </div>
-                <div class="mt-3">
-                  @let percent = progressPercent(project);
-                  @if (percent !== null) {
-                    <div
-                      class="bg-muted h-2 overflow-hidden rounded-full"
-                      role="progressbar"
-                      [attr.aria-valuenow]="percent"
-                      aria-valuemin="0"
-                      aria-valuemax="100"
-                      [attr.aria-label]="percent + '% ' + messages.progress.label"
-                    >
-                      <div class="bg-primary h-full rounded-full" [style.width.%]="percent"></div>
-                    </div>
-                  } @else if (project.taskCount === 0) {
-                    <p class="text-muted-foreground text-[11px]">{{ messages.progress.empty }}</p>
                   }
                 </div>
-                <div
-                  class="text-muted-foreground mt-auto flex items-center justify-between gap-2 pt-3 text-[11px]"
-                >
-                  <span>{{ memberCount(project) }} {{ messages.recent.members }}</span>
-                  <span
-                    class="text-primary font-medium opacity-0 transition-opacity group-hover:opacity-100"
+              </div>
+              <div class="mt-3">
+                @let percent = progressPercent(project);
+                @if (percent !== null) {
+                  <div
+                    class="bg-muted h-2 overflow-hidden rounded-full"
+                    role="progressbar"
+                    [attr.aria-valuenow]="percent"
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                    [attr.aria-label]="percent + '% ' + messages.progress.label"
                   >
-                    {{ messages.recent.openBoard }} →
-                  </span>
-                </div>
-              </a>
-            </li>
-          }
-        </ul>
-      }
+                    <div class="bg-primary h-full rounded-full" [style.width.%]="percent"></div>
+                  </div>
+                } @else if (project.taskCount === 0) {
+                  <p class="text-muted-foreground text-[11px]">{{ messages.progress.empty }}</p>
+                }
+              </div>
+              <div
+                class="text-muted-foreground mt-auto flex items-center justify-between gap-2 pt-3 text-[11px]"
+              >
+                <span>{{ memberCount(project) }} {{ messages.recent.members }}</span>
+                <span
+                  class="text-primary font-medium opacity-0 transition-opacity group-hover:opacity-100"
+                >
+                  {{ messages.recent.openBoard }} →
+                </span>
+              </div>
+            </a>
+          </li>
+        }
+      </ul>
     </section>
   }
 </main>

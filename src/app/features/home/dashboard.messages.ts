@@ -24,6 +24,17 @@ export const DASHBOARD_MESSAGES = {
     members: 'members',
     openBoard: 'Open board',
   },
+  onboarding: {
+    title: 'Get started with SprintLine',
+    body: 'Three quick steps to set up your workspace.',
+    step1Title: 'Create a project',
+    step1Body: 'Give your first project a name — that becomes your board.',
+    step1Action: 'Create project',
+    step2Title: 'Invite teammates',
+    step2Body: 'Open the project’s Members tab and invite by email.',
+    step3Title: 'Add tasks',
+    step3Body: 'Use the board, press N, or quick-add under a column.',
+  },
   myWork: {
     title: 'My work',
     viewAll: 'All my tasks',
