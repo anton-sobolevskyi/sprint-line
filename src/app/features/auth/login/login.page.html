@@ -1,47 +1,58 @@
-<main class="bg-background relative flex min-h-svh items-center justify-center p-4">
+<main class="bg-background relative flex min-h-svh flex-col">
   <sl-auth-theme-toggle />
 
   <div class="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
     <div
-      class="bg-primary/10 absolute -top-32 left-1/2 size-[40rem] -translate-x-1/2 rounded-full blur-3xl"
+      class="bg-primary/10 absolute -top-32 left-1/2 size-[40rem] -translate-x-1/2 rounded-full blur-3xl md:left-1/4"
     ></div>
     <div class="bg-primary/5 absolute -right-20 bottom-0 size-[28rem] rounded-full blur-3xl"></div>
   </div>
 
-  <section hlmCard class="relative w-full max-w-md shadow-sm">
-    <header hlmCardHeader class="items-center text-center">
-      <div class="mb-2 flex flex-col items-center gap-3">
-        <span
-          class="bg-primary text-primary-foreground flex size-10 items-center justify-center rounded-xl shadow-sm"
-          aria-hidden="true"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            class="size-5"
-            stroke="currentColor"
-            stroke-width="2.25"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path d="M5 12.5L9.5 17L19 7" />
-            <path d="M5 8h14" opacity="0.55" />
-          </svg>
-        </span>
-        <p class="text-muted-foreground text-xs font-medium tracking-wide uppercase">
-          {{ messages.brand }}
-        </p>
+  <div
+    class="relative mx-auto flex w-full max-w-5xl flex-1 flex-col justify-center gap-10 px-4 py-10 md:flex-row md:items-center md:gap-16 md:px-8"
+  >
+    <!-- Product pitch (desktop) -->
+    <aside class="hidden max-w-sm flex-1 flex-col gap-6 md:flex">
+      <div class="flex items-center gap-3">
+        <img src="favicon.svg" alt="" width="40" height="40" class="size-10 rounded-xl shadow-sm" />
+        <div>
+          <p class="text-sm font-semibold tracking-tight">{{ messages.brand }}</p>
+          <p class="text-muted-foreground text-xs">{{ messages.tagline }}</p>
+        </div>
       </div>
-      <h1 hlmCardTitle>{{ messages.login.title }}</h1>
-      <p hlmCardDescription>{{ messages.login.description }}</p>
-    </header>
+      <div>
+        <h2 class="text-2xl font-semibold tracking-tight">{{ messages.benefits.title }}</h2>
+        <ul class="text-muted-foreground mt-4 flex flex-col gap-3 text-sm">
+          @for (item of messages.benefits.items; track item) {
+            <li class="flex gap-2.5">
+              <span
+                class="bg-primary/15 text-primary mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold"
+                aria-hidden="true"
+              >
+                ✓
+              </span>
+              <span>{{ item }}</span>
+            </li>
+          }
+        </ul>
+      </div>
+    </aside>
 
-    <div hlmCardContent>
+    <!-- Form -->
+    <section class="border-border bg-card relative w-full max-w-md rounded-2xl border p-6 shadow-sm md:p-8">
+      <header class="mb-6 flex flex-col items-center text-center md:items-start md:text-left">
+        <div class="mb-4 flex items-center gap-2.5 md:hidden">
+          <img src="favicon.svg" alt="" width="36" height="36" class="size-9 rounded-xl shadow-sm" />
+          <span class="text-sm font-semibold">{{ messages.brand }}</span>
+        </div>
+        <h1 class="text-xl font-semibold tracking-tight">{{ messages.login.title }}</h1>
+        <p class="text-muted-foreground mt-1 text-sm">{{ messages.login.description }}</p>
+      </header>
+
       <form class="flex flex-col gap-4" (submit)="onSubmit($event)">
         @if (serverError(); as error) {
           <div
-            class="border-destructive/40 bg-destructive/10 text-destructive rounded-xl border px-3 py-2 text-sm"
+            class="border-destructive/40 bg-destructive/10 text-destructive rounded-lg border px-3 py-2 text-sm"
             role="alert"
           >
             {{ error }}
@@ -95,19 +106,19 @@
         <button
           hlmBtn
           type="submit"
-          class="w-full"
+          class="mt-1 w-full"
           [disabled]="loginForm().invalid() || isSubmitting()"
         >
           {{ isSubmitting() ? messages.login.submitting : messages.login.submit }}
         </button>
       </form>
-    </div>
 
-    <footer hlmCardFooter class="justify-center gap-1 text-sm">
-      <span class="text-muted-foreground">{{ messages.login.noAccount }}</span>
-      <a hlmBtn variant="link" routerLink="/register" class="h-auto p-0">
-        {{ messages.login.registerLink }}
-      </a>
-    </footer>
-  </section>
+      <p class="text-muted-foreground mt-6 text-center text-sm">
+        {{ messages.login.noAccount }}
+        <a hlmBtn variant="link" routerLink="/register" class="h-auto p-0">
+          {{ messages.login.registerLink }}
+        </a>
+      </p>
+    </section>
+  </div>
 </main>
