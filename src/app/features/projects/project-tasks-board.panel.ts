@@ -4,7 +4,16 @@ import {
   CdkDropList,
   CdkDropListGroup,
 } from '@angular/cdk/drag-drop';
-import { Component, DestroyRef, computed, effect, inject, input, signal } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  HostListener,
+  computed,
+  effect,
+  inject,
+  input,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { form, FormField, validateStandardSchema } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
@@ -48,6 +57,17 @@ const PRIORITY_RANK: Record<TaskPriority, number> = {
 };
 
 const MEMBERS_LIMIT = 100 as const;
+
+function isEditableTarget(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) {
+    return false;
+  }
+  const tag = target.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') {
+    return true;
+  }
+  return target.isContentEditable;
+}
 
 @Component({
   selector: 'sl-project-tasks-board-panel',
@@ -170,6 +190,62 @@ export class ProjectTasksBoardPanel {
         });
         this.tasksStore.load();
       });
+  }
+
+  /**
+   * Board shortcuts (ignored while typing in inputs):
+   * n — new task · / — focus search · 1 board · 2 list · Esc — close create/quick-add
+   */
+  @HostListener('document:keydown', ['$event'])
+  onDocumentKeydown(event: KeyboardEvent): void {
+    if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey) {
+      return;
+    }
+
+    const key = event.key;
+
+    if (key === 'Escape') {
+      if (this.createOpen()) {
+        event.preventDefault();
+        this.closeCreate();
+        return;
+      }
+      if (this.quickAddStatus()) {
+        event.preventDefault();
+        this.closeQuickAdd();
+      }
+      return;
+    }
+
+    if (isEditableTarget(event.target)) {
+      return;
+    }
+
+    if (key === 'n' || key === 'N') {
+      event.preventDefault();
+      this.openCreate();
+      queueMicrotask(() => {
+        document.getElementById('task-title')?.focus();
+      });
+      return;
+    }
+
+    if (key === '/') {
+      event.preventDefault();
+      document.getElementById('board-search')?.focus();
+      return;
+    }
+
+    if (key === '1') {
+      event.preventDefault();
+      this.setViewMode('board');
+      return;
+    }
+
+    if (key === '2') {
+      event.preventDefault();
+      this.setViewMode('list');
+    }
   }
 
   private loadMembers(projectId: string): void {
