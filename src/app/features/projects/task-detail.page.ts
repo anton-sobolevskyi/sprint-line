@@ -101,8 +101,7 @@ export class TaskDetailPage {
 
   constructor() {
     effect(() => {
-      const projectId = this.route.snapshot.paramMap.get('projectId');
-      const taskId = this.route.snapshot.paramMap.get('taskId');
+      const { projectId, taskId } = this.resolveIds();
       this.projectId.set(projectId);
       this.taskId.set(taskId);
       const key = projectId && taskId ? `${projectId}:${taskId}` : null;
@@ -130,12 +129,22 @@ export class TaskDetailPage {
     });
   }
 
+  /** Nested: parent has :id, child has :taskId. Flat fallback: :projectId. */
+  private resolveIds(): { projectId: string | null; taskId: string | null } {
+    const taskId = this.route.snapshot.paramMap.get('taskId');
+    const projectId =
+      this.route.snapshot.paramMap.get('projectId') ??
+      this.route.parent?.snapshot.paramMap.get('id') ??
+      null;
+    return { projectId, taskId };
+  }
+
   @HostListener('document:keydown.escape')
   onEscape(): void {
     this.close();
   }
 
-  /** Close drawer and return to the project board. */
+  /** Close drawer and return to the project board (parent stays mounted). */
   close(): void {
     const projectId = this.projectId();
     if (projectId) {
