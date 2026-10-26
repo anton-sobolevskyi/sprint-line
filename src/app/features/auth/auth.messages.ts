@@ -3,9 +3,18 @@
  */
 export const AUTH_MESSAGES = {
   brand: 'SprintLine',
+  tagline: 'Projects, boards, and tasks for small teams.',
+  benefits: {
+    title: 'Ship work together',
+    items: [
+      'Kanban boards with priorities and assignees',
+      'Invite teammates and manage roles',
+      'Comments and files on every task',
+    ],
+  },
   login: {
-    title: 'Sign in',
-    description: 'Enter your email and password to continue.',
+    title: 'Welcome back',
+    description: 'Sign in to continue to your projects.',
     emailLabel: 'Email',
     emailPlaceholder: 'you@example.com',
     passwordLabel: 'Password',
@@ -17,8 +26,8 @@ export const AUTH_MESSAGES = {
     forgotPasswordLink: 'Forgot password?',
   },
   register: {
-    title: 'Create account',
-    description: 'Start organizing projects with SprintLine.',
+    title: 'Create your account',
+    description: 'Free to start — set up a project in under a minute.',
     nameLabel: 'Name',
     namePlaceholder: 'Your name',
     emailLabel: 'Email',
@@ -32,9 +41,9 @@ export const AUTH_MESSAGES = {
     loginLink: 'Sign in',
   },
   forgotPassword: {
-    title: 'Forgot password',
+    title: 'Reset your password',
     description:
-      'Enter your email and we will send a reset link if an account exists for that address.',
+      'Enter your email and we’ll send a reset link if an account exists for that address.',
     emailLabel: 'Email',
     emailPlaceholder: 'you@example.com',
     submit: 'Send reset link',
