@@ -1,6 +1,6 @@
 import { Component, effect, inject, signal } from '@angular/core';
 import { form, FormField, validateStandardSchema } from '@angular/forms/signals';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink, RouterOutlet } from '@angular/router';
 
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmCardImports } from '@spartan-ng/helm/card';
@@ -42,6 +42,7 @@ function parseTab(value: string | null): ProjectDetailTab {
   imports: [
     FormField,
     RouterLink,
+    RouterOutlet,
     ProjectMembersPanel,
     ProjectTasksBoardPanel,
     ...HlmButtonImports,

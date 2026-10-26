@@ -72,13 +72,15 @@ export const routes: Routes = [
           import('./features/projects/project-detail.page').then(
             (m) => m.ProjectDetailPage,
           ),
-      },
-      {
-        path: 'projects/:projectId/tasks/:taskId',
-        loadComponent: () =>
-          import('./features/projects/task-detail.page').then(
-            (m) => m.TaskDetailPage,
-          ),
+        children: [
+          {
+            path: 'tasks/:taskId',
+            loadComponent: () =>
+              import('./features/projects/task-detail.page').then(
+                (m) => m.TaskDetailPage,
+              ),
+          },
+        ],
       },
     ],
   },
