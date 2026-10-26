@@ -1,4 +1,4 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, HostListener, effect, inject, signal } from '@angular/core';
 import { form, FormField, validateStandardSchema } from '@angular/forms/signals';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
@@ -53,6 +53,9 @@ const PRIORITY_OPTIONS = ['LOW', 'MEDIUM', 'HIGH', 'URGENT'] as const;
     ...HlmTextareaImports,
   ],
   templateUrl: './task-detail.page.html',
+  host: {
+    class: 'contents',
+  },
 })
 export class TaskDetailPage {
   private readonly route = inject(ActivatedRoute);
@@ -94,6 +97,7 @@ export class TaskDetailPage {
   });
 
   private readonly syncedTaskId = signal<string | null>(null);
+  private readonly loadedKey = signal<string | null>(null);
 
   constructor() {
     effect(() => {
@@ -101,9 +105,12 @@ export class TaskDetailPage {
       const taskId = this.route.snapshot.paramMap.get('taskId');
       this.projectId.set(projectId);
       this.taskId.set(taskId);
-      if (projectId && taskId) {
-        this.load(projectId, taskId);
+      const key = projectId && taskId ? `${projectId}:${taskId}` : null;
+      if (!key || this.loadedKey() === key) {
+        return;
       }
+      this.loadedKey.set(key);
+      this.load(projectId!, taskId!);
     });
 
     effect(() => {
@@ -121,6 +128,21 @@ export class TaskDetailPage {
         assignedToId: task.assignedToId ?? '',
       });
     });
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    this.close();
+  }
+
+  /** Close drawer and return to the project board. */
+  close(): void {
+    const projectId = this.projectId();
+    if (projectId) {
+      void this.router.navigate(['/projects', projectId]);
+      return;
+    }
+    void this.router.navigateByUrl('/projects');
   }
 
   load(projectId: string, taskId: string): void {
@@ -152,7 +174,9 @@ export class TaskDetailPage {
     const projectId = this.projectId();
     const taskId = this.taskId();
     if (projectId && taskId) {
+      this.loadedKey.set(null);
       this.load(projectId, taskId);
+      this.loadedKey.set(`${projectId}:${taskId}`);
     }
   }
 
