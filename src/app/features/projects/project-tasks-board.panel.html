@@ -184,12 +184,12 @@
         </div>
       } @else {
         <div
-          class="grid gap-2.5 md:grid-cols-2 xl:grid-cols-4"
+          class="sl-board-scroll flex gap-2.5 overflow-x-auto pb-1 md:grid md:grid-cols-2 md:overflow-visible xl:grid-cols-4"
           aria-busy="true"
           [attr.aria-label]="messages.loading"
         >
           @for (status of statusOrder; track status) {
-            <div class="sl-board-column">
+            <div class="sl-board-column w-[min(100%,18rem)] shrink-0 md:w-auto md:shrink">
               <div class="flex items-center justify-between gap-2">
                 <div hlmSkeleton class="h-4 w-20"></div>
                 <div hlmSkeleton class="h-5 w-6 rounded-full"></div>
@@ -319,10 +319,13 @@
       }
     } @else {
       <p class="text-muted-foreground text-xs">{{ messages.dnd.hint }}</p>
-      <div class="grid gap-2.5 md:grid-cols-2 xl:grid-cols-4" cdkDropListGroup>
+      <div
+        class="sl-board-scroll flex gap-2.5 overflow-x-auto pb-1 md:grid md:grid-cols-2 md:overflow-visible xl:grid-cols-4"
+        cdkDropListGroup
+      >
         @for (column of columns(); track column.status) {
           <div
-            class="sl-board-column"
+            class="sl-board-column w-[min(100%,18rem)] shrink-0 md:w-auto md:shrink"
             [class]="'sl-board-column-' + column.status"
             cdkDropList
             [cdkDropListData]="column.status"
