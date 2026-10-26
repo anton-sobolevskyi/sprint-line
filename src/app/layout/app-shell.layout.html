@@ -5,24 +5,14 @@
         routerLink="/"
         class="text-sidebar-foreground flex items-center gap-2.5 px-2 py-1.5 text-sm font-semibold tracking-tight"
       >
-        <span
-          class="bg-primary text-primary-foreground flex size-8 shrink-0 items-center justify-center rounded-xl shadow-sm"
+        <img
+          src="favicon.svg"
+          alt=""
+          width="32"
+          height="32"
+          class="size-8 shrink-0 rounded-xl shadow-sm"
           aria-hidden="true"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            class="size-4"
-            stroke="currentColor"
-            stroke-width="2.25"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path d="M5 12.5L9.5 17L19 7" />
-            <path d="M5 8h14" opacity="0.55" />
-          </svg>
-        </span>
+        />
         <span class="truncate group-data-[collapsible=icon]:hidden">{{ messages.brand }}</span>
       </a>
     </div>
@@ -203,7 +193,7 @@
         <kbd
           class="bg-muted text-muted-foreground pointer-events-none ml-1 hidden rounded border px-1.5 py-0.5 font-mono text-[10px] font-medium sm:inline"
         >
-          {{ messages.commandPalette.triggerHint }}\n
+          {{ messages.commandPalette.triggerHint }}
         </kbd>
       </button>
       <button
