@@ -193,11 +193,22 @@
     background-color: var(--priority-urgent-bg);
   }
 
-  /* Each status column gets its own soft tint */
+  /* Horizontal board on small screens */
+  .sl-board-scroll {
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .sl-board-scroll > .sl-board-column {
+    scroll-snap-align: start;
+  }
+
+  /* Each status column gets its own soft tint + top accent */
   .sl-board-column {
     @apply flex min-h-44 flex-col gap-2 rounded-3xl p-3;
 
     background-color: var(--status-todo-bg);
+    box-shadow: inset 0 3px 0 0 color-mix(in oklch, var(--status-todo) 55%, transparent);
   }
 
   .sl-board-column h3 {
@@ -206,10 +217,12 @@
 
   .sl-board-column-TODO {
     background-color: var(--status-todo-bg);
+    box-shadow: inset 0 3px 0 0 color-mix(in oklch, var(--status-todo) 55%, transparent);
   }
 
   .sl-board-column-IN_PROGRESS {
     background-color: var(--status-progress-bg);
+    box-shadow: inset 0 3px 0 0 color-mix(in oklch, var(--status-progress) 55%, transparent);
   }
 
   .sl-board-column-IN_PROGRESS h3 {
@@ -218,6 +231,7 @@
 
   .sl-board-column-IN_REVIEW {
     background-color: var(--status-review-bg);
+    box-shadow: inset 0 3px 0 0 color-mix(in oklch, var(--status-review) 55%, transparent);
   }
 
   .sl-board-column-IN_REVIEW h3 {
@@ -226,6 +240,7 @@
 
   .sl-board-column-DONE {
     background-color: var(--status-done-bg);
+    box-shadow: inset 0 3px 0 0 color-mix(in oklch, var(--status-done) 55%, transparent);
   }
 
   .sl-board-column-DONE h3 {
