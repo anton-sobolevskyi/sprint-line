@@ -26,6 +26,17 @@ import {
   updateProjectSchema,
 } from './projects.schemas';
 
+export type ProjectDetailTab = 'board' | 'members' | 'settings';
+
+const TAB_VALUES: readonly ProjectDetailTab[] = ['board', 'members', 'settings'] as const;
+
+function parseTab(value: string | null): ProjectDetailTab {
+  if (value === 'members' || value === 'settings' || value === 'board') {
+    return value;
+  }
+  return 'board';
+}
+
 @Component({
   selector: 'sl-project-detail-page',
   imports: [
@@ -49,10 +60,14 @@ export class ProjectDetailPage {
   private readonly confirmDialog = inject(ConfirmDialogService);
 
   readonly messages = PROJECTS_MESSAGES;
+  readonly tabValues = TAB_VALUES;
 
   readonly project = signal<ProjectResponseDto | null>(null);
   readonly loadStatus = signal<'idle' | 'loading' | 'success' | 'error'>('idle');
   readonly loadError = signal<string | null>(null);
+
+  /** Active section — board is the default hero. */
+  readonly activeTab = signal<ProjectDetailTab>('board');
 
   readonly settingsShowErrors = signal(false);
   readonly settingsSubmitting = signal(false);
@@ -72,13 +87,21 @@ export class ProjectDetailPage {
   });
 
   private readonly syncedProjectId = signal<string | null>(null);
+  private readonly loadedProjectId = signal<string | null>(null);
 
   constructor() {
     effect(() => {
       const id = this.route.snapshot.paramMap.get('id');
-      if (id) {
-        this.load(id);
+      if (!id || this.loadedProjectId() === id) {
+        return;
       }
+      this.loadedProjectId.set(id);
+      this.load(id);
+    });
+
+    effect(() => {
+      const tab = parseTab(this.route.snapshot.queryParamMap.get('tab'));
+      this.activeTab.set(tab);
     });
 
     effect(() => {
@@ -91,6 +114,16 @@ export class ProjectDetailPage {
         name: project.name,
         description: project.description ?? '',
       });
+    });
+  }
+
+  setTab(tab: ProjectDetailTab): void {
+    this.activeTab.set(tab);
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: tab === 'board' ? { tab: null } : { tab },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
     });
   }
 
@@ -113,7 +146,9 @@ export class ProjectDetailPage {
   reload(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
+      this.loadedProjectId.set(null);
       this.load(id);
+      this.loadedProjectId.set(id);
     }
   }
 
