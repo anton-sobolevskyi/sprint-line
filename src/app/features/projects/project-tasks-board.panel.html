@@ -208,10 +208,22 @@
         </button>
       </div>
     } @else if (hasActiveFilters() && totalVisible() === 0) {
-      <p class="text-muted-foreground text-sm">{{ messages.emptyFiltered }}</p>
+      <div class="border-border rounded-xl border border-dashed px-4 py-8 text-center">
+        <p class="text-sm font-medium">{{ messages.emptyFilteredTitle }}</p>
+        <p class="text-muted-foreground mx-auto mt-1 max-w-sm text-sm">{{ messages.emptyFiltered }}</p>
+        <button hlmBtn type="button" variant="outline" size="sm" class="mt-4" (click)="clearFilters()">
+          {{ messages.filters.clear }}
+        </button>
+      </div>
     } @else if (viewMode() === 'list') {
       @if (listTasks().length === 0) {
-        <p class="text-muted-foreground text-sm">{{ messages.emptyList }}</p>
+        <div class="border-border rounded-xl border border-dashed px-4 py-8 text-center">
+          <p class="text-sm font-medium">{{ messages.emptyListTitle }}</p>
+          <p class="text-muted-foreground mx-auto mt-1 max-w-sm text-sm">{{ messages.emptyList }}</p>
+          <button hlmBtn type="button" size="sm" class="mt-4" (click)="openCreate()">
+            {{ messages.create.open }}
+          </button>
+        </div>
       } @else {
         <div class="border-border overflow-x-auto rounded-lg border">
           <table class="w-full min-w-[36rem] text-left text-sm">
@@ -327,11 +339,13 @@
             </div>
 
             @if (column.tasks.length === 0 && quickAddStatus() !== column.status) {
-              <p
-                class="text-muted-foreground border-border/60 rounded-md border border-dashed px-2 py-5 text-center text-xs"
+              <button
+                type="button"
+                class="text-muted-foreground border-border/60 hover:border-primary/40 hover:text-foreground w-full rounded-md border border-dashed px-2 py-5 text-center text-xs transition-colors"
+                (click)="openQuickAdd(column.status)"
               >
-                {{ messages.emptyColumn }}
-              </p>
+                {{ messages.emptyColumnCta }}
+              </button>
             }
 
             <ul class="flex min-h-10 flex-1 flex-col gap-1.5">
