@@ -6,7 +6,7 @@
     </div>
     <div class="flex flex-wrap items-center gap-2">
       <div
-        class="border-border bg-muted/40 inline-flex rounded-lg border p-0.5"
+        class="border-border bg-muted/60 inline-flex rounded-full border p-0.5"
         role="group"
         [attr.aria-label]="messages.view.label"
       >
@@ -117,24 +117,30 @@
           </div>
 
           <div hlmField>
-            <label hlmFieldLabel id="task-priority-label">{{ messages.create.priorityLabel }}</label>
-            <hlm-select
-              class="w-full"
-              [value]="createPriority()"
-              (valueChange)="setCreatePriority($event)"
-              aria-labelledby="task-priority-label"
-            >
-              <hlm-select-trigger class="w-full">
-                <hlm-select-value />
-              </hlm-select-trigger>
-              <hlm-select-content *hlmSelectPortal>
-                <hlm-select-group>
-                  @for (priority of priorityOptions; track priority) {
-                    <hlm-select-item [value]="priority">{{ messages.priority[priority] }}</hlm-select-item>
-                  }
-                </hlm-select-group>
-              </hlm-select-content>
-            </hlm-select>
+            <label hlmFieldLabel id="task-priority-label" for="task-priority">
+              {{ messages.create.priorityLabel }}
+
+              <hlm-select
+                class="w-full"
+                id="task-priority"
+                [value]="createPriority()"
+                (valueChange)="setCreatePriority($event)"
+                aria-labelledby="task-priority-label"
+              >
+                <hlm-select-trigger class="w-full">
+                  <hlm-select-value />
+                </hlm-select-trigger>
+                <hlm-select-content *hlmSelectPortal>
+                  <hlm-select-group>
+                    @for (priority of priorityOptions; track priority) {
+                      <hlm-select-item [value]="priority">{{
+                        messages.priority[priority]
+                      }}</hlm-select-item>
+                    }
+                  </hlm-select-group>
+                </hlm-select-content>
+              </hlm-select>
+            </label>
           </div>
         </div>
 
@@ -226,7 +232,7 @@
                 <tr class="border-border/80 hover:bg-muted/20 border-b last:border-0">
                   <td class="px-3 py-2">
                     <a
-                      class="font-medium hover:underline focus-visible:ring-ring rounded-sm focus-visible:ring-2 focus-visible:outline-none"
+                      class="focus-visible:ring-ring rounded-sm font-medium hover:underline focus-visible:ring-2 focus-visible:outline-none"
                       [routerLink]="['/projects', projectId(), 'tasks', task.id]"
                     >
                       {{ task.title }}
@@ -305,6 +311,7 @@
         @for (column of columns(); track column.status) {
           <div
             class="sl-board-column"
+            [class]="'sl-board-column-' + column.status"
             cdkDropList
             [cdkDropListData]="column.status"
             [id]="'col-' + column.status"
@@ -313,7 +320,7 @@
             <div class="flex items-center justify-between gap-2 px-0.5">
               <h3 class="text-xs font-semibold tracking-wide uppercase">{{ column.label }}</h3>
               <span
-                class="bg-background text-muted-foreground inline-flex min-w-5 items-center justify-center rounded-full px-1.5 py-0.5 text-[11px] font-medium tabular-nums"
+                class="bg-card text-muted-foreground inline-flex min-w-5 items-center justify-center rounded-full px-1.5 py-0.5 text-[11px] font-medium tabular-nums"
               >
                 {{ column.tasks.length }}
               </span>
@@ -343,7 +350,7 @@
 
                   <div class="flex items-start gap-1.5 pl-1.5">
                     <a
-                      class="min-w-0 flex-1 text-[13px] leading-snug font-medium hover:underline focus-visible:ring-ring rounded-sm focus-visible:ring-2 focus-visible:outline-none"
+                      class="focus-visible:ring-ring min-w-0 flex-1 rounded-sm text-[13px] leading-snug font-medium hover:underline focus-visible:ring-2 focus-visible:outline-none"
                       [routerLink]="['/projects', projectId(), 'tasks', task.id]"
                     >
                       {{ task.title }}
@@ -407,7 +414,10 @@
             </ul>
 
             @if (quickAddStatus() === column.status) {
-              <form class="mt-0.5 flex flex-col gap-1.5" (submit)="submitQuickAdd(column.status, $event)">
+              <form
+                class="mt-0.5 flex flex-col gap-1.5"
+                (submit)="submitQuickAdd(column.status, $event)"
+              >
                 <input
                   type="text"
                   hlmInput
@@ -425,7 +435,9 @@
                     class="h-7"
                     [disabled]="quickAddTitle().trim().length < 2 || quickAddSubmitting()"
                   >
-                    {{ quickAddSubmitting() ? messages.create.submitting : messages.create.quickAdd }}
+                    {{
+                      quickAddSubmitting() ? messages.create.submitting : messages.create.quickAdd
+                    }}
                   </button>
                   <button
                     hlmBtn

@@ -38,6 +38,26 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/users/me/tasks': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Tasks assigned to me across all my projects
+     * @description Excludes finished tasks unless includeDone=true. Soonest due date first, tasks without a due date last. Each task carries its project (id, name).
+     */
+    get: operations['mytasks-findmine'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/users/me': {
     parameters: {
       query?: never;
@@ -586,6 +606,10 @@ export interface components {
       members?: components['schemas']['ProjectMemberResponseDto'][];
       /** @description Total members. `members` is capped (20 in the list, 100 in the detail view); use GET /projects/:id/members to page through all of them */
       memberCount?: number;
+      /** @description Open and finished tasks in the project (list view only) */
+      taskCount?: number;
+      /** @description Tasks in status DONE (list view only) */
+      doneTaskCount?: number;
       /** Format: date-time */
       createdAt: string;
       /** Format: date-time */
@@ -732,6 +756,11 @@ export interface components {
       /** Format: date-time */
       updatedAt: string;
     };
+    TaskProjectDto: {
+      id: string;
+      /** @example Website Redesign */
+      name: string;
+    };
     TaskResponseDto: {
       id: string;
       /** @example Design new homepage layout */
@@ -752,6 +781,8 @@ export interface components {
       projectId: string;
       createdById: string;
       assignedToId?: string | null;
+      /** @description Only set on GET /users/me/tasks */
+      project?: components['schemas']['TaskProjectDto'];
       comments?: components['schemas']['CommentResponseDto'][];
       attachments?: components['schemas']['AttachmentResponseDto'][];
       /** Format: date-time */
@@ -1559,6 +1590,31 @@ export interface operations {
           [name: string]: unknown;
         };
         content?: never;
+      };
+    };
+  };
+  'mytasks-findmine': {
+    parameters: {
+      query?: {
+        /** @description Offset pagination gets slower the deeper you go, so the page number is capped. */
+        page?: number;
+        limit?: number;
+        /** @description Also return tasks in status DONE */
+        includeDone?: boolean;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedTaskResponseDto'];
+        };
       };
     };
   };

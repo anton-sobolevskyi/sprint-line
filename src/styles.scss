@@ -8,141 +8,130 @@
 :root {
   color-scheme: light;
 
-  /* Brand: calm indigo — modern project tooling feel */
   --font-sans:
-    'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
-    Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
-    'Noto Color Emoji';
+    nunito, -apple-system, blinkmacsystemfont, 'Segoe UI', roboto, 'Helvetica Neue', arial,
+    sans-serif;
+  --radius: 0.875rem;
+  --chart-1: oklch(54% 0.17 37deg);
+  --chart-2: oklch(50% 0.17 295deg);
+  --chart-3: oklch(55% 0.12 150deg);
+  --chart-4: oklch(75% 0.14 85deg);
+  --chart-5: oklch(60% 0.13 255deg);
+  --background: oklch(98% 0.012 70deg);
+  --foreground: oklch(26% 0.03 320deg);
+  --card: oklch(100% 0 0deg);
+  --card-foreground: oklch(26% 0.03 320deg);
+  --popover: oklch(100% 0 0deg);
+  --popover-foreground: oklch(26% 0.03 320deg);
 
-  --chart-1: oklch(0.55 0.18 265);
-  --chart-2: oklch(0.65 0.14 200);
-  --chart-3: oklch(0.55 0.12 150);
-  --chart-4: oklch(0.75 0.14 80);
-  --chart-5: oklch(0.65 0.18 30);
+  /* Coral primary, violet accent */
+  --primary: oklch(54% 0.17 37deg);
+  --primary-foreground: oklch(99% 0.01 70deg);
+  --secondary: oklch(95% 0.025 65deg);
+  --secondary-foreground: oklch(30% 0.04 320deg);
+  --muted: oklch(95.5% 0.02 65deg);
+  --muted-foreground: oklch(50% 0.03 320deg);
+  --accent: oklch(94% 0.04 65deg);
+  --accent-foreground: oklch(30% 0.05 320deg);
+  --brand-violet: oklch(50% 0.17 295deg);
+  --brand-violet-foreground: oklch(99% 0.01 295deg);
+  --destructive: oklch(55% 0.2 27deg);
+  --border: oklch(90% 0.04 65deg);
+  --input: oklch(88% 0.045 65deg);
+  --ring: oklch(60% 0.15 37deg);
+  --sidebar: oklch(95.3% 0.03 65deg);
+  --sidebar-foreground: oklch(26% 0.03 320deg);
+  --sidebar-primary: oklch(54% 0.17 37deg);
+  --sidebar-primary-foreground: oklch(99% 0.01 70deg);
+  --sidebar-accent: oklch(100% 0 0deg);
+  --sidebar-accent-foreground: oklch(26% 0.03 320deg);
+  --sidebar-border: oklch(90% 0.04 65deg);
+  --sidebar-ring: oklch(60% 0.15 37deg);
 
-  /* Slightly tighter radius for denser product UI (Phase A UX) */
-  --radius: 0.5rem;
+  /* Task status: soft pastel column + readable label */
+  --status-todo: oklch(42% 0.05 320deg);
+  --status-todo-bg: oklch(95% 0.02 320deg);
+  --status-progress: oklch(42% 0.12 255deg);
+  --status-progress-bg: oklch(95% 0.03 255deg);
+  --status-review: oklch(45% 0.1 75deg);
+  --status-review-bg: oklch(96% 0.06 90deg);
+  --status-done: oklch(42% 0.1 150deg);
+  --status-done-bg: oklch(95% 0.05 150deg);
+  --priority-low: oklch(42% 0.05 320deg);
+  --priority-low-bg: oklch(94% 0.02 320deg);
+  --priority-medium: oklch(42% 0.12 295deg);
+  --priority-medium-bg: oklch(94% 0.04 295deg);
+  --priority-high: oklch(45% 0.1 75deg);
+  --priority-high-bg: oklch(95% 0.07 85deg);
+  --priority-urgent: oklch(42% 0.15 30deg);
+  --priority-urgent-bg: oklch(94% 0.05 30deg);
 
-  --background: oklch(0.995 0.002 265);
-  --foreground: oklch(0.18 0.02 265);
-
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.18 0.02 265);
-
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.18 0.02 265);
-
-  /* Primary brand indigo */
-  --primary: oklch(0.45 0.14 265);
-  --primary-foreground: oklch(0.99 0.01 265);
-
-  --secondary: oklch(0.96 0.01 265);
-  --secondary-foreground: oklch(0.3 0.06 265);
-
-  --muted: oklch(0.96 0.01 265);
-  --muted-foreground: oklch(0.5 0.03 265);
-
-  --accent: oklch(0.94 0.03 265);
-  --accent-foreground: oklch(0.32 0.08 265);
-
-  --destructive: oklch(0.55 0.22 25);
-
-  --border: oklch(0.9 0.01 265);
-  --input: oklch(0.9 0.01 265);
-  --ring: oklch(0.55 0.12 265);
-
-  --sidebar: oklch(0.985 0.005 265);
-  --sidebar-foreground: oklch(0.18 0.02 265);
-  --sidebar-primary: oklch(0.45 0.14 265);
-  --sidebar-primary-foreground: oklch(0.99 0.01 265);
-  --sidebar-accent: oklch(0.94 0.03 265);
-  --sidebar-accent-foreground: oklch(0.32 0.08 265);
-  --sidebar-border: oklch(0.9 0.01 265);
-  --sidebar-ring: oklch(0.55 0.12 265);
-
-  /* Task status (board columns / chips) */
-  --status-todo: oklch(0.55 0.02 265);
-  --status-todo-bg: oklch(0.94 0.01 265);
-  --status-progress: oklch(0.5 0.14 250);
-  --status-progress-bg: oklch(0.94 0.04 250);
-  --status-review: oklch(0.55 0.14 75);
-  --status-review-bg: oklch(0.95 0.05 85);
-  --status-done: oklch(0.5 0.12 150);
-  --status-done-bg: oklch(0.94 0.04 150);
-
-  /* Priority accents (card left bar + chips) */
-  --priority-low: oklch(0.55 0.02 265);
-  --priority-low-bg: oklch(0.94 0.01 265);
-  --priority-medium: oklch(0.5 0.12 265);
-  --priority-medium-bg: oklch(0.94 0.04 265);
-  --priority-high: oklch(0.6 0.16 55);
-  --priority-high-bg: oklch(0.95 0.06 55);
-  --priority-urgent: oklch(0.55 0.2 25);
-  --priority-urgent-bg: oklch(0.95 0.05 25);
+  /* Project tile tones */
+  --tone-0: oklch(90% 0.06 45deg);
+  --tone-0-fg: oklch(42% 0.15 35deg);
+  --tone-1: oklch(92% 0.04 255deg);
+  --tone-1-fg: oklch(42% 0.12 255deg);
+  --tone-2: oklch(93% 0.06 150deg);
+  --tone-2-fg: oklch(40% 0.1 150deg);
+  --tone-3: oklch(92% 0.05 295deg);
+  --tone-3-fg: oklch(42% 0.14 295deg);
 }
 
 :root.dark {
   color-scheme: dark;
 
-  --chart-1: oklch(0.65 0.16 265);
-  --chart-2: oklch(0.7 0.12 200);
-  --chart-3: oklch(0.7 0.12 150);
-  --chart-4: oklch(0.75 0.12 80);
-  --chart-5: oklch(0.7 0.16 30);
-
-  --background: oklch(0.16 0.02 265);
-  --foreground: oklch(0.97 0.01 265);
-
-  --card: oklch(0.2 0.025 265);
-  --card-foreground: oklch(0.97 0.01 265);
-
-  --popover: oklch(0.2 0.025 265);
-  --popover-foreground: oklch(0.97 0.01 265);
-
-  --primary: oklch(0.72 0.12 265);
-  --primary-foreground: oklch(0.18 0.04 265);
-
-  --secondary: oklch(0.26 0.03 265);
-  --secondary-foreground: oklch(0.95 0.01 265);
-
-  --muted: oklch(0.26 0.03 265);
-  --muted-foreground: oklch(0.7 0.03 265);
-
-  --accent: oklch(0.28 0.04 265);
-  --accent-foreground: oklch(0.95 0.01 265);
-
-  --destructive: oklch(0.65 0.2 25);
-
-  --border: oklch(1 0 0 / 12%);
-  --input: oklch(1 0 0 / 14%);
-  --ring: oklch(0.6 0.1 265);
-
-  --sidebar: oklch(0.18 0.025 265);
-  --sidebar-foreground: oklch(0.97 0.01 265);
-  --sidebar-primary: oklch(0.72 0.12 265);
-  --sidebar-primary-foreground: oklch(0.18 0.04 265);
-  --sidebar-accent: oklch(0.28 0.04 265);
-  --sidebar-accent-foreground: oklch(0.95 0.01 265);
-  --sidebar-border: oklch(1 0 0 / 12%);
-  --sidebar-ring: oklch(0.6 0.1 265);
-
-  --status-todo: oklch(0.7 0.02 265);
-  --status-todo-bg: oklch(0.28 0.02 265);
-  --status-progress: oklch(0.7 0.12 250);
-  --status-progress-bg: oklch(0.28 0.05 250);
-  --status-review: oklch(0.75 0.12 75);
-  --status-review-bg: oklch(0.3 0.05 75);
-  --status-done: oklch(0.7 0.1 150);
-  --status-done-bg: oklch(0.28 0.05 150);
-
-  --priority-low: oklch(0.7 0.02 265);
-  --priority-low-bg: oklch(0.28 0.02 265);
-  --priority-medium: oklch(0.72 0.1 265);
-  --priority-medium-bg: oklch(0.3 0.05 265);
-  --priority-high: oklch(0.75 0.14 55);
-  --priority-high-bg: oklch(0.32 0.06 55);
-  --priority-urgent: oklch(0.7 0.16 25);
-  --priority-urgent-bg: oklch(0.32 0.06 25);
+  --background: oklch(20% 0.02 320deg);
+  --foreground: oklch(96% 0.01 70deg);
+  --card: oklch(25% 0.025 320deg);
+  --card-foreground: oklch(96% 0.01 70deg);
+  --popover: oklch(25% 0.025 320deg);
+  --popover-foreground: oklch(96% 0.01 70deg);
+  --primary: oklch(72% 0.15 40deg);
+  --primary-foreground: oklch(20% 0.04 40deg);
+  --secondary: oklch(30% 0.03 320deg);
+  --secondary-foreground: oklch(95% 0.01 70deg);
+  --muted: oklch(30% 0.03 320deg);
+  --muted-foreground: oklch(74% 0.03 320deg);
+  --accent: oklch(33% 0.04 320deg);
+  --accent-foreground: oklch(95% 0.01 70deg);
+  --brand-violet: oklch(72% 0.13 295deg);
+  --brand-violet-foreground: oklch(20% 0.04 295deg);
+  --destructive: oklch(68% 0.19 27deg);
+  --border: oklch(100% 0 0deg / 12%);
+  --input: oklch(100% 0 0deg / 15%);
+  --ring: oklch(68% 0.12 40deg);
+  --sidebar: oklch(23% 0.025 320deg);
+  --sidebar-foreground: oklch(96% 0.01 70deg);
+  --sidebar-primary: oklch(72% 0.15 40deg);
+  --sidebar-primary-foreground: oklch(20% 0.04 40deg);
+  --sidebar-accent: oklch(31% 0.035 320deg);
+  --sidebar-accent-foreground: oklch(96% 0.01 70deg);
+  --sidebar-border: oklch(100% 0 0deg / 12%);
+  --sidebar-ring: oklch(68% 0.12 40deg);
+  --status-todo: oklch(80% 0.04 320deg);
+  --status-todo-bg: oklch(30% 0.03 320deg);
+  --status-progress: oklch(80% 0.1 255deg);
+  --status-progress-bg: oklch(30% 0.05 255deg);
+  --status-review: oklch(82% 0.1 85deg);
+  --status-review-bg: oklch(32% 0.05 85deg);
+  --status-done: oklch(80% 0.1 150deg);
+  --status-done-bg: oklch(30% 0.05 150deg);
+  --priority-low: oklch(80% 0.04 320deg);
+  --priority-low-bg: oklch(32% 0.03 320deg);
+  --priority-medium: oklch(80% 0.1 295deg);
+  --priority-medium-bg: oklch(33% 0.06 295deg);
+  --priority-high: oklch(82% 0.1 85deg);
+  --priority-high-bg: oklch(34% 0.06 85deg);
+  --priority-urgent: oklch(80% 0.12 30deg);
+  --priority-urgent-bg: oklch(34% 0.07 30deg);
+  --tone-0: oklch(34% 0.07 45deg);
+  --tone-0-fg: oklch(86% 0.09 45deg);
+  --tone-1: oklch(32% 0.06 255deg);
+  --tone-1-fg: oklch(84% 0.08 255deg);
+  --tone-2: oklch(32% 0.06 150deg);
+  --tone-2-fg: oklch(84% 0.09 150deg);
+  --tone-3: oklch(33% 0.07 295deg);
+  --tone-3-fg: oklch(84% 0.09 295deg);
 }
 
 @layer base {
@@ -152,6 +141,7 @@
 
   body {
     @apply bg-background text-foreground antialiased;
+
     font-family: var(--font-sans);
   }
 
@@ -160,38 +150,27 @@
   }
 }
 
-/* Board / task card utilities (Phase A UX) */
+/* Board / task card utilities */
 @layer components {
   .sl-task-card {
-    @apply bg-card relative cursor-grab rounded-md border border-border p-2 transition-colors active:cursor-grabbing;
+    @apply bg-card relative cursor-grab rounded-2xl p-3 transition-all active:cursor-grabbing;
+
+    box-shadow: 0 2px 0 color-mix(in oklch, var(--border) 90%, transparent);
   }
 
   .sl-task-card:hover {
-    @apply border-primary/30;
+    @apply -translate-y-px;
+
+    box-shadow: 0 4px 0 color-mix(in oklch, var(--primary) 18%, var(--border));
   }
 
+  /* Priority is shown by the chip; the old side bar is retired */
   .sl-task-card-accent {
-    @apply absolute top-0 bottom-0 left-0 w-0.5 rounded-l-md;
-  }
-
-  .sl-task-card-accent-LOW {
-    background-color: var(--priority-low);
-  }
-
-  .sl-task-card-accent-MEDIUM {
-    background-color: var(--priority-medium);
-  }
-
-  .sl-task-card-accent-HIGH {
-    background-color: var(--priority-high);
-  }
-
-  .sl-task-card-accent-URGENT {
-    background-color: var(--priority-urgent);
+    display: none;
   }
 
   .sl-priority-chip {
-    @apply inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium tracking-wide uppercase;
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-extrabold;
   }
 
   .sl-priority-chip-LOW {
@@ -214,7 +193,76 @@
     background-color: var(--priority-urgent-bg);
   }
 
+  /* Each status column gets its own soft tint */
   .sl-board-column {
-    @apply bg-muted/25 flex min-h-44 flex-col gap-1.5 rounded-lg border border-border/80 p-2.5;
+    @apply flex min-h-44 flex-col gap-2 rounded-3xl p-3;
+
+    background-color: var(--status-todo-bg);
+  }
+
+  .sl-board-column h3 {
+    color: var(--status-todo);
+  }
+
+  .sl-board-column-TODO {
+    background-color: var(--status-todo-bg);
+  }
+
+  .sl-board-column-IN_PROGRESS {
+    background-color: var(--status-progress-bg);
+  }
+
+  .sl-board-column-IN_PROGRESS h3 {
+    color: var(--status-progress);
+  }
+
+  .sl-board-column-IN_REVIEW {
+    background-color: var(--status-review-bg);
+  }
+
+  .sl-board-column-IN_REVIEW h3 {
+    color: var(--status-review);
+  }
+
+  .sl-board-column-DONE {
+    background-color: var(--status-done-bg);
+  }
+
+  .sl-board-column-DONE h3 {
+    color: var(--status-done);
+  }
+
+  /* Project tiles on home / lists */
+  .sl-tone-0 {
+    background-color: var(--tone-0);
+    color: var(--tone-0-fg);
+  }
+
+  .sl-tone-1 {
+    background-color: var(--tone-1);
+    color: var(--tone-1-fg);
+  }
+
+  .sl-tone-2 {
+    background-color: var(--tone-2);
+    color: var(--tone-2-fg);
+  }
+
+  .sl-tone-3 {
+    background-color: var(--tone-3);
+    color: var(--tone-3-fg);
+  }
+
+  /* Comment bubbles and attachment chips */
+  .sl-comment-bubble {
+    @apply rounded-2xl rounded-tl-sm p-3;
+
+    background-color: var(--muted);
+  }
+
+  .sl-attachment-chip {
+    @apply bg-card inline-flex max-w-full items-center gap-2 rounded-xl px-2.5 py-1.5 text-xs font-bold;
+
+    box-shadow: inset 0 0 0 2px var(--border);
   }
 }

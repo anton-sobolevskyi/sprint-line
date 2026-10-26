@@ -1,4 +1,5 @@
 import { Component, effect, inject, input, signal } from '@angular/core';
+import { forkJoin } from 'rxjs';
 import { form, FormField, validateStandardSchema } from '@angular/forms/signals';
 import { Store } from '@ngrx/store';
 
@@ -7,6 +8,10 @@ import { HlmFieldImports } from '@spartan-ng/helm/field';
 import { HlmTextareaImports } from '@spartan-ng/helm/textarea';
 
 import { getApiErrorMessage } from '../../core/api/api-error';
+import {
+  type AttachmentResponseDto,
+  AttachmentsApiService,
+} from '../../core/attachments/attachments-api.service';
 import { ConfirmDialogService } from '../../core/ui/confirm-dialog.service';
 import { appToast } from '../../core/ui/toast';
 import { UI_MESSAGES } from '../../core/ui/ui.messages';
@@ -17,11 +22,9 @@ import {
 import { UserActions } from '../../core/users/user.actions';
 import { selectCurrentUser } from '../../core/users/user.reducer';
 import { firstFieldErrorMessage } from '../auth/auth.form-utils';
+import { ATTACHMENT_ACCEPT, ATTACHMENT_LIMITS, formatFileSize } from './attachments.messages';
 import { COMMENTS_MESSAGES } from './comments.messages';
-import {
-  commentContentSchema,
-  type CommentContentModel,
-} from './comments.schemas';
+import { commentContentSchema, type CommentContentModel } from './comments.schemas';
 
 const DEFAULT_LIMIT = 50 as const;
 
@@ -34,6 +37,7 @@ export class TaskCommentsPanel {
   readonly taskId = input.required<string>();
 
   private readonly commentsApi = inject(CommentsApiService);
+  private readonly attachmentsApi = inject(AttachmentsApiService);
   private readonly store = inject(Store);
   private readonly confirmDialog = inject(ConfirmDialogService);
 
@@ -52,6 +56,11 @@ export class TaskCommentsPanel {
   readonly editShowErrors = signal(false);
   readonly editSubmitting = signal(false);
   readonly editServerError = signal<string | null>(null);
+
+  /** Files chosen in the composer, uploaded right after the comment is posted. */
+  readonly pendingFiles = signal<File[]>([]);
+  readonly attachError = signal<string | null>(null);
+  readonly attachAccept = ATTACHMENT_ACCEPT;
 
   readonly actionId = signal<string | null>(null);
   readonly actionError = signal<string | null>(null);
@@ -140,16 +149,122 @@ export class TaskCommentsPanel {
 
     this.commentsApi.create(this.taskId(), { content: content.trim() }).subscribe({
       next: (created) => {
-        this.createSubmitting.set(false);
-        this.createModel.set({ content: '' });
-        this.createShowErrors.set(false);
-        this.comments.update((list) => [...list, created]);
-        appToast.success(this.messages.create.submit);
+        const files = this.pendingFiles();
+        if (files.length === 0) {
+          this.finishCreate(created);
+          return;
+        }
+
+        forkJoin(
+          files.map((file) => this.attachmentsApi.uploadForComment(created.id, file))
+        ).subscribe({
+          next: (uploaded) =>
+            this.finishCreate({
+              ...created,
+              attachments: [...(created.attachments ?? []), ...uploaded],
+            }),
+          error: () => {
+            this.finishCreate(created);
+            this.actionError.set(this.messages.attach.uploadFailed);
+          },
+        });
       },
       error: (error: unknown) => {
         this.createSubmitting.set(false);
         this.createServerError.set(getApiErrorMessage(error));
       },
+    });
+  }
+
+  private finishCreate(created: CommentResponseDto): void {
+    this.createSubmitting.set(false);
+    this.createModel.set({ content: '' });
+    this.createShowErrors.set(false);
+    this.pendingFiles.set([]);
+    this.attachError.set(null);
+    this.comments.update((list) => [...list, created]);
+    appToast.success(this.messages.create.submit);
+  }
+
+  onFilesPicked(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const picked = Array.from(input.files ?? []);
+    input.value = '';
+
+    const accepted: File[] = [];
+    let error: string | null = null;
+
+    for (const file of picked) {
+      if (!(ATTACHMENT_LIMITS.mimeTypes as readonly string[]).includes(file.type)) {
+        error = `${file.name} ${this.messages.attach.wrongType}`;
+      } else if (file.size > ATTACHMENT_LIMITS.maxBytes) {
+        error = `${file.name} ${this.messages.attach.tooLarge}`;
+      } else if (this.pendingFiles().length + accepted.length >= ATTACHMENT_LIMITS.maxPerComment) {
+        error = this.messages.attach.tooMany;
+        break;
+      } else {
+        accepted.push(file);
+      }
+    }
+
+    this.attachError.set(error);
+    if (accepted.length > 0) {
+      this.pendingFiles.update((list) => [...list, ...accepted]);
+    }
+  }
+
+  removePending(index: number): void {
+    this.pendingFiles.update((list) => list.filter((_, i) => i !== index));
+    this.attachError.set(null);
+  }
+
+  sizeLabel(bytes: number): string {
+    return formatFileSize(bytes);
+  }
+
+  canDeleteAttachment(attachment: AttachmentResponseDto): boolean {
+    return attachment.uploadedById === this.currentUser()?.id;
+  }
+
+  onDownloadAttachment(attachment: AttachmentResponseDto): void {
+    this.actionError.set(null);
+    this.attachmentsApi.getDownloadUrl(attachment.id).subscribe({
+      next: (response) => globalThis.open(response.url, '_blank', 'noopener,noreferrer'),
+      error: (error: unknown) => this.actionError.set(getApiErrorMessage(error)),
+    });
+  }
+
+  async onDeleteAttachment(
+    comment: CommentResponseDto,
+    attachment: AttachmentResponseDto
+  ): Promise<void> {
+    if (!this.canDeleteAttachment(attachment)) {
+      return;
+    }
+
+    const confirmed = await this.confirmDialog.confirm({
+      title: this.messages.attach.deleteTitle,
+      description: this.messages.attach.deleteBody,
+      confirmLabel: UI_MESSAGES.dialog.delete,
+      destructive: true,
+    });
+    if (!confirmed) {
+      return;
+    }
+
+    this.attachmentsApi.remove(attachment.id).subscribe({
+      next: () =>
+        this.comments.update((list) =>
+          list.map((item) =>
+            item.id === comment.id
+              ? {
+                  ...item,
+                  attachments: (item.attachments ?? []).filter((a) => a.id !== attachment.id),
+                }
+              : item
+          )
+        ),
+      error: (error: unknown) => this.actionError.set(getApiErrorMessage(error)),
     });
   }
 
@@ -187,7 +302,7 @@ export class TaskCommentsPanel {
         this.editSubmitting.set(false);
         this.editingId.set(null);
         this.comments.update((list) =>
-          list.map((item) => (item.id === updated.id ? updated : item)),
+          list.map((item) => (item.id === updated.id ? updated : item))
         );
       },
       error: (error: unknown) => {

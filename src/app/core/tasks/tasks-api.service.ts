@@ -8,8 +8,7 @@ import { API_ENDPOINTS } from '../api/api-endpoints';
 export type TaskResponseDto = components['schemas']['TaskResponseDto'];
 export type CreateTaskDto = components['schemas']['CreateTaskDto'];
 export type UpdateTaskDto = components['schemas']['UpdateTaskDto'];
-export type PaginatedTaskResponseDto =
-  components['schemas']['PaginatedTaskResponseDto'];
+export type PaginatedTaskResponseDto = components['schemas']['PaginatedTaskResponseDto'];
 export type TaskStatus = TaskResponseDto['status'];
 export type TaskPriority = TaskResponseDto['priority'];
 
@@ -27,10 +26,7 @@ export interface TasksListQuery {
 export class TasksApiService {
   private readonly http = inject(HttpClient);
 
-  findAll(
-    projectId: string,
-    query: TasksListQuery = {},
-  ): Observable<PaginatedTaskResponseDto> {
+  findAll(projectId: string, query: TasksListQuery = {}): Observable<PaginatedTaskResponseDto> {
     const url = API_ENDPOINTS.projects.tasks(projectId);
     let params = new HttpParams();
 
@@ -57,6 +53,23 @@ export class TasksApiService {
     }
 
     return this.http.get<PaginatedTaskResponseDto>(url, { params });
+  }
+
+  /** Tasks assigned to the signed-in user across projects (open ones unless includeDone). */
+  findMine(
+    query: { page?: number; limit?: number; includeDone?: boolean } = {}
+  ): Observable<PaginatedTaskResponseDto> {
+    let params = new HttpParams();
+    if (query.page != null) {
+      params = params.set('page', String(query.page));
+    }
+    if (query.limit != null) {
+      params = params.set('limit', String(query.limit));
+    }
+    if (query.includeDone) {
+      params = params.set('includeDone', 'true');
+    }
+    return this.http.get<PaginatedTaskResponseDto>(API_ENDPOINTS.users.meTasks, { params });
   }
 
   create(projectId: string, dto: CreateTaskDto): Observable<TaskResponseDto> {

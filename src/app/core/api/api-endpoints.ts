@@ -21,6 +21,7 @@ export const API_PATHS = {
   users: {
     me: '/users/me',
     mePassword: '/users/me/password',
+    meTasks: '/users/me/tasks',
     avatar: '/users/avatar',
   },
   projects: {
@@ -40,8 +41,7 @@ export const API_PATHS = {
   },
   comments: {
     byId: (id: string) => `/comments/${id}` as const,
-    attachments: (commentId: string) =>
-      `/comments/${commentId}/attachments` as const,
+    attachments: (commentId: string) => `/comments/${commentId}/attachments` as const,
   },
   attachments: {
     byId: (id: string) => `/attachments/${id}` as const,
@@ -66,6 +66,7 @@ export const API_ENDPOINTS = {
   users: {
     me: apiUrl(API_PATHS.users.me),
     mePassword: apiUrl(API_PATHS.users.mePassword),
+    meTasks: apiUrl(API_PATHS.users.meTasks),
     avatar: apiUrl(API_PATHS.users.avatar),
   },
   projects: {
@@ -86,8 +87,7 @@ export const API_ENDPOINTS = {
   },
   comments: {
     byId: (id: string) => apiUrl(API_PATHS.comments.byId(id)),
-    attachments: (commentId: string) =>
-      apiUrl(API_PATHS.comments.attachments(commentId)),
+    attachments: (commentId: string) => apiUrl(API_PATHS.comments.attachments(commentId)),
   },
   attachments: {
     byId: (id: string) => apiUrl(API_PATHS.attachments.byId(id)),

@@ -6,7 +6,7 @@
         class="text-sidebar-foreground flex items-center gap-2.5 px-2 py-1.5 text-sm font-semibold tracking-tight"
       >
         <span
-          class="bg-primary text-primary-foreground flex size-7 shrink-0 items-center justify-center rounded-lg shadow-sm"
+          class="bg-primary text-primary-foreground flex size-8 shrink-0 items-center justify-center rounded-xl shadow-sm"
           aria-hidden="true"
         >
           <svg
@@ -113,15 +113,11 @@
       @if (currentUser(); as user) {
         <a
           routerLink="/profile"
-          class="hover:bg-sidebar-accent/50 flex items-center gap-2.5 rounded-lg px-2 py-1.5 transition-colors group-data-[collapsible=icon]:justify-center"
+          class="bg-card hover:bg-card/80 flex items-center gap-2.5 rounded-2xl px-2.5 py-2 transition-colors group-data-[collapsible=icon]:justify-center"
           [attr.aria-label]="messages.nav.profile"
         >
           @if (avatarUrl(); as url) {
-            <img
-              [src]="url"
-              alt=""
-              class="size-8 shrink-0 rounded-full object-cover"
-            />
+            <img [src]="url" alt="" class="size-8 shrink-0 rounded-full object-cover" />
           } @else {
             <span
               class="bg-sidebar-accent text-sidebar-accent-foreground flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold"
@@ -169,14 +165,14 @@
       </ul>
     </div>
 
-    <button type="button" hlmSidebarRail></button>
+    <button type="button" hlmSidebarRail>&nbsp;</button>
   </hlm-sidebar>
 
   <main hlmSidebarInset class="flex flex-col">
     <header
       class="border-border bg-background/80 sticky top-0 z-30 flex h-14 items-center gap-2 border-b px-3 backdrop-blur-md md:px-4"
     >
-      <button type="button" hlmSidebarTrigger></button>
+      <button type="button" hlmSidebarTrigger>&nbsp;</button>
 
       @if (activeProjectName(); as projectName) {
         <div class="min-w-0 flex-1">
@@ -207,7 +203,8 @@
         <kbd
           class="bg-muted text-muted-foreground pointer-events-none ml-1 hidden rounded border px-1.5 py-0.5 font-mono text-[10px] font-medium sm:inline"
         >
-          {{ messages.commandPalette.triggerHint }}\n        </kbd>
+          {{ messages.commandPalette.triggerHint }}\n
+        </kbd>
       </button>
       <button
         hlmBtn
@@ -224,9 +221,7 @@
 
     @if (needsEmailVerification()) {
       <div class="border-border bg-primary/5 border-b" role="status">
-        <div
-          class="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
-        >
+        <div class="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
           <div class="min-w-0">
             <p class="text-sm font-medium">{{ messages.verify.title }}</p>
             <p class="text-muted-foreground text-xs">{{ messages.verify.body }}</p>

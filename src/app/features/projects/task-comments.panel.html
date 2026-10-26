@@ -19,7 +19,7 @@
   } @else {
     <ul class="flex flex-col gap-2">
       @for (comment of comments(); track comment.id) {
-        <li class="bg-muted/40 rounded-lg p-2">
+        <li class="sl-comment-bubble">
           <div class="flex items-start justify-between gap-2">
             <p class="text-xs font-medium">{{ authorName(comment) }}</p>
             @if (isAuthor(comment) && editingId() !== comment.id) {
@@ -44,9 +44,7 @@
                   (click)="onDelete(comment)"
                 >
                   {{
-                    actionId() === comment.id
-                      ? messages.actions.deleting
-                      : messages.actions.delete
+                    actionId() === comment.id ? messages.actions.deleting : messages.actions.delete
                   }}
                 </button>
               </div>
@@ -84,7 +82,37 @@
               </div>
             </form>
           } @else {
-            <p class="mt-1 text-xs whitespace-pre-wrap">{{ comment.content }}</p>
+            <p class="mt-1 text-sm whitespace-pre-wrap">{{ comment.content }}</p>
+          }
+
+          @if (comment.attachments?.length) {
+            <ul class="mt-2 flex flex-wrap gap-2">
+              @for (file of comment.attachments; track file.id) {
+                <li class="sl-attachment-chip">
+                  <button
+                    type="button"
+                    class="focus-visible:ring-ring min-w-0 truncate rounded-md text-left hover:underline focus-visible:ring-2 focus-visible:outline-none"
+                    [attr.aria-label]="messages.attach.download + ': ' + file.fileName"
+                    (click)="onDownloadAttachment(file)"
+                  >
+                    {{ file.fileName }}
+                    <span class="text-muted-foreground font-medium"
+                      >· {{ sizeLabel(file.sizeBytes) }}</span
+                    >
+                  </button>
+                  @if (canDeleteAttachment(file)) {
+                    <button
+                      type="button"
+                      class="text-muted-foreground hover:text-destructive rounded-md px-1"
+                      [attr.aria-label]="messages.actions.delete + ': ' + file.fileName"
+                      (click)="onDeleteAttachment(comment, file)"
+                    >
+                      ×
+                    </button>
+                  }
+                </li>
+              }
+            </ul>
           }
         </li>
       }
@@ -109,14 +137,67 @@
         <hlm-field-error forceShow>{{ message }}</hlm-field-error>
       }
     </div>
-    <button
-      hlmBtn
-      type="submit"
-      size="sm"
-      class="w-fit"
-      [disabled]="createForm().invalid() || createSubmitting()"
-    >
-      {{ createSubmitting() ? messages.create.submitting : messages.create.submit }}
-    </button>
+    @if (pendingFiles().length > 0) {
+      <ul class="flex flex-wrap gap-2">
+        @for (file of pendingFiles(); track $index) {
+          <li class="sl-attachment-chip">
+            <span class="truncate">{{ file.name }}</span>
+            <button
+              type="button"
+              class="text-muted-foreground hover:text-destructive rounded-md px-1"
+              [attr.aria-label]="messages.attach.remove + ': ' + file.name"
+              (click)="removePending($index)"
+            >
+              ×
+            </button>
+          </li>
+        }
+      </ul>
+    }
+    <div class="flex items-center gap-2">
+      <button
+        hlmBtn
+        type="submit"
+        size="sm"
+        class="w-fit rounded-full"
+        [disabled]="createForm().invalid() || createSubmitting()"
+      >
+        {{ createSubmitting() ? messages.create.submitting : messages.create.submit }}
+      </button>
+      <label
+        class="border-input bg-card hover:bg-accent focus-within:ring-ring inline-flex size-8 cursor-pointer items-center justify-center rounded-full border focus-within:ring-2"
+        [attr.title]="messages.attach.label"
+      >
+        <span class="sr-only">{{ messages.attach.label }}</span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          class="size-4"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path
+            d="M21 11.5l-8.5 8.5a5.5 5.5 0 01-7.8-7.8l9-9a3.7 3.7 0 015.2 5.2l-9 9a1.8 1.8 0 01-2.6-2.6l8.3-8.3"
+          />
+        </svg>
+        <input
+          type="file"
+          multiple
+          class="sr-only"
+          [accept]="attachAccept"
+          [disabled]="createSubmitting()"
+          (change)="onFilesPicked($event)"
+        />
+      </label>
+    </div>
+    @if (attachError(); as message) {
+      <p class="text-destructive text-xs" role="alert">{{ message }}</p>
+    } @else {
+      <p class="text-muted-foreground text-[11px]">{{ messages.attach.hint }}</p>
+    }
   </form>
 </div>

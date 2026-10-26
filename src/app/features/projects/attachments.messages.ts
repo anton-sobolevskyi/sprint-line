@@ -17,6 +17,22 @@ export const ATTACHMENTS_MESSAGES = {
   },
 } as const;
 
+/** Mirrors the backend's upload rules so people get feedback before uploading. */
+export const ATTACHMENT_LIMITS = {
+  maxBytes: 10 * 1024 * 1024,
+  maxPerComment: 10,
+  mimeTypes: [
+    'image/jpeg',
+    'image/png',
+    'image/webp',
+    'application/pdf',
+    'application/msword',
+    'text/plain',
+  ],
+} as const;
+
+export const ATTACHMENT_ACCEPT = ATTACHMENT_LIMITS.mimeTypes.join(',');
+
 export function formatFileSize(bytes: number): string {
   if (bytes < 1024) {
     return `${bytes} B`;
