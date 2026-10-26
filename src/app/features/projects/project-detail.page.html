@@ -47,126 +47,146 @@
 
       <nav
         class="border-border bg-muted/40 inline-flex w-fit flex-wrap gap-0.5 rounded-lg border p-0.5"
-        [attr.aria-label]="messages.detail.sections.board"
+        role="tablist"
+        [attr.aria-label]="messages.detail.tabsLabel"
       >
-        <a
-          hlmBtn
-          variant="ghost"
-          size="sm"
-          href="#project-board"
-          class="h-7 px-2.5 text-xs"
-        >
-          {{ messages.detail.sections.board }}
-        </a>
-        <a
-          hlmBtn
-          variant="ghost"
-          size="sm"
-          href="#project-members"
-          class="h-7 px-2.5 text-xs"
-        >
-          {{ messages.detail.sections.members }}
-        </a>
-        <a
-          hlmBtn
-          variant="ghost"
-          size="sm"
-          href="#project-settings"
-          class="h-7 px-2.5 text-xs"
-        >
-          {{ messages.detail.sections.settings }}
-        </a>
-      </nav>
-    </header>
-
-    <div id="project-board" class="scroll-mt-16">
-      <sl-project-tasks-board-panel [projectId]="current.id" />
-    </div>
-
-    <div id="project-members" class="scroll-mt-16">
-      <sl-project-members-panel [projectId]="current.id" />
-    </div>
-
-    <section id="project-settings" class="scroll-mt-16 flex max-w-xl flex-col gap-4">
-      <section class="border-border bg-card rounded-xl border p-4">
-        <h2 class="text-sm font-semibold">{{ messages.detail.settingsTitle }}</h2>
-        <p class="text-muted-foreground mt-0.5 text-xs">{{ messages.detail.settingsDescription }}</p>
-
-        <form class="mt-3 flex flex-col gap-3" (submit)="onSaveSettings($event)">
-          @if (settingsServerError(); as error) {
-            <div
-              class="border-destructive/40 bg-destructive/10 text-destructive rounded-lg border px-3 py-2 text-sm"
-              role="alert"
-            >
-              {{ error }}
-            </div>
-          }
-          @if (settingsSuccess(); as success) {
-            <div
-              class="rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-800 dark:text-emerald-200"
-              role="status"
-            >
-              {{ success }}
-            </div>
-          }
-
-          <div hlmField>
-            <label hlmFieldLabel for="settings-name">{{ messages.detail.nameLabel }}</label>
-            <input
-              id="settings-name"
-              type="text"
-              hlmInput
-              [formField]="settingsForm.name"
-              [attr.aria-invalid]="settingsFieldError('name') ? true : null"
-            />
-            @if (settingsFieldError('name'); as message) {
-              <hlm-field-error forceShow>{{ message }}</hlm-field-error>
-            }
-          </div>
-
-          <div hlmField>
-            <label hlmFieldLabel for="settings-description">
-              {{ messages.detail.descriptionLabel }}
-            </label>
-            <textarea
-              id="settings-description"
-              hlmTextarea
-              rows="2"
-              [formField]="settingsForm.description"
-              [placeholder]="messages.detail.descriptionPlaceholder"
-            ></textarea>
-          </div>
-
-          <button
-            hlmBtn
-            type="submit"
-            size="sm"
-            class="w-fit"
-            [disabled]="settingsForm().invalid() || settingsSubmitting()"
-          >
-            {{ settingsSubmitting() ? messages.detail.saving : messages.detail.save }}
-          </button>
-        </form>
-      </section>
-
-      <section class="border-destructive/25 rounded-xl border p-4">
-        <h2 class="text-destructive text-sm font-semibold">{{ messages.detail.dangerTitle }}</h2>
-        <p class="text-muted-foreground mt-0.5 text-xs">{{ messages.detail.dangerBody }}</p>
-        @if (deleteError(); as error) {
-          <p class="text-destructive mt-2 text-sm" role="alert">{{ error }}</p>
-        }
         <button
           hlmBtn
           type="button"
-          variant="destructive"
+          role="tab"
           size="sm"
-          class="mt-3 w-fit"
-          [disabled]="deleteSubmitting()"
-          (click)="onDelete()"
+          class="h-8 px-3 text-xs"
+          [variant]="activeTab() === 'board' ? 'default' : 'ghost'"
+          [attr.aria-selected]="activeTab() === 'board'"
+          (click)="setTab('board')"
         >
-          {{ deleteSubmitting() ? messages.detail.deleting : messages.detail.delete }}
+          {{ messages.detail.sections.board }}
         </button>
-      </section>
-    </section>
+        <button
+          hlmBtn
+          type="button"
+          role="tab"
+          size="sm"
+          class="h-8 px-3 text-xs"
+          [variant]="activeTab() === 'members' ? 'default' : 'ghost'"
+          [attr.aria-selected]="activeTab() === 'members'"
+          (click)="setTab('members')"
+        >
+          {{ messages.detail.sections.members }}
+        </button>
+        <button
+          hlmBtn
+          type="button"
+          role="tab"
+          size="sm"
+          class="h-8 px-3 text-xs"
+          [variant]="activeTab() === 'settings' ? 'default' : 'ghost'"
+          [attr.aria-selected]="activeTab() === 'settings'"
+          (click)="setTab('settings')"
+        >
+          {{ messages.detail.sections.settings }}
+        </button>
+      </nav>
+    </header>
+
+    @if (activeTab() === 'board') {
+      <div role="tabpanel" [attr.aria-label]="messages.detail.sections.board">
+        <sl-project-tasks-board-panel [projectId]="current.id" />
+      </div>
+    }
+
+    @if (activeTab() === 'members') {
+      <div role="tabpanel" [attr.aria-label]="messages.detail.sections.members">
+        <sl-project-members-panel [projectId]="current.id" />
+      </div>
+    }
+
+    @if (activeTab() === 'settings') {
+      <div
+        role="tabpanel"
+        class="flex max-w-xl flex-col gap-4"
+        [attr.aria-label]="messages.detail.sections.settings"
+      >
+        <section class="border-border bg-card rounded-xl border p-4">
+          <h2 class="text-sm font-semibold">{{ messages.detail.settingsTitle }}</h2>
+          <p class="text-muted-foreground mt-0.5 text-xs">{{ messages.detail.settingsDescription }}</p>
+
+          <form class="mt-3 flex flex-col gap-3" (submit)="onSaveSettings($event)">
+            @if (settingsServerError(); as error) {
+              <div
+                class="border-destructive/40 bg-destructive/10 text-destructive rounded-lg border px-3 py-2 text-sm"
+                role="alert"
+              >
+                {{ error }}
+              </div>
+            }
+            @if (settingsSuccess(); as success) {
+              <div
+                class="rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-800 dark:text-emerald-200"
+                role="status"
+              >
+                {{ success }}
+              </div>
+            }
+
+            <div hlmField>
+              <label hlmFieldLabel for="settings-name">{{ messages.detail.nameLabel }}</label>
+              <input
+                id="settings-name"
+                type="text"
+                hlmInput
+                [formField]="settingsForm.name"
+                [attr.aria-invalid]="settingsFieldError('name') ? true : null"
+              />
+              @if (settingsFieldError('name'); as message) {
+                <hlm-field-error forceShow>{{ message }}</hlm-field-error>
+              }
+            </div>
+
+            <div hlmField>
+              <label hlmFieldLabel for="settings-description">
+                {{ messages.detail.descriptionLabel }}
+              </label>
+              <textarea
+                id="settings-description"
+                hlmTextarea
+                rows="2"
+                [formField]="settingsForm.description"
+                [placeholder]="messages.detail.descriptionPlaceholder"
+              ></textarea>
+            </div>
+
+            <button
+              hlmBtn
+              type="submit"
+              size="sm"
+              class="w-fit"
+              [disabled]="settingsForm().invalid() || settingsSubmitting()"
+            >
+              {{ settingsSubmitting() ? messages.detail.saving : messages.detail.save }}
+            </button>
+          </form>
+        </section>
+
+        <section class="border-destructive/25 rounded-xl border p-4">
+          <h2 class="text-destructive text-sm font-semibold">{{ messages.detail.dangerTitle }}</h2>
+          <p class="text-muted-foreground mt-0.5 text-xs">{{ messages.detail.dangerBody }}</p>
+          @if (deleteError(); as error) {
+            <p class="text-destructive mt-2 text-sm" role="alert">{{ error }}</p>
+          }
+          <button
+            hlmBtn
+            type="button"
+            variant="destructive"
+            size="sm"
+            class="mt-3 w-fit"
+            [disabled]="deleteSubmitting()"
+            (click)="onDelete()"
+          >
+            {{ deleteSubmitting() ? messages.detail.deleting : messages.detail.delete }}
+          </button>
+        </section>
+      </div>
+    }
   }
 </main>

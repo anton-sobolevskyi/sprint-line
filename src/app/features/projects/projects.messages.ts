@@ -26,6 +26,7 @@ export const PROJECTS_MESSAGES = {
     back: 'Back to projects',
     loading: 'Loading project…',
     retry: 'Try again',
+    tabsLabel: 'Project sections',
     sections: {
       board: 'Board',
       members: 'Members',
