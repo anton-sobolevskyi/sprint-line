@@ -84,7 +84,13 @@
         </button>
       </div>
     } @else if (members().length === 0) {
-      <p class="text-muted-foreground text-sm">{{ messages.empty }}</p>
+      <div class="border-border rounded-xl border border-dashed px-4 py-8 text-center">
+        <p class="text-sm font-medium">{{ messages.emptyTitle }}</p>
+        <p class="text-muted-foreground mx-auto mt-1 max-w-sm text-sm">{{ messages.emptyBody }}</p>
+        @if (canManageMembers()) {
+          <p class="text-muted-foreground mt-3 text-xs">{{ messages.emptyHint }}</p>
+        }
+      </div>
     } @else {
       <ul class="divide-border border-border divide-y overflow-hidden rounded-lg border">
         @for (member of members(); track member.id) {

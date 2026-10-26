@@ -3,7 +3,10 @@ export const MEMBERS_MESSAGES = {
   description: 'People who can access this project.',
   loading: 'Loading members…',
   retry: 'Try again',
-  empty: 'No members found.',
+  empty: 'No members yet.',
+  emptyTitle: 'Build your team',
+  emptyBody: 'Invite teammates by email so they can work on this board.',
+  emptyHint: 'Use the form above to send an invite.',
   you: 'You',
   columns: {
     name: 'Name',
