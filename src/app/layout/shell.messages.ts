@@ -28,8 +28,9 @@ export const SHELL_MESSAGES = {
   commandPalette: {
     trigger: 'Search',
     triggerHint: '⌘K',
-    placeholder: 'Type a command or search…',
-    empty: 'No matching commands.',
+    placeholder: 'Search projects or jump to…',
+    empty: 'No matches. Try a project name or “new project”.',
+    footer: '↑↓ navigate · ↵ open · esc close',
     groupNav: 'Navigation',
     groupProjects: 'Projects',
     groupActions: 'Actions',
@@ -37,8 +38,9 @@ export const SHELL_MESSAGES = {
     projects: 'Go to Projects',
     newProject: 'New project',
     profile: 'Go to Profile',
-    openProject: 'Open {name}',
+    openProject: '{name}',
     toggleTheme: 'Toggle theme',
     signOut: 'Sign out',
+    loadingProjects: 'Loading projects…',
   },
 } as const;
