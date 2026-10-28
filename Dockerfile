@@ -1,8 +1,8 @@
 # Build Angular
-FROM node:22-bookworm AS build
+FROM node:24-bookworm AS build
 WORKDIR /app
 
-COPY package.json package-lock.json .npmrc ./
+COPY package.json package-lock.json ./
 RUN npm ci
 
 COPY . .
