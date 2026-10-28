@@ -13,14 +13,14 @@ Implementation notes and quality conventions: [`docs/IMPLEMENTATION_AND_QUALITY.
 
 ## What it does
 
-| Area | Capabilities |
-|------|----------------|
-| **Auth** | Register, login, logout, forgot / reset password, email verification |
-| **Profile** | Name, email, password, avatar, resend verification |
-| **Projects** | Create, list, open, update settings, soft-delete |
-| **Members** | Invite by email, change role, remove, transfer ownership, leave |
-| **Tasks** | Kanban board (To do → Done), filters, drag-and-drop status, task detail |
-| **Collaboration** | Comments and file attachments on tasks |
+| Area              | Capabilities                                                                                  |
+| ----------------- | --------------------------------------------------------------------------------------------- |
+| **Auth**          | Register, login, logout, forgot / reset password, email verification                          |
+| **Profile**       | Name, email, password, avatar, resend verification                                            |
+| **Projects**      | Create, list, open, update settings, soft-delete                                              |
+| **Members**       | Invite by email, change role, remove, transfer ownership, leave                               |
+| **Tasks**         | Kanban board (To do → Done), filters, read-only cards, status changes in the task detail page |
+| **Collaboration** | Comments and file attachments on tasks                                                        |
 
 **Roles:** `OWNER` · `ADMIN` · `MEMBER` (permissions enforced by the API; the UI reflects what the current member can do).
 
@@ -28,15 +28,15 @@ Implementation notes and quality conventions: [`docs/IMPLEMENTATION_AND_QUALITY.
 
 ## Stack
 
-| Layer | Choice |
-|-------|--------|
-| Framework | Angular 22 (standalone) |
-| UI | [spartan-ng](https://spartan.ng/) (brain + helm) · Tailwind CSS v4 |
-| Global state | NgRx Store (session / current user) |
-| Feature state | NgRx SignalStore (tasks board, members) |
-| Forms | Angular Signal Forms + Zod |
-| API types | openapi-typescript generated schema |
-| Tooling | ESLint · Prettier · Stylelint · Husky · Playwright (scaffolded) |
+| Layer         | Choice                                                             |
+| ------------- | ------------------------------------------------------------------ |
+| Framework     | Angular 22 (standalone)                                            |
+| UI            | [spartan-ng](https://spartan.ng/) (brain + helm) · Tailwind CSS v4 |
+| Global state  | NgRx Store (session / current user)                                |
+| Feature state | NgRx SignalStore (tasks board, members)                            |
+| Forms         | Angular Signal Forms + Zod                                         |
+| API types     | openapi-typescript generated schema                                |
+| Tooling       | ESLint · Prettier · Stylelint · Husky · Playwright (scaffolded)    |
 
 **Accessibility target:** WCAG 2.2 AA (labels, alerts, focusable controls, confirm dialogs for destructive actions).
 
@@ -44,15 +44,15 @@ Implementation notes and quality conventions: [`docs/IMPLEMENTATION_AND_QUALITY.
 
 ## UI design system
 
-| Token / pattern | Notes |
-|-----------------|--------|
-| **Brand** | Indigo primary (`oklch` in `src/styles.scss`), Plus Jakarta Sans, checkmark-line logo mark |
-| **Shell** | Collapsible left sidebar (`hlm-sidebar`), user footer, theme toggle, email verification banner |
-| **Theme** | `ThemeService` — light / dark / system; preference in `localStorage` (`sprintline-theme`); FOUC avoided via inline script in `index.html` |
-| **Auth** | Centered card, soft primary wash, brand mark, theme toggle on guest pages |
-| **Board** | Instant filters (debounced search + chips), header “New task”, per-column quick-add, priority chips |
-| **Empty states** | Dashed card, brand icon, short copy + primary CTA |
-| **Copy** | User-facing strings in `*.messages.ts` (`as const`) |
+| Token / pattern  | Notes                                                                                                                                     |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| **Brand**        | Indigo primary (`oklch` in `src/styles.scss`), Plus Jakarta Sans, checkmark-line logo mark                                                |
+| **Shell**        | Collapsible left sidebar (`hlm-sidebar`), user footer, theme toggle, email verification banner                                            |
+| **Theme**        | `ThemeService` — light / dark / system; preference in `localStorage` (`sprintline-theme`); FOUC avoided via inline script in `index.html` |
+| **Auth**         | Centered card, soft primary wash, brand mark, theme toggle on guest pages                                                                 |
+| **Board**        | Instant filters (debounced search + chips), header “New task” dialog, read-only cards, priority chips                                     |
+| **Empty states** | Dashed card, brand icon, short copy + primary CTA                                                                                         |
+| **Copy**         | User-facing strings in `*.messages.ts` (`as const`)                                                                                       |
 
 ---
 
@@ -94,7 +94,7 @@ Stories are written from the end-user perspective. Priorities reflect product va
 
 19. **As a project member**, I want to create a task with title, optional description, and priority so that work is tracked.
 20. **As a project member**, I want to see tasks grouped by status (To do, In progress, In review, Done) so that I understand flow.
-21. **As a project member**, I want to change task status by dragging a card between columns (or via a status control) so that updates are fast.
+21. **As a project member**, I want to change a task's status from its detail page (the board cards are read-only) so that the board stays calm and accidental moves are avoided.
 22. **As a project member**, I want to filter the board by search text, “assigned to me”, and overdue so that I find relevant work quickly.
 23. **As a project member**, I want to open a task detail page to edit title, description, status, priority, due date, and assignee.
 24. **As a project member**, I want to soft-delete a task (with confirmation) so that obsolete work is cleared from the board.
@@ -151,13 +151,13 @@ If dependencies fail to resolve inside the container after changing packages, re
 
 ### Useful scripts
 
-| Script | Purpose |
-|--------|---------|
-| `npm start` | Dev server |
-| `npm run build` | Production build |
-| `npm run lint` | ESLint |
-| `npm run format` | Prettier |
-| `npm run typecheck` | `tsc --noEmit` |
+| Script              | Purpose          |
+| ------------------- | ---------------- |
+| `npm start`         | Dev server       |
+| `npm run build`     | Production build |
+| `npm run lint`      | ESLint           |
+| `npm run format`    | Prettier         |
+| `npm run typecheck` | `tsc --noEmit`   |
 
 ---
 
@@ -187,10 +187,10 @@ See [`docs/IMPLEMENTATION_AND_QUALITY.md`](docs/IMPLEMENTATION_AND_QUALITY.md) f
 
 ## Related
 
-| Resource | Link |
-|----------|------|
-| Backend API | [management_app_backend](https://github.com/anton-sobolevskyi/management_app_backend) |
-| Implementation guide | [docs/IMPLEMENTATION_AND_QUALITY.md](docs/IMPLEMENTATION_AND_QUALITY.md) |
+| Resource             | Link                                                                                  |
+| -------------------- | ------------------------------------------------------------------------------------- |
+| Backend API          | [management_app_backend](https://github.com/anton-sobolevskyi/management_app_backend) |
+| Implementation guide | [docs/IMPLEMENTATION_AND_QUALITY.md](docs/IMPLEMENTATION_AND_QUALITY.md)              |
 
 ---
 
