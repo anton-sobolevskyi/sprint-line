@@ -1,12 +1,6 @@
 import { Component, computed, DestroyRef, effect, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import {
-  NavigationEnd,
-  Router,
-  RouterLink,
-  RouterLinkActive,
-  RouterOutlet,
-} from '@angular/router';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideFolderKanban,
@@ -16,6 +10,7 @@ import {
   lucidePanelLeft,
   lucideSearch,
   lucideSun,
+  lucideX,
   lucideUserRound,
 } from '@ng-icons/lucide';
 import { Store } from '@ngrx/store';
@@ -26,10 +21,7 @@ import { HlmSidebarImports } from '@spartan-ng/helm/sidebar';
 
 import { getApiErrorMessage } from '../core/api/api-error';
 import { AuthApiService } from '../core/auth/auth-api.service';
-import {
-  type ProjectResponseDto,
-  ProjectsApiService,
-} from '../core/projects/projects-api.service';
+import { type ProjectResponseDto, ProjectsApiService } from '../core/projects/projects-api.service';
 import { CommandPaletteService } from '../core/ui/command-palette.service';
 import { ThemeService } from '../core/ui/theme.service';
 import { appToast } from '../core/ui/toast';
@@ -46,6 +38,7 @@ import { SHELL_MESSAGES } from './shell.messages';
       lucideHouse,
       lucideFolderKanban,
       lucideUserRound,
+      lucideX,
       lucideLogOut,
       lucidePanelLeft,
       lucideSun,
@@ -93,9 +86,17 @@ export class AppShellLayout {
     this.logout();
   };
 
+  /** Platform-aware shortcut label: Ctrl K on Windows/Linux, ⌘K on Apple devices. */
+  readonly shortcutHint =
+    typeof navigator !== 'undefined' && /Mac|iPhone|iPad/i.test(navigator.userAgent)
+      ? this.messages.commandPalette.triggerHintMac
+      : this.messages.commandPalette.triggerHint;
+
+  readonly verifyDismissed = signal(false);
+
   readonly needsEmailVerification = computed(() => {
     const user = this.currentUser();
-    if (!user) {
+    if (!user || this.verifyDismissed()) {
       return false;
     }
     const verifiedAt = user.emailVerifiedAt;
@@ -169,7 +170,7 @@ export class AppShellLayout {
     this.router.events
       .pipe(
         filter((event): event is NavigationEnd => event instanceof NavigationEnd),
-        takeUntilDestroyed(this.destroyRef),
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe((event) => {
         this.syncProjectContext(event.urlAfterRedirects);

@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { form, FormField, validateStandardSchema } from '@angular/forms/signals';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
@@ -10,12 +10,9 @@ import { HlmInputImports } from '@spartan-ng/helm/input';
 import { getApiErrorMessage } from '../../../core/api/api-error';
 import { AuthApiService } from '../../../core/auth/auth-api.service';
 import { AuthThemeToggle } from '../auth-theme-toggle.component';
-import { firstFieldErrorMessage } from '../auth.form-utils';
+import { firstFieldErrorMessage, passwordRuleChecks } from '../auth.form-utils';
 import { AUTH_MESSAGES } from '../auth.messages';
-import {
-  resetPasswordSchema,
-  type ResetPasswordModel,
-} from '../auth.schemas';
+import { resetPasswordSchema, type ResetPasswordModel } from '../auth.schemas';
 
 @Component({
   selector: 'sl-reset-password-page',
@@ -40,14 +37,16 @@ export class ResetPasswordPage {
   readonly successMessage = signal<string | null>(null);
   readonly showErrors = signal(false);
 
-  readonly token = signal(
-    this.route.snapshot.queryParamMap.get('token')?.trim() ?? '',
-  );
+  readonly token = signal(this.route.snapshot.queryParamMap.get('token')?.trim() ?? '');
 
   private readonly model = signal<ResetPasswordModel>({
     newPassword: '',
     confirmPassword: '',
   });
+
+  readonly passwordRules = computed(() =>
+    passwordRuleChecks(this.model().newPassword, this.messages.rules)
+  );
 
   readonly form = form(this.model, (schemaPath) => {
     validateStandardSchema(schemaPath, resetPasswordSchema);

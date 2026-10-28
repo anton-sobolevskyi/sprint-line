@@ -1,18 +1,11 @@
 <main class="bg-background relative flex min-h-svh items-center justify-center p-4">
   <sl-auth-theme-toggle />
 
-  <div class="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-    <div
-      class="bg-primary/10 absolute -top-32 left-1/2 size-[40rem] -translate-x-1/2 rounded-full blur-3xl"
-    ></div>
-    <div class="bg-primary/5 absolute -right-20 bottom-0 size-[28rem] rounded-full blur-3xl"></div>
-  </div>
-
-  <section hlmCard class="relative w-full max-w-md shadow-sm">
+  <section hlmCard class="relative w-full max-w-md">
     <header hlmCardHeader class="items-center text-center">
       <div class="mb-2 flex flex-col items-center gap-3">
         <span
-          class="bg-primary text-primary-foreground flex size-10 items-center justify-center rounded-xl shadow-sm"
+          class="bg-primary text-primary-foreground flex size-10 items-center justify-center rounded-lg"
           aria-hidden="true"
         >
           <svg
@@ -39,11 +32,21 @@
 
     <div hlmCardContent class="flex flex-col gap-4">
       @if (status() === 'loading') {
-        <p class="text-muted-foreground text-center text-sm">{{ messages.verifyEmail.description }}</p>
+        <p class="text-muted-foreground text-center text-sm">
+          {{ messages.verifyEmail.description }}
+        </p>
       } @else if (status() === 'success') {
-        <p class="text-center text-sm" role="status">{{ messages.verifyEmail.success }}</p>
+        <div
+          class="sl-notice-success mx-auto flex size-12 items-center justify-center rounded-full text-2xl"
+          aria-hidden="true"
+        >
+          ✓
+        </div>
+        <p class="text-center text-sm font-medium" role="status">
+          {{ messages.verifyEmail.success }}
+        </p>
       } @else if (status() === 'error') {
-        <p class="text-destructive text-center text-sm" role="alert">{{ errorMessage() }}</p>
+        <p class="sl-notice sl-notice-danger text-center" role="alert">{{ errorMessage() }}</p>
       }
 
       <div class="flex flex-wrap justify-center gap-2">

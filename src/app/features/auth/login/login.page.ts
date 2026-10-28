@@ -33,6 +33,7 @@ export class LoginPage {
 
   readonly messages = AUTH_MESSAGES;
   readonly isSubmitting = signal(false);
+  readonly showPassword = signal(false);
   readonly serverError = signal<string | null>(null);
   readonly showErrors = signal(false);
 

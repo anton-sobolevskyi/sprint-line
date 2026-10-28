@@ -14,15 +14,13 @@ import { Router } from '@angular/router';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmInputImports } from '@spartan-ng/helm/input';
 
-import {
-  type ProjectResponseDto,
-  ProjectsApiService,
-} from '../core/projects/projects-api.service';
+import { type ProjectResponseDto, ProjectsApiService } from '../core/projects/projects-api.service';
 import { CommandPaletteService } from '../core/ui/command-palette.service';
 import { ThemeService } from '../core/ui/theme.service';
+import { type TaskResponseDto, TasksApiService } from '../core/tasks/tasks-api.service';
 import { SHELL_MESSAGES } from './shell.messages';
 
-type CommandGroup = 'nav' | 'projects' | 'actions';
+type CommandGroup = 'nav' | 'tasks' | 'projects' | 'actions';
 
 type CommandItem = {
   id: string;
@@ -50,10 +48,17 @@ export class CommandPaletteComponent {
   private readonly router = inject(Router);
   private readonly theme = inject(ThemeService);
   private readonly projectsApi = inject(ProjectsApiService);
+  private readonly tasksApi = inject(TasksApiService);
 
   readonly messages = SHELL_MESSAGES.commandPalette;
+
+  readonly shortcutHint =
+    typeof navigator !== 'undefined' && /Mac|iPhone|iPad/i.test(navigator.userAgent)
+      ? SHELL_MESSAGES.commandPalette.triggerHintMac
+      : SHELL_MESSAGES.commandPalette.triggerHint;
   readonly groupLabels = {
     nav: SHELL_MESSAGES.commandPalette.groupNav,
+    tasks: SHELL_MESSAGES.commandPalette.groupTasks,
     projects: SHELL_MESSAGES.commandPalette.groupProjects,
     actions: SHELL_MESSAGES.commandPalette.groupActions,
   } as const;
@@ -65,6 +70,12 @@ export class CommandPaletteComponent {
   /** Full project list for search (loaded when palette opens). */
   private readonly searchableProjects = signal<ProjectResponseDto[]>([]);
   readonly projectsLoading = signal(false);
+
+  /** Task hits for the project the user is currently inside (server-side search). */
+  private readonly taskHits = signal<{ projectId: string; tasks: TaskResponseDto[] }>({
+    projectId: '',
+    tasks: [],
+  });
 
   private readonly searchInput = viewChild<ElementRef<HTMLInputElement>>('searchInput');
   private projectsLoadedOnce = false;
@@ -101,10 +112,20 @@ export class CommandPaletteComponent {
       },
     ];
 
+    const hits = this.taskHits();
+    for (const task of hits.tasks) {
+      items.push({
+        id: `task-${task.id}`,
+        group: 'tasks',
+        label: task.title,
+        // The API already matched the query, so keep these hits whatever the label says.
+        keywords: `task ${this.query()}`,
+        run: () => void this.router.navigate(['/projects', hits.projectId, 'tasks', task.id]),
+      });
+    }
+
     const projects =
-      this.searchableProjects().length > 0
-        ? this.searchableProjects()
-        : this.recentProjects();
+      this.searchableProjects().length > 0 ? this.searchableProjects() : this.recentProjects();
 
     for (const project of projects) {
       items.push({
@@ -130,7 +151,7 @@ export class CommandPaletteComponent {
         label: this.messages.signOut,
         keywords: 'logout sign out exit',
         run: () => this.onSignOut()(),
-      },
+      }
     );
 
     return items;
@@ -143,14 +164,13 @@ export class CommandPaletteComponent {
       return all;
     }
     return all.filter(
-      (item) =>
-        item.label.toLowerCase().includes(q) || item.keywords.toLowerCase().includes(q),
+      (item) => item.label.toLowerCase().includes(q) || item.keywords.toLowerCase().includes(q)
     );
   });
 
   readonly grouped = computed(() => {
     const items = this.filtered();
-    const order: CommandGroup[] = ['nav', 'projects', 'actions'];
+    const order: CommandGroup[] = ['nav', 'tasks', 'projects', 'actions'];
     return order
       .map((group) => ({
         group,
@@ -171,12 +191,36 @@ export class CommandPaletteComponent {
       this.ensureProjectsLoaded();
     });
 
+    // Debounced task search, only while the user is inside a project.
+    effect((onCleanup) => {
+      const q = this.query().trim();
+      const projectId = this.isOpen() ? this.currentProjectId() : null;
+      if (!projectId || q.length < 2) {
+        this.taskHits.set({ projectId: '', tasks: [] });
+        return;
+      }
+      const timer = setTimeout(() => {
+        const sub = this.tasksApi.findAll(projectId, { q, limit: 5 }).subscribe({
+          next: (response) => this.taskHits.set({ projectId, tasks: response.data ?? [] }),
+          error: () => this.taskHits.set({ projectId: '', tasks: [] }),
+        });
+        onCleanup(() => sub.unsubscribe());
+      }, 250);
+      onCleanup(() => clearTimeout(timer));
+    });
+
     effect(() => {
       const len = this.filtered().length;
       if (this.activeIndex() >= len) {
         this.activeIndex.set(Math.max(0, len - 1));
       }
     });
+  }
+
+  /** `/projects/:id/...` -> id, otherwise null. */
+  private currentProjectId(): string | null {
+    const match = /^\/projects\/([^/?#]+)/.exec(this.router.url);
+    return match ? decodeURIComponent(match[1]!) : null;
   }
 
   private ensureProjectsLoaded(): void {
@@ -198,8 +242,7 @@ export class CommandPaletteComponent {
 
   @HostListener('document:keydown', ['$event'])
   onDocumentKeydown(event: KeyboardEvent): void {
-    const isModK =
-      (event.key === 'k' || event.key === 'K') && (event.metaKey || event.ctrlKey);
+    const isModK = (event.key === 'k' || event.key === 'K') && (event.metaKey || event.ctrlKey);
     if (isModK) {
       event.preventDefault();
       this.palette.toggle();

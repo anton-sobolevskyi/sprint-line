@@ -18,7 +18,7 @@ import { selectCurrentUser } from '../../core/users/user.reducer';
 import { DASHBOARD_MESSAGES } from './dashboard.messages';
 
 const RECENT_LIMIT = 6 as const;
-const MY_WORK_LIMIT = 5 as const;
+const MY_WORK_LIMIT = 20 as const;
 
 @Component({
   selector: 'sl-home-page',
@@ -43,10 +43,61 @@ export class HomePage implements OnInit {
   readonly myTasksStatus = signal<'idle' | 'loading' | 'success' | 'error'>('idle');
   readonly hiddenMyTasks = computed(() => Math.max(0, this.myTasksTotal() - this.myTasks().length));
 
-  /** Sum of memberCount on the recent page (approximate team presence). */
-  readonly recentMemberSeats = computed(() =>
-    this.projects().reduce((sum, project) => sum + this.memberCount(project), 0)
+  readonly overdueCount = computed(() => this.myTasks().filter((t) => this.isOverdue(t)).length);
+
+  readonly dueThisWeekCount = computed(
+    () =>
+      this.myTasks().filter((t) => {
+        const days = this.taskDays(t);
+        return days !== null && days >= 0 && days < 7;
+      }).length
   );
+
+  readonly inProgressCount = computed(
+    () => this.myTasks().filter((t) => t.status === 'IN_PROGRESS').length
+  );
+
+  /** One-line summary under the greeting, built from the loaded tasks. */
+  readonly summary = computed(() => {
+    if (this.myTasksStatus() !== 'success') {
+      return this.messages.subtitle;
+    }
+    const parts: string[] = [];
+    const overdue = this.overdueCount();
+    const week = this.dueThisWeekCount();
+    if (overdue > 0) {
+      parts.push(this.messages.summary.overdue.replace('{n}', String(overdue)));
+    }
+    if (week > 0) {
+      parts.push(this.messages.summary.week.replace('{n}', String(week)));
+    }
+    return parts.length > 0
+      ? parts.join(this.messages.summary.joiner)
+      : this.messages.summary.allClear;
+  });
+
+  /** My tasks grouped by due date (the API already returns them soonest first). */
+  readonly taskGroups = computed(() => {
+    const groups = [
+      { key: 'overdue', label: this.messages.groups.overdue, tasks: [] as TaskResponseDto[] },
+      { key: 'week', label: this.messages.groups.week, tasks: [] as TaskResponseDto[] },
+      { key: 'later', label: this.messages.groups.later, tasks: [] as TaskResponseDto[] },
+      { key: 'none', label: this.messages.groups.none, tasks: [] as TaskResponseDto[] },
+    ];
+    for (const task of this.myTasks()) {
+      const days = this.taskDays(task);
+      if (days === null) {
+        groups[3]!.tasks.push(task);
+      } else if (days < 0 && task.status !== 'DONE') {
+        groups[0]!.tasks.push(task);
+      } else if (days < 7) {
+        groups[1]!.tasks.push(task);
+      } else {
+        groups[2]!.tasks.push(task);
+      }
+    }
+    return groups.filter((group) => group.tasks.length > 0);
+  });
 
   ngOnInit(): void {
     if (!this.currentUser()) {
@@ -107,6 +158,30 @@ export class HomePage implements OnInit {
       return plain;
     }
     return named.replace('{name}', name);
+  }
+
+  statusLabel(task: TaskResponseDto): string {
+    return TASKS_MESSAGES.status[task.status];
+  }
+
+  progressText(project: ProjectResponseDto): string {
+    return this.messages.recent.done
+      .replace('{done}', String(project.doneTaskCount ?? 0))
+      .replace('{total}', String(project.taskCount ?? 0));
+  }
+
+  memberText(project: ProjectResponseDto): string {
+    const count = this.memberCount(project);
+    return `${count} ${count === 1 ? this.messages.recent.member : this.messages.recent.members}`;
+  }
+
+  /** Whole days from today to the due date, or null without a valid due date. */
+  private taskDays(task: TaskResponseDto): number | null {
+    if (!task.dueDate) {
+      return null;
+    }
+    const due = new Date(task.dueDate);
+    return Number.isNaN(due.getTime()) ? null : this.dayDiff(due);
   }
 
   priorityLabel(task: TaskResponseDto): string {

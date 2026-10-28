@@ -1,13 +1,16 @@
-<main class="mx-auto flex w-full max-w-6xl flex-col gap-5 p-4 py-6 md:p-6 md:py-8">
-  <a
-    hlmBtn
-    variant="ghost"
-    size="sm"
-    routerLink="/projects"
-    class="text-muted-foreground -ms-2 w-fit"
-  >
-    ← {{ messages.detail.back }}
-  </a>
+<main class="mx-auto flex w-full max-w-6xl flex-col gap-5 p-4 py-6 md:p-8">
+  <nav class="text-muted-foreground flex items-center gap-1.5 text-sm" aria-label="Breadcrumb">
+    <a
+      routerLink="/projects"
+      class="hover:text-foreground font-medium underline-offset-4 hover:underline"
+    >
+      {{ messages.detail.breadcrumb }}
+    </a>
+    @if (project(); as crumb) {
+      <span aria-hidden="true">/</span>
+      <span class="text-foreground truncate font-medium" aria-current="page">{{ crumb.name }}</span>
+    }
+  </nav>
 
   @if (loadStatus() === 'loading') {
     <div class="flex flex-col gap-4" aria-busy="true" [attr.aria-label]="messages.detail.loading">
@@ -23,8 +26,15 @@
     </div>
   } @else if (loadStatus() === 'error') {
     <section class="border-border rounded-xl border p-5">
-      <p class="text-destructive text-sm" role="alert">{{ loadError() }}</p>
-      <button hlmBtn type="button" variant="outline" size="sm" class="mt-3 w-fit" (click)="reload()">
+      <p class="sl-notice sl-notice-danger" role="alert">{{ loadError() }}</p>
+      <button
+        hlmBtn
+        type="button"
+        variant="outline"
+        size="sm"
+        class="mt-3 w-fit"
+        (click)="reload()"
+      >
         {{ messages.detail.retry }}
       </button>
     </section>
@@ -32,60 +42,42 @@
     <header class="flex flex-col gap-4">
       <div class="flex items-start gap-3">
         <span
-          class="bg-primary/10 text-primary flex size-10 shrink-0 items-center justify-center rounded-lg text-sm font-semibold"
+          class="bg-accent text-accent-foreground flex size-10 shrink-0 items-center justify-center rounded-lg text-base font-bold"
           aria-hidden="true"
         >
           {{ current.name.slice(0, 1).toUpperCase() }}
         </span>
         <div class="min-w-0">
-          <h1 class="text-xl font-semibold tracking-tight md:text-2xl">{{ current.name }}</h1>
+          <h1 class="text-2xl font-semibold md:text-3xl">{{ current.name }}</h1>
           @if (current.description) {
-            <p class="text-muted-foreground mt-0.5 line-clamp-2 text-sm">{{ current.description }}</p>
+            <p class="text-muted-foreground mt-0.5 line-clamp-2 text-sm">
+              {{ current.description }}
+            </p>
           }
         </div>
       </div>
 
       <nav
-        class="border-border bg-muted/40 inline-flex w-fit flex-wrap gap-0.5 rounded-lg border p-0.5"
+        class="border-border -mb-px flex flex-wrap gap-6 border-b"
         role="tablist"
         [attr.aria-label]="messages.detail.tabsLabel"
       >
-        <button
-          hlmBtn
-          type="button"
-          role="tab"
-          size="sm"
-          class="h-8 px-3 text-xs"
-          [variant]="activeTab() === 'board' ? 'default' : 'ghost'"
-          [attr.aria-selected]="activeTab() === 'board'"
-          (click)="setTab('board')"
-        >
-          {{ messages.detail.sections.board }}
-        </button>
-        <button
-          hlmBtn
-          type="button"
-          role="tab"
-          size="sm"
-          class="h-8 px-3 text-xs"
-          [variant]="activeTab() === 'members' ? 'default' : 'ghost'"
-          [attr.aria-selected]="activeTab() === 'members'"
-          (click)="setTab('members')"
-        >
-          {{ messages.detail.sections.members }}
-        </button>
-        <button
-          hlmBtn
-          type="button"
-          role="tab"
-          size="sm"
-          class="h-8 px-3 text-xs"
-          [variant]="activeTab() === 'settings' ? 'default' : 'ghost'"
-          [attr.aria-selected]="activeTab() === 'settings'"
-          (click)="setTab('settings')"
-        >
-          {{ messages.detail.sections.settings }}
-        </button>
+        @for (tab of tabs; track tab.id) {
+          <button
+            type="button"
+            role="tab"
+            class="-mb-px border-b-2 py-2 text-sm font-medium transition-colors"
+            [class]="
+              activeTab() === tab.id
+                ? 'border-primary text-foreground'
+                : 'text-muted-foreground hover:text-foreground border-transparent'
+            "
+            [attr.aria-selected]="activeTab() === tab.id"
+            (click)="setTab(tab.id)"
+          >
+            {{ tab.label }}
+          </button>
+        }
       </nav>
     </header>
 
@@ -107,24 +99,20 @@
         class="flex max-w-xl flex-col gap-4"
         [attr.aria-label]="messages.detail.sections.settings"
       >
-        <section class="border-border bg-card rounded-xl border p-4">
-          <h2 class="text-sm font-semibold">{{ messages.detail.settingsTitle }}</h2>
-          <p class="text-muted-foreground mt-0.5 text-xs">{{ messages.detail.settingsDescription }}</p>
+        <section class="border-border bg-card rounded-xl border p-5">
+          <h2 class="text-lg font-semibold">{{ messages.detail.settingsTitle }}</h2>
+          <p class="text-muted-foreground mt-0.5 text-sm">
+            {{ messages.detail.settingsDescription }}
+          </p>
 
           <form class="mt-3 flex flex-col gap-3" (submit)="onSaveSettings($event)">
             @if (settingsServerError(); as error) {
-              <div
-                class="border-destructive/40 bg-destructive/10 text-destructive rounded-lg border px-3 py-2 text-sm"
-                role="alert"
-              >
+              <div class="sl-notice sl-notice-danger" role="alert">
                 {{ error }}
               </div>
             }
             @if (settingsSuccess(); as success) {
-              <div
-                class="rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-800 dark:text-emerald-200"
-                role="status"
-              >
+              <div class="sl-notice sl-notice-success" role="status">
                 {{ success }}
               </div>
             }
@@ -156,31 +144,38 @@
               ></textarea>
             </div>
 
-            <button
-              hlmBtn
-              type="submit"
-              size="sm"
-              class="w-fit"
-              [disabled]="settingsForm().invalid() || settingsSubmitting()"
-            >
+            <button hlmBtn type="submit" class="w-fit" [disabled]="settingsSubmitting()">
               {{ settingsSubmitting() ? messages.detail.saving : messages.detail.save }}
             </button>
           </form>
         </section>
 
-        <section class="border-destructive/25 rounded-xl border p-4">
-          <h2 class="text-destructive text-sm font-semibold">{{ messages.detail.dangerTitle }}</h2>
-          <p class="text-muted-foreground mt-0.5 text-xs">{{ messages.detail.dangerBody }}</p>
+        <section class="border-destructive/30 bg-card rounded-xl border p-5">
+          <h2 class="text-destructive text-lg font-semibold">{{ messages.detail.dangerTitle }}</h2>
+          <p class="text-muted-foreground mt-0.5 text-sm">{{ messages.detail.dangerBody }}</p>
           @if (deleteError(); as error) {
-            <p class="text-destructive mt-2 text-sm" role="alert">{{ error }}</p>
+            <p class="sl-notice sl-notice-danger mt-3" role="alert">{{ error }}</p>
           }
+          <div hlmField class="mt-3">
+            <label hlmFieldLabel for="delete-confirm">{{
+              messages.detail.deleteConfirmLabel
+            }}</label>
+            <input
+              id="delete-confirm"
+              type="text"
+              hlmInput
+              autocomplete="off"
+              [placeholder]="current.name"
+              [value]="deleteConfirmText()"
+              (input)="onDeleteConfirmInput($event)"
+            />
+          </div>
           <button
             hlmBtn
             type="button"
             variant="destructive"
-            size="sm"
             class="mt-3 w-fit"
-            [disabled]="deleteSubmitting()"
+            [disabled]="deleteSubmitting() || !canDelete()"
             (click)="onDelete()"
           >
             {{ deleteSubmitting() ? messages.detail.deleting : messages.detail.delete }}

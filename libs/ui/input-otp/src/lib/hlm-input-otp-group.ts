@@ -10,7 +10,7 @@ export class HlmInputOtpGroup {
   constructor() {
     classes(
       () =>
-        'has-data-[matches-spartan-invalid=true]:ring-destructive/20 dark:has-data-[matches-spartan-invalid=true]:ring-destructive/40 has-data-[matches-spartan-invalid=true]:border-destructive rounded-4xl has-data-[matches-spartan-invalid=true]:ring-[3px] flex items-center'
+        'has-data-[matches-spartan-invalid=true]:ring-destructive/20 dark:has-data-[matches-spartan-invalid=true]:ring-destructive/40 has-data-[matches-spartan-invalid=true]:border-destructive rounded-lg has-data-[matches-spartan-invalid=true]:ring-[3px] flex items-center'
     );
   }
 }

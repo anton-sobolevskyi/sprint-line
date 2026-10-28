@@ -1,15 +1,15 @@
 <div class="border-border mt-3 flex flex-col gap-3 border-t pt-3">
-  <p class="text-xs font-medium tracking-wide uppercase">{{ messages.title }}</p>
+  <h3 class="text-sm font-semibold">{{ messages.title }}</h3>
 
   @if (actionError(); as error) {
-    <p class="text-destructive text-xs" role="alert">{{ error }}</p>
+    <p class="text-destructive text-sm" role="alert">{{ error }}</p>
   }
 
   @if (loadStatus() === 'loading') {
     <p class="text-muted-foreground text-xs">{{ messages.loading }}</p>
   } @else if (loadStatus() === 'error') {
     <div class="flex flex-col gap-1">
-      <p class="text-destructive text-xs" role="alert">{{ loadError() }}</p>
+      <p class="text-destructive text-sm" role="alert">{{ loadError() }}</p>
       <button hlmBtn type="button" variant="outline" size="sm" class="w-fit" (click)="load()">
         {{ messages.retry }}
       </button>
@@ -17,103 +17,117 @@
   } @else if (comments().length === 0) {
     <p class="text-muted-foreground text-xs">{{ messages.empty }}</p>
   } @else {
-    <ul class="flex flex-col gap-2">
+    <ul class="flex flex-col gap-4">
       @for (comment of comments(); track comment.id) {
-        <li class="sl-comment-bubble">
-          <div class="flex items-start justify-between gap-2">
-            <p class="text-xs font-medium">{{ authorName(comment) }}</p>
-            @if (isAuthor(comment) && editingId() !== comment.id) {
-              <div class="flex gap-1">
-                <button
-                  hlmBtn
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  class="h-7 px-2 text-xs"
-                  (click)="startEdit(comment)"
+        <li class="group flex gap-3">
+          <span
+            class="bg-accent text-accent-foreground flex size-7 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold"
+            aria-hidden="true"
+          >
+            {{ authorInitials(comment) }}
+          </span>
+          <div class="min-w-0 flex-1">
+            <div class="flex items-start justify-between gap-2">
+              <p class="text-sm">
+                <span class="font-semibold">{{ authorName(comment) }}</span>
+                <time
+                  class="text-muted-foreground ms-1 text-xs"
+                  [attr.datetime]="comment.createdAt"
+                  >{{ timeAgo(comment) }}</time
                 >
-                  {{ messages.actions.edit }}
-                </button>
-                <button
-                  hlmBtn
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  class="text-destructive h-7 px-2 text-xs"
-                  [disabled]="actionId() === comment.id"
-                  (click)="onDelete(comment)"
+              </p>
+              @if (isAuthor(comment) && editingId() !== comment.id) {
+                <div
+                  class="flex gap-1 opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100 [@media(hover:none)]:opacity-100"
                 >
-                  {{
-                    actionId() === comment.id ? messages.actions.deleting : messages.actions.delete
-                  }}
-                </button>
-              </div>
-            }
-          </div>
-
-          @if (editingId() === comment.id) {
-            <form class="mt-2 flex flex-col gap-2" (submit)="onEditSubmit($event, comment)">
-              @if (editServerError(); as error) {
-                <p class="text-destructive text-xs" role="alert">{{ error }}</p>
-              }
-              <div hlmField>
-                <textarea
-                  hlmTextarea
-                  rows="2"
-                  [formField]="editForm.content"
-                  [attr.aria-invalid]="editError() ? true : null"
-                ></textarea>
-                @if (editError(); as message) {
-                  <hlm-field-error forceShow>{{ message }}</hlm-field-error>
-                }
-              </div>
-              <div class="flex gap-2">
-                <button
-                  hlmBtn
-                  type="submit"
-                  size="sm"
-                  [disabled]="editForm().invalid() || editSubmitting()"
-                >
-                  {{ editSubmitting() ? messages.edit.saving : messages.edit.save }}
-                </button>
-                <button hlmBtn type="button" variant="outline" size="sm" (click)="cancelEdit()">
-                  {{ messages.edit.cancel }}
-                </button>
-              </div>
-            </form>
-          } @else {
-            <p class="mt-1 text-sm whitespace-pre-wrap">{{ comment.content }}</p>
-          }
-
-          @if (comment.attachments?.length) {
-            <ul class="mt-2 flex flex-wrap gap-2">
-              @for (file of comment.attachments; track file.id) {
-                <li class="sl-attachment-chip">
                   <button
+                    hlmBtn
                     type="button"
-                    class="focus-visible:ring-ring min-w-0 truncate rounded-md text-left hover:underline focus-visible:ring-2 focus-visible:outline-none"
-                    [attr.aria-label]="messages.attach.download + ': ' + file.fileName"
-                    (click)="onDownloadAttachment(file)"
+                    variant="ghost"
+                    size="sm"
+                    class="h-7 px-2 text-xs"
+                    (click)="startEdit(comment)"
                   >
-                    {{ file.fileName }}
-                    <span class="text-muted-foreground font-medium"
-                      >· {{ sizeLabel(file.sizeBytes) }}</span
-                    >
+                    {{ messages.actions.edit }}
                   </button>
-                  @if (canDeleteAttachment(file)) {
+                  <button
+                    hlmBtn
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    class="text-destructive h-7 px-2 text-xs"
+                    [disabled]="actionId() === comment.id"
+                    (click)="onDelete(comment)"
+                  >
+                    {{
+                      actionId() === comment.id
+                        ? messages.actions.deleting
+                        : messages.actions.delete
+                    }}
+                  </button>
+                </div>
+              }
+            </div>
+
+            @if (editingId() === comment.id) {
+              <form class="mt-2 flex flex-col gap-2" (submit)="onEditSubmit($event, comment)">
+                @if (editServerError(); as error) {
+                  <p class="text-destructive text-sm" role="alert">{{ error }}</p>
+                }
+                <div hlmField>
+                  <textarea
+                    hlmTextarea
+                    rows="2"
+                    [formField]="editForm.content"
+                    [attr.aria-invalid]="editError() ? true : null"
+                  ></textarea>
+                  @if (editError(); as message) {
+                    <hlm-field-error forceShow>{{ message }}</hlm-field-error>
+                  }
+                </div>
+                <div class="flex gap-2">
+                  <button hlmBtn type="submit" size="sm" [disabled]="editSubmitting()">
+                    {{ editSubmitting() ? messages.edit.saving : messages.edit.save }}
+                  </button>
+                  <button hlmBtn type="button" variant="outline" size="sm" (click)="cancelEdit()">
+                    {{ messages.edit.cancel }}
+                  </button>
+                </div>
+              </form>
+            } @else {
+              <p class="mt-1 text-sm whitespace-pre-wrap">{{ comment.content }}</p>
+            }
+
+            @if (comment.attachments?.length) {
+              <ul class="mt-2 flex flex-wrap gap-2">
+                @for (file of comment.attachments; track file.id) {
+                  <li class="sl-attachment-chip">
                     <button
                       type="button"
-                      class="text-muted-foreground hover:text-destructive rounded-md px-1"
-                      [attr.aria-label]="messages.actions.delete + ': ' + file.fileName"
-                      (click)="onDeleteAttachment(comment, file)"
+                      class="focus-visible:ring-ring min-w-0 truncate rounded-md text-left hover:underline focus-visible:ring-2 focus-visible:outline-none"
+                      [attr.aria-label]="messages.attach.download + ': ' + file.fileName"
+                      (click)="onDownloadAttachment(file)"
                     >
-                      ×
+                      {{ file.fileName }}
+                      <span class="text-muted-foreground font-medium"
+                        >· {{ sizeLabel(file.sizeBytes) }}</span
+                      >
                     </button>
-                  }
-                </li>
-              }
-            </ul>
-          }
+                    @if (canDeleteAttachment(file)) {
+                      <button
+                        type="button"
+                        class="text-muted-foreground hover:text-destructive rounded-md px-1"
+                        [attr.aria-label]="messages.actions.delete + ': ' + file.fileName"
+                        (click)="onDeleteAttachment(comment, file)"
+                      >
+                        ×
+                      </button>
+                    }
+                  </li>
+                }
+              </ul>
+            }
+          </div>
         </li>
       }
     </ul>
@@ -121,7 +135,7 @@
 
   <form class="flex flex-col gap-2" (submit)="onCreateSubmit($event)">
     @if (createServerError(); as error) {
-      <p class="text-destructive text-xs" role="alert">{{ error }}</p>
+      <p class="text-destructive text-sm" role="alert">{{ error }}</p>
     }
     <div hlmField>
       <label class="sr-only" for="new-comment-{{ taskId() }}">{{ messages.create.label }}</label>
@@ -155,17 +169,11 @@
       </ul>
     }
     <div class="flex items-center gap-2">
-      <button
-        hlmBtn
-        type="submit"
-        size="sm"
-        class="w-fit rounded-full"
-        [disabled]="createForm().invalid() || createSubmitting()"
-      >
+      <button hlmBtn type="submit" size="sm" class="w-fit" [disabled]="createSubmitting()">
         {{ createSubmitting() ? messages.create.submitting : messages.create.submit }}
       </button>
       <label
-        class="border-input bg-card hover:bg-accent focus-within:ring-ring inline-flex size-8 cursor-pointer items-center justify-center rounded-full border focus-within:ring-2"
+        class="border-input bg-card hover:bg-accent focus-within:ring-ring inline-flex size-9 cursor-pointer items-center justify-center rounded-lg border focus-within:ring-2"
         [attr.title]="messages.attach.label"
       >
         <span class="sr-only">{{ messages.attach.label }}</span>
@@ -195,7 +203,7 @@
       </label>
     </div>
     @if (attachError(); as message) {
-      <p class="text-destructive text-xs" role="alert">{{ message }}</p>
+      <p class="text-destructive text-sm" role="alert">{{ message }}</p>
     } @else {
       <p class="text-muted-foreground text-[11px]">{{ messages.attach.hint }}</p>
     }

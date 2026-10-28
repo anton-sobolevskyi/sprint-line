@@ -182,7 +182,7 @@ export class ProjectMembersPanel {
           this.inviteSubmitting.set(false);
           this.inviteServerError.set(message);
         },
-      },
+      }
     );
   }
 
@@ -211,12 +211,8 @@ export class ProjectMembersPanel {
     }
 
     const confirmed = await this.confirmDialog.confirm({
-      title: self
-        ? this.messages.confirm.leaveTitle
-        : this.messages.confirm.removeTitle,
-      description: self
-        ? this.messages.confirm.leaveBody
-        : this.messages.confirm.removeBody,
+      title: self ? this.messages.confirm.leaveTitle : this.messages.confirm.removeTitle,
+      description: self ? this.messages.confirm.leaveBody : this.messages.confirm.removeBody,
       confirmLabel: self ? this.messages.actions.leave : UI_MESSAGES.dialog.delete,
       destructive: true,
     });

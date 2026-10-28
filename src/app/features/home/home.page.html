@@ -1,17 +1,12 @@
-<main class="mx-auto flex w-full max-w-5xl flex-col gap-6 p-4 py-6 md:p-6 md:py-8">
-  <header class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+<main class="mx-auto flex w-full max-w-6xl flex-col gap-6 p-4 py-6 md:p-8">
+  <header class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
     <div class="min-w-0">
-      <h1 class="text-xl font-semibold tracking-tight md:text-2xl">{{ greeting() }}</h1>
-      <p class="text-muted-foreground text-sm">{{ messages.subtitle }}</p>
+      <h1 class="text-3xl font-semibold">{{ greeting() }}</h1>
+      <p class="text-muted-foreground">{{ summary() }}</p>
     </div>
-    <div class="flex flex-wrap gap-2">
-      <a hlmBtn size="sm" routerLink="/projects" [queryParams]="{ new: '1' }">
-        {{ messages.quick.newProject }}
-      </a>
-      <a hlmBtn size="sm" variant="outline" routerLink="/projects">
-        {{ messages.quick.projects }}
-      </a>
-    </div>
+    <a hlmBtn routerLink="/projects" [queryParams]="{ new: '1' }">{{
+      messages.quick.newProject
+    }}</a>
   </header>
 
   @if (loadStatus() === 'loading' && projects().length === 0) {
@@ -37,12 +32,12 @@
   } @else if (totalProjects() === 0) {
     <!-- First-run onboarding -->
     <section
-      class="border-border bg-card overflow-hidden rounded-2xl border"
+      class="border-border bg-card overflow-hidden rounded-xl border"
       [attr.aria-label]="messages.onboarding.title"
     >
-      <div class="border-border border-b bg-[var(--brand-violet)] px-5 py-5 text-[var(--brand-violet-foreground)]">
-        <h2 class="text-lg font-semibold tracking-tight">{{ messages.onboarding.title }}</h2>
-        <p class="mt-1 text-sm opacity-90">{{ messages.onboarding.body }}</p>
+      <div class="border-border bg-secondary border-b px-5 py-5">
+        <h2 class="text-xl font-semibold">{{ messages.onboarding.title }}</h2>
+        <p class="text-muted-foreground mt-1 text-sm">{{ messages.onboarding.body }}</p>
       </div>
 
       <ol class="divide-border divide-y">
@@ -98,193 +93,175 @@
       </ol>
     </section>
   } @else {
-    <section class="grid grid-cols-2 gap-2 sm:grid-cols-4">
-      <div class="border-border bg-card rounded-3xl border px-4 py-3">
-        <p class="text-muted-foreground text-[10px] font-medium tracking-wide uppercase">
-          {{ messages.stats.projects }}
+    <section class="grid grid-cols-3 gap-3" [attr.aria-label]="messages.myWork.title">
+      <div class="border-border bg-card rounded-xl border px-4 py-3">
+        <p class="sl-eyebrow">{{ messages.stats.overdue }}</p>
+        <p
+          class="mt-1 text-2xl font-semibold tabular-nums"
+          [class.text-destructive]="overdueCount() > 0"
+        >
+          {{ overdueCount() }}
         </p>
-        <p class="mt-0.5 text-2xl font-semibold tabular-nums">{{ totalProjects() }}</p>
-        <p class="text-muted-foreground text-[11px]">{{ messages.stats.projectsHint }}</p>
       </div>
-
-      <div class="border-border bg-card rounded-3xl border px-4 py-3">
-        <p class="text-muted-foreground text-[10px] font-medium tracking-wide uppercase">
-          {{ messages.stats.members }}
-        </p>
-        <p class="mt-0.5 text-2xl font-semibold tabular-nums">{{ recentMemberSeats() }}</p>
-        <p class="text-muted-foreground text-[11px]">{{ messages.stats.membersHint }}</p>
+      <div class="border-border bg-card rounded-xl border px-4 py-3">
+        <p class="sl-eyebrow">{{ messages.stats.week }}</p>
+        <p class="mt-1 text-2xl font-semibold tabular-nums">{{ dueThisWeekCount() }}</p>
       </div>
-
-      <div
-        class="col-span-2 flex flex-col justify-center gap-2 rounded-3xl bg-[var(--brand-violet)] px-5 py-4 text-[var(--brand-violet-foreground)]"
-      >
-        <p class="text-base font-extrabold">{{ messages.quick.title }}</p>
-        <div class="flex flex-wrap gap-2">
-          <a
-            hlmBtn
-            size="sm"
-            variant="secondary"
-            class="rounded-full"
-            routerLink="/projects"
-            [queryParams]="{ new: '1' }"
-          >
-            {{ messages.quick.newProject }}
-          </a>
-          <a
-            hlmBtn
-            size="sm"
-            variant="ghost"
-            class="rounded-full hover:bg-white/15"
-            routerLink="/projects"
-          >
-            {{ messages.quick.projects }}
-          </a>
-        </div>
+      <div class="border-border bg-card rounded-xl border px-4 py-3">
+        <p class="sl-eyebrow">{{ messages.stats.progress }}</p>
+        <p class="mt-1 text-2xl font-semibold tabular-nums">{{ inProgressCount() }}</p>
       </div>
     </section>
 
-    <section class="flex flex-col gap-3" [attr.aria-label]="messages.myWork.title">
-      <h2 class="text-sm font-semibold tracking-tight">{{ messages.myWork.title }}</h2>
+    <div class="grid items-start gap-6 lg:grid-cols-[1.6fr_1fr]">
+      <section class="flex flex-col gap-3" [attr.aria-label]="messages.myWork.title">
+        <h2 class="text-lg font-semibold">{{ messages.myWork.title }}</h2>
 
-      @if (myTasksStatus() === 'loading' && myTasks().length === 0) {
-        <div
-          class="flex flex-col gap-2"
-          aria-busy="true"
-          [attr.aria-label]="messages.myWork.loading"
-        >
-          <div hlmSkeleton class="h-12 w-full rounded-2xl"></div>
-          <div hlmSkeleton class="h-12 w-full rounded-2xl"></div>
-        </div>
-      } @else if (myTasksStatus() === 'error') {
-        <p class="text-muted-foreground text-sm" role="alert">
-          {{ messages.myWork.error }}
-          <button
-            hlmBtn
-            type="button"
-            variant="link"
-            class="h-auto p-0 text-sm"
-            (click)="loadMyWork()"
+        @if (myTasksStatus() === 'loading' && myTasks().length === 0) {
+          <div
+            class="flex flex-col gap-2"
+            aria-busy="true"
+            [attr.aria-label]="messages.myWork.loading"
           >
-            {{ messages.myWork.retry }}
-          </button>
-        </p>
-      } @else if (myTasks().length === 0) {
-        <div class="border-border rounded-3xl border border-dashed px-4 py-6 text-center">
-          <p class="text-sm font-bold">{{ messages.myWork.emptyTitle }}</p>
-          <p class="text-muted-foreground mt-1 text-sm">{{ messages.myWork.emptyBody }}</p>
+            <div hlmSkeleton class="h-12 w-full rounded-lg"></div>
+            <div hlmSkeleton class="h-12 w-full rounded-lg"></div>
+          </div>
+        } @else if (myTasksStatus() === 'error') {
+          <p class="sl-notice sl-notice-danger" role="alert">
+            {{ messages.myWork.error }}
+            <button
+              hlmBtn
+              type="button"
+              variant="link"
+              class="h-auto p-0 text-sm"
+              (click)="loadMyWork()"
+            >
+              {{ messages.myWork.retry }}
+            </button>
+          </p>
+        } @else if (myTasks().length === 0) {
+          <div class="border-border rounded-xl border border-dashed px-4 py-8 text-center">
+            <p class="font-semibold">{{ messages.myWork.emptyTitle }}</p>
+            <p class="text-muted-foreground mt-1 text-sm">{{ messages.myWork.emptyBody }}</p>
+          </div>
+        } @else {
+          <div class="border-border bg-card overflow-hidden rounded-xl border">
+            @for (group of taskGroups(); track group.key) {
+              <p
+                class="sl-eyebrow bg-secondary/50 px-4 py-2"
+                [class.text-destructive]="group.key === 'overdue'"
+              >
+                {{ group.label }}
+              </p>
+              <ul class="divide-border divide-y">
+                @for (task of group.tasks; track task.id) {
+                  <li>
+                    <a
+                      class="hover:bg-muted/60 flex items-center gap-3 px-4 py-3 transition-colors"
+                      [routerLink]="['/projects', task.projectId, 'tasks', task.id]"
+                    >
+                      <span class="min-w-0 flex-1">
+                        <span class="block truncate text-sm font-semibold">{{ task.title }}</span>
+                        <span class="text-muted-foreground flex items-center gap-2 text-xs">
+                          <span class="sl-status" [class]="'sl-status sl-status-' + task.status">
+                            {{ statusLabel(task) }}
+                          </span>
+                          @if (task.project; as project) {
+                            <span class="truncate">· {{ project.name }}</span>
+                          }
+                        </span>
+                      </span>
+                      <span
+                        class="sl-priority-chip"
+                        [class]="'sl-priority-chip sl-priority-chip-' + task.priority"
+                      >
+                        {{ priorityLabel(task) }}
+                      </span>
+                      <span
+                        class="text-muted-foreground w-20 shrink-0 text-right text-xs font-medium"
+                        [class.text-destructive]="isOverdue(task)"
+                      >
+                        {{ dueLabel(task) ?? messages.groups.none }}
+                      </span>
+                    </a>
+                  </li>
+                }
+              </ul>
+            }
+          </div>
+          @if (hiddenMyTasks() > 0) {
+            <p class="text-muted-foreground text-xs font-medium">
+              +{{ hiddenMyTasks() }} {{ messages.myWork.more }}
+            </p>
+          }
+        }
+      </section>
+
+      <section class="flex flex-col gap-3">
+        <div class="flex items-center justify-between gap-3">
+          <h2 class="text-lg font-semibold">{{ messages.recent.title }}</h2>
+          <a hlmBtn variant="link" routerLink="/projects" class="h-auto p-0 text-sm font-semibold">
+            {{ messages.recent.viewAll }}
+          </a>
         </div>
-      } @else {
-        <ul class="flex flex-col gap-2">
-          @for (task of myTasks(); track task.id) {
+
+        <ul class="flex flex-col gap-3">
+          @for (project of projects(); track project.id) {
             <li>
               <a
-                class="bg-card focus-visible:ring-ring hover:bg-accent/50 flex items-center gap-3 rounded-2xl px-4 py-3 shadow-[0_2px_0_var(--border)] transition-colors focus-visible:ring-2 focus-visible:outline-none"
-                [routerLink]="['/projects', task.projectId, 'tasks', task.id]"
+                class="border-border bg-card hover:border-primary/40 group flex flex-col gap-3 rounded-xl border p-4 transition-colors"
+                [routerLink]="['/projects', project.id]"
               >
-                <span class="sl-priority-chip" [class]="'sl-priority-chip-' + task.priority">
-                  {{ priorityLabel(task) }}
-                </span>
-                <span class="min-w-0 flex-1">
-                  <span class="block truncate text-sm font-bold">{{ task.title }}</span>
-                  @if (task.project; as project) {
-                    <span class="text-muted-foreground block truncate text-xs">
-                      {{ project.name }}
-                    </span>
-                  }
-                </span>
-                @if (dueLabel(task); as due) {
+                <div class="flex items-start gap-3">
                   <span
-                    class="text-muted-foreground shrink-0 text-xs font-bold"
-                    [class.text-destructive]="isOverdue(task)"
+                    class="flex size-9 shrink-0 items-center justify-center rounded-lg text-sm font-bold"
+                    [class]="projectTone(project)"
+                    aria-hidden="true"
                   >
-                    @if (isOverdue(task)) {
-                      {{ messages.myWork.overdue }} ·
-                    }
-                    {{ due }}
+                    {{ projectInitial(project) }}
                   </span>
+                  <div class="min-w-0 flex-1">
+                    <p class="truncate font-semibold group-hover:underline">{{ project.name }}</p>
+                    @if (project.description) {
+                      <p class="text-muted-foreground line-clamp-1 text-xs">
+                        {{ project.description }}
+                      </p>
+                    }
+                  </div>
+                </div>
+                @let percent = progressPercent(project);
+                @if (percent !== null) {
+                  <div class="flex flex-col gap-1.5">
+                    <div
+                      class="bg-muted h-1.5 overflow-hidden rounded-full"
+                      role="progressbar"
+                      [attr.aria-valuenow]="percent"
+                      aria-valuemin="0"
+                      aria-valuemax="100"
+                      [attr.aria-label]="percent + '% ' + messages.progress.label"
+                    >
+                      <div
+                        class="h-full rounded-full"
+                        style="background: var(--status-done)"
+                        [style.width.%]="percent"
+                      ></div>
+                    </div>
+                    <div class="text-muted-foreground flex justify-between text-xs">
+                      <span>{{ progressText(project) }}</span>
+                      <span>{{ memberText(project) }}</span>
+                    </div>
+                  </div>
+                } @else {
+                  <div class="text-muted-foreground flex justify-between text-xs">
+                    <span>{{ messages.progress.empty }}</span>
+                    <span>{{ memberText(project) }}</span>
+                  </div>
                 }
               </a>
             </li>
           }
         </ul>
-        @if (hiddenMyTasks() > 0) {
-          <p class="text-muted-foreground text-xs font-medium">
-            +{{ hiddenMyTasks() }} {{ messages.myWork.more }}
-          </p>
-        }
-      }
-    </section>
-
-    <section class="flex flex-col gap-3">
-      <div class="flex items-center justify-between gap-3">
-        <h2 class="text-sm font-semibold tracking-tight">{{ messages.recent.title }}</h2>
-        <a
-          hlmBtn
-          variant="link"
-          routerLink="/projects"
-          class="text-muted-foreground h-auto p-0 text-xs"
-        >
-          {{ messages.recent.viewAll }}
-        </a>
-      </div>
-
-      <ul class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-        @for (project of projects(); track project.id) {
-          <li>
-            <a
-              class="border-border bg-card hover:border-primary/40 focus-visible:ring-ring group flex h-full flex-col rounded-3xl border p-4 transition-colors focus-visible:ring-2 focus-visible:outline-none"
-              [routerLink]="['/projects', project.id]"
-            >
-              <div class="flex items-start gap-2.5">
-                <span
-                  class="flex size-10 shrink-0 items-center justify-center rounded-2xl text-sm font-extrabold"
-                  [class]="projectTone(project)"
-                  aria-hidden="true"
-                >
-                  {{ projectInitial(project) }}
-                </span>
-                <div class="min-w-0 flex-1">
-                  <p class="truncate text-sm font-medium group-hover:underline">
-                    {{ project.name }}
-                  </p>
-                  @if (project.description) {
-                    <p class="text-muted-foreground mt-0.5 line-clamp-2 text-xs">
-                      {{ project.description }}
-                    </p>
-                  }
-                </div>
-              </div>
-              <div class="mt-3">
-                @let percent = progressPercent(project);
-                @if (percent !== null) {
-                  <div
-                    class="bg-muted h-2 overflow-hidden rounded-full"
-                    role="progressbar"
-                    [attr.aria-valuenow]="percent"
-                    aria-valuemin="0"
-                    aria-valuemax="100"
-                    [attr.aria-label]="percent + '% ' + messages.progress.label"
-                  >
-                    <div class="bg-primary h-full rounded-full" [style.width.%]="percent"></div>
-                  </div>
-                } @else if (project.taskCount === 0) {
-                  <p class="text-muted-foreground text-[11px]">{{ messages.progress.empty }}</p>
-                }
-              </div>
-              <div
-                class="text-muted-foreground mt-auto flex items-center justify-between gap-2 pt-3 text-[11px]"
-              >
-                <span>{{ memberCount(project) }} {{ messages.recent.members }}</span>
-                <span
-                  class="text-primary font-medium opacity-0 transition-opacity group-hover:opacity-100"
-                >
-                  {{ messages.recent.openBoard }} →
-                </span>
-              </div>
-            </a>
-          </li>
-        }
-      </ul>
-    </section>
+      </section>
+    </div>
   }
 </main>

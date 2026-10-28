@@ -9,129 +9,136 @@
   color-scheme: light;
 
   --font-sans:
-    nunito, -apple-system, blinkmacsystemfont, 'Segoe UI', roboto, 'Helvetica Neue', arial,
-    sans-serif;
-  --radius: 0.875rem;
-  --chart-1: oklch(54% 0.17 37deg);
-  --chart-2: oklch(50% 0.17 295deg);
-  --chart-3: oklch(55% 0.12 150deg);
-  --chart-4: oklch(75% 0.14 85deg);
-  --chart-5: oklch(60% 0.13 255deg);
-  --background: oklch(98% 0.012 70deg);
-  --foreground: oklch(26% 0.03 320deg);
-  --card: oklch(100% 0 0deg);
-  --card-foreground: oklch(26% 0.03 320deg);
-  --popover: oklch(100% 0 0deg);
-  --popover-foreground: oklch(26% 0.03 320deg);
+    'Inter', system-ui, -apple-system, 'Segoe UI', roboto, 'Helvetica Neue', arial, sans-serif;
+  --font-display: 'Bricolage Grotesque', 'Inter', system-ui, sans-serif;
+  --radius: 0.5rem;
 
-  /* Coral primary, violet accent */
-  --primary: oklch(54% 0.17 37deg);
-  --primary-foreground: oklch(99% 0.01 70deg);
-  --secondary: oklch(95% 0.025 65deg);
-  --secondary-foreground: oklch(30% 0.04 320deg);
-  --muted: oklch(95.5% 0.02 65deg);
-  --muted-foreground: oklch(50% 0.03 320deg);
-  --accent: oklch(94% 0.04 65deg);
-  --accent-foreground: oklch(30% 0.05 320deg);
-  --brand-violet: oklch(50% 0.17 295deg);
-  --brand-violet-foreground: oklch(99% 0.01 295deg);
-  --destructive: oklch(55% 0.2 27deg);
-  --border: oklch(90% 0.04 65deg);
-  --input: oklch(88% 0.045 65deg);
-  --ring: oklch(60% 0.15 37deg);
-  --sidebar: oklch(95.3% 0.03 65deg);
-  --sidebar-foreground: oklch(26% 0.03 320deg);
-  --sidebar-primary: oklch(54% 0.17 37deg);
-  --sidebar-primary-foreground: oklch(99% 0.01 70deg);
-  --sidebar-accent: oklch(100% 0 0deg);
-  --sidebar-accent-foreground: oklch(26% 0.03 320deg);
-  --sidebar-border: oklch(90% 0.04 65deg);
-  --sidebar-ring: oklch(60% 0.15 37deg);
+  /* Surfaces */
+  --background: #faf5ee;
+  --foreground: #1f1a17;
+  --card: #fff;
+  --card-foreground: #1f1a17;
+  --popover: #fff;
+  --popover-foreground: #1f1a17;
 
-  /* Task status: soft pastel column + readable label */
-  --status-todo: oklch(42% 0.05 320deg);
-  --status-todo-bg: oklch(95% 0.02 320deg);
-  --status-progress: oklch(42% 0.12 255deg);
-  --status-progress-bg: oklch(95% 0.03 255deg);
-  --status-review: oklch(45% 0.1 75deg);
-  --status-review-bg: oklch(96% 0.06 90deg);
-  --status-done: oklch(42% 0.1 150deg);
-  --status-done-bg: oklch(95% 0.05 150deg);
-  --priority-low: oklch(42% 0.05 320deg);
-  --priority-low-bg: oklch(94% 0.02 320deg);
-  --priority-medium: oklch(42% 0.12 295deg);
-  --priority-medium-bg: oklch(94% 0.04 295deg);
-  --priority-high: oklch(45% 0.1 75deg);
-  --priority-high-bg: oklch(95% 0.07 85deg);
-  --priority-urgent: oklch(42% 0.15 30deg);
-  --priority-urgent-bg: oklch(94% 0.05 30deg);
+  /* One accent: brick */
+  --primary: #b8420f;
+  --primary-foreground: #fff;
+  --secondary: #f3eadf;
+  --secondary-foreground: #1f1a17;
+  --muted: #f3eadf;
+  --muted-foreground: #6b5f57;
+  --accent: #fbe6da;
+  --accent-foreground: #8a2f08;
+  --brand-violet: #b8420f;
+  --brand-violet-foreground: #fff;
+  --destructive: #b91c1c;
+  --border: #e8ddd1;
+  --input: #e8ddd1;
+  --ring: #b8420f;
+  --sidebar: #f3eadf;
+  --sidebar-foreground: #1f1a17;
+  --sidebar-primary: #b8420f;
+  --sidebar-primary-foreground: #fff;
+  --sidebar-accent: #fff;
+  --sidebar-accent-foreground: #1f1a17;
+  --sidebar-border: #e8ddd1;
+  --sidebar-ring: #b8420f;
+  --chart-1: #b8420f;
+  --chart-2: #1d4ed8;
+  --chart-3: #15803d;
+  --chart-4: #b45309;
+  --chart-5: #6b7280;
 
-  /* Project tile tones */
-  --tone-0: oklch(90% 0.06 45deg);
-  --tone-0-fg: oklch(42% 0.15 35deg);
-  --tone-1: oklch(92% 0.04 255deg);
-  --tone-1-fg: oklch(42% 0.12 255deg);
-  --tone-2: oklch(93% 0.06 150deg);
-  --tone-2-fg: oklch(40% 0.1 150deg);
-  --tone-3: oklch(92% 0.05 295deg);
-  --tone-3-fg: oklch(42% 0.14 295deg);
+  /* Status = coloured dot */
+  --status-todo: #6b7280;
+  --status-progress: #1d4ed8;
+  --status-review: #b45309;
+  --status-done: #15803d;
+
+  /* Priority = bars */
+  --priority-off: #d9cfc4;
+  --priority-low: #6b5f57;
+  --priority-medium: #6b5f57;
+  --priority-high: #c2410c;
+  --priority-urgent: #b91c1c;
+
+  /* Soft feedback surfaces */
+  --success-soft: #e7f3ea;
+  --success-soft-foreground: #15803d;
+  --danger-soft: #fbe4e4;
+  --warning-soft: #fdf1dc;
+  --warning-soft-foreground: #8a5a0a;
+
+  /* Project tiles */
+  --tone-0: #fbe6da;
+  --tone-0-fg: #8a2f08;
+  --tone-1: #e3ecfb;
+  --tone-1-fg: #1e3a8a;
+  --tone-2: #dcf1e3;
+  --tone-2-fg: #166534;
+  --tone-3: #f0e6d6;
+  --tone-3-fg: #6b4a1a;
 }
 
 :root.dark {
   color-scheme: dark;
 
-  --background: oklch(20% 0.02 320deg);
-  --foreground: oklch(96% 0.01 70deg);
-  --card: oklch(25% 0.025 320deg);
-  --card-foreground: oklch(96% 0.01 70deg);
-  --popover: oklch(25% 0.025 320deg);
-  --popover-foreground: oklch(96% 0.01 70deg);
-  --primary: oklch(72% 0.15 40deg);
-  --primary-foreground: oklch(20% 0.04 40deg);
-  --secondary: oklch(30% 0.03 320deg);
-  --secondary-foreground: oklch(95% 0.01 70deg);
-  --muted: oklch(30% 0.03 320deg);
-  --muted-foreground: oklch(74% 0.03 320deg);
-  --accent: oklch(33% 0.04 320deg);
-  --accent-foreground: oklch(95% 0.01 70deg);
-  --brand-violet: oklch(72% 0.13 295deg);
-  --brand-violet-foreground: oklch(20% 0.04 295deg);
-  --destructive: oklch(68% 0.19 27deg);
-  --border: oklch(100% 0 0deg / 12%);
-  --input: oklch(100% 0 0deg / 15%);
-  --ring: oklch(68% 0.12 40deg);
-  --sidebar: oklch(23% 0.025 320deg);
-  --sidebar-foreground: oklch(96% 0.01 70deg);
-  --sidebar-primary: oklch(72% 0.15 40deg);
-  --sidebar-primary-foreground: oklch(20% 0.04 40deg);
-  --sidebar-accent: oklch(31% 0.035 320deg);
-  --sidebar-accent-foreground: oklch(96% 0.01 70deg);
-  --sidebar-border: oklch(100% 0 0deg / 12%);
-  --sidebar-ring: oklch(68% 0.12 40deg);
-  --status-todo: oklch(80% 0.04 320deg);
-  --status-todo-bg: oklch(30% 0.03 320deg);
-  --status-progress: oklch(80% 0.1 255deg);
-  --status-progress-bg: oklch(30% 0.05 255deg);
-  --status-review: oklch(82% 0.1 85deg);
-  --status-review-bg: oklch(32% 0.05 85deg);
-  --status-done: oklch(80% 0.1 150deg);
-  --status-done-bg: oklch(30% 0.05 150deg);
-  --priority-low: oklch(80% 0.04 320deg);
-  --priority-low-bg: oklch(32% 0.03 320deg);
-  --priority-medium: oklch(80% 0.1 295deg);
-  --priority-medium-bg: oklch(33% 0.06 295deg);
-  --priority-high: oklch(82% 0.1 85deg);
-  --priority-high-bg: oklch(34% 0.06 85deg);
-  --priority-urgent: oklch(80% 0.12 30deg);
-  --priority-urgent-bg: oklch(34% 0.07 30deg);
-  --tone-0: oklch(34% 0.07 45deg);
-  --tone-0-fg: oklch(86% 0.09 45deg);
-  --tone-1: oklch(32% 0.06 255deg);
-  --tone-1-fg: oklch(84% 0.08 255deg);
-  --tone-2: oklch(32% 0.06 150deg);
-  --tone-2-fg: oklch(84% 0.09 150deg);
-  --tone-3: oklch(33% 0.07 295deg);
-  --tone-3-fg: oklch(84% 0.09 295deg);
+  --background: #17130f;
+  --foreground: #f4ece3;
+  --card: #211b16;
+  --card-foreground: #f4ece3;
+  --popover: #211b16;
+  --popover-foreground: #f4ece3;
+  --primary: #f08a5d;
+  --primary-foreground: #2a1208;
+  --secondary: #1d1814;
+  --secondary-foreground: #f4ece3;
+  --muted: #1d1814;
+  --muted-foreground: #b5a99d;
+  --accent: #3a2218;
+  --accent-foreground: #f5b79a;
+  --brand-violet: #f08a5d;
+  --brand-violet-foreground: #2a1208;
+  --destructive: #f87171;
+  --border: #3a3128;
+  --input: #3a3128;
+  --ring: #f08a5d;
+  --sidebar: #1d1814;
+  --sidebar-foreground: #f4ece3;
+  --sidebar-primary: #f08a5d;
+  --sidebar-primary-foreground: #2a1208;
+  --sidebar-accent: #2a231c;
+  --sidebar-accent-foreground: #f4ece3;
+  --sidebar-border: #3a3128;
+  --sidebar-ring: #f08a5d;
+  --chart-1: #f08a5d;
+  --chart-2: #60a5fa;
+  --chart-3: #4ade80;
+  --chart-4: #fbbf24;
+  --chart-5: #9ca3af;
+  --status-todo: #9ca3af;
+  --status-progress: #60a5fa;
+  --status-review: #fbbf24;
+  --status-done: #4ade80;
+  --priority-off: #4a4036;
+  --priority-low: #b5a99d;
+  --priority-medium: #b5a99d;
+  --priority-high: #fb923c;
+  --priority-urgent: #f87171;
+  --success-soft: #15291c;
+  --success-soft-foreground: #4ade80;
+  --danger-soft: #3a1a1a;
+  --warning-soft: #33260f;
+  --warning-soft-foreground: #fbbf24;
+  --tone-0: #3a2218;
+  --tone-0-fg: #f5b79a;
+  --tone-1: #1c2a4a;
+  --tone-1-fg: #a9c3f5;
+  --tone-2: #17301f;
+  --tone-2-fg: #9be0b2;
+  --tone-3: #3a2f1a;
+  --tone-3-fg: #e6cc9a;
 }
 
 @layer base {
@@ -143,57 +150,119 @@
     @apply bg-background text-foreground antialiased;
 
     font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.5rem;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
   }
 
   ::selection {
-    background-color: color-mix(in oklch, var(--primary) 25%, transparent);
+    background-color: color-mix(in srgb, var(--primary) 25%, transparent);
   }
 }
 
-/* Board / task card utilities */
 @layer components {
+  /* ---------- Task card ---------- */
   .sl-task-card {
-    @apply bg-card relative cursor-grab rounded-2xl p-3 transition-all active:cursor-grabbing;
-
-    box-shadow: 0 2px 0 color-mix(in oklch, var(--border) 90%, transparent);
+    @apply bg-card relative cursor-grab rounded-xl border p-3 transition-colors active:cursor-grabbing;
   }
 
   .sl-task-card:hover {
-    @apply -translate-y-px;
-
-    box-shadow: 0 4px 0 color-mix(in oklch, var(--primary) 18%, var(--border));
+    border-color: color-mix(in srgb, var(--primary) 45%, var(--border));
   }
 
-  /* Priority is shown by the chip; the old side bar is retired */
   .sl-task-card-accent {
     display: none;
   }
 
+  /* ---------- Priority: bars icon + label (never colour alone) ---------- */
   .sl-priority-chip {
-    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-extrabold;
+    @apply inline-flex items-center gap-1.5 text-xs font-medium;
+
+    color: var(--priority-medium);
+    --b1: var(--priority-off);
+    --b2: var(--priority-off);
+    --b3: var(--priority-off);
+  }
+
+  .sl-priority-chip::before {
+    content: '';
+    width: 14px;
+    height: 12px;
+    flex: none;
+    background:
+      linear-gradient(var(--b1), var(--b1)) 0 100% / 3.5px 5px no-repeat,
+      linear-gradient(var(--b2), var(--b2)) 5px 100% / 3.5px 8px no-repeat,
+      linear-gradient(var(--b3), var(--b3)) 10px 100% / 3.5px 12px no-repeat;
   }
 
   .sl-priority-chip-LOW {
     color: var(--priority-low);
-    background-color: var(--priority-low-bg);
+    --b1: currentcolor;
   }
 
   .sl-priority-chip-MEDIUM {
     color: var(--priority-medium);
-    background-color: var(--priority-medium-bg);
+    --b1: currentcolor;
+    --b2: currentcolor;
   }
 
   .sl-priority-chip-HIGH {
     color: var(--priority-high);
-    background-color: var(--priority-high-bg);
+    --b1: currentcolor;
+    --b2: currentcolor;
+    --b3: currentcolor;
   }
 
   .sl-priority-chip-URGENT {
     color: var(--priority-urgent);
-    background-color: var(--priority-urgent-bg);
+    --b1: currentcolor;
+    --b2: currentcolor;
+    --b3: currentcolor;
   }
 
-  /* Horizontal board on small screens */
+  /* ---------- Status: coloured dot + label ---------- */
+  .sl-status {
+    @apply inline-flex items-center gap-1.5 text-xs font-medium;
+  }
+
+  .sl-status::before,
+  .sl-board-column h3::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    flex: none;
+    border-radius: 9999px;
+    background: var(--status-todo);
+  }
+
+  .sl-status-IN_PROGRESS::before,
+  .sl-board-column-IN_PROGRESS h3::before {
+    background: var(--status-progress);
+  }
+
+  .sl-status-IN_REVIEW::before,
+  .sl-board-column-IN_REVIEW h3::before {
+    background: var(--status-review);
+  }
+
+  .sl-status-DONE::before,
+  .sl-board-column-DONE h3::before {
+    background: var(--status-done);
+  }
+
+  /* ---------- Board ---------- */
   .sl-board-scroll {
     scroll-snap-type: x proximity;
     -webkit-overflow-scrolling: touch;
@@ -203,51 +272,15 @@
     scroll-snap-align: start;
   }
 
-  /* Each status column gets its own soft tint + top accent */
   .sl-board-column {
-    @apply flex min-h-44 flex-col gap-2 rounded-3xl p-3;
-
-    background-color: var(--status-todo-bg);
-    box-shadow: inset 0 3px 0 0 color-mix(in oklch, var(--status-todo) 55%, transparent);
+    @apply bg-secondary flex min-h-44 flex-col gap-2 rounded-xl p-3;
   }
 
   .sl-board-column h3 {
-    color: var(--status-todo);
+    @apply text-foreground inline-flex items-center gap-2 text-sm font-semibold;
   }
 
-  .sl-board-column-TODO {
-    background-color: var(--status-todo-bg);
-    box-shadow: inset 0 3px 0 0 color-mix(in oklch, var(--status-todo) 55%, transparent);
-  }
-
-  .sl-board-column-IN_PROGRESS {
-    background-color: var(--status-progress-bg);
-    box-shadow: inset 0 3px 0 0 color-mix(in oklch, var(--status-progress) 55%, transparent);
-  }
-
-  .sl-board-column-IN_PROGRESS h3 {
-    color: var(--status-progress);
-  }
-
-  .sl-board-column-IN_REVIEW {
-    background-color: var(--status-review-bg);
-    box-shadow: inset 0 3px 0 0 color-mix(in oklch, var(--status-review) 55%, transparent);
-  }
-
-  .sl-board-column-IN_REVIEW h3 {
-    color: var(--status-review);
-  }
-
-  .sl-board-column-DONE {
-    background-color: var(--status-done-bg);
-    box-shadow: inset 0 3px 0 0 color-mix(in oklch, var(--status-done) 55%, transparent);
-  }
-
-  .sl-board-column-DONE h3 {
-    color: var(--status-done);
-  }
-
-  /* Project tiles on home / lists */
+  /* ---------- Project tiles ---------- */
   .sl-tone-0 {
     background-color: var(--tone-0);
     color: var(--tone-0-fg);
@@ -268,16 +301,38 @@
     color: var(--tone-3-fg);
   }
 
-  /* Comment bubbles and attachment chips */
+  /* ---------- Comments and attachments ---------- */
   .sl-comment-bubble {
-    @apply rounded-2xl rounded-tl-sm p-3;
-
-    background-color: var(--muted);
+    @apply bg-card rounded-xl border p-3;
   }
 
   .sl-attachment-chip {
-    @apply bg-card inline-flex max-w-full items-center gap-2 rounded-xl px-2.5 py-1.5 text-xs font-bold;
+    @apply bg-card inline-flex max-w-full items-center gap-2 rounded-lg border px-2.5 py-1.5 text-xs font-medium;
+  }
 
-    box-shadow: inset 0 0 0 2px var(--border);
+  /* ---------- Shared page pieces ---------- */
+  .sl-eyebrow {
+    @apply text-muted-foreground text-[11px] font-semibold tracking-wider uppercase;
+  }
+
+  .sl-surface {
+    @apply bg-card rounded-xl border;
+  }
+
+  .sl-notice {
+    @apply rounded-lg px-3 py-2 text-sm;
+
+    background: var(--accent);
+    color: var(--accent-foreground);
+  }
+
+  .sl-notice-success {
+    background: var(--success-soft);
+    color: var(--success-soft-foreground);
+  }
+
+  .sl-notice-danger {
+    background: var(--danger-soft);
+    color: var(--destructive);
   }
 }

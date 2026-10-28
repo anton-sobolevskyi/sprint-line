@@ -9,10 +9,21 @@ export const DASHBOARD_MESSAGES = {
   greetingEveningNamed: 'Good evening, {name}',
   subtitle: 'Pick up where you left off or jump into a project.',
   stats: {
-    projects: 'Projects',
-    projectsHint: 'In your workspace',
-    members: 'Team seats',
-    membersHint: 'On recent projects',
+    overdue: 'Overdue',
+    week: 'Due this week',
+    progress: 'In progress',
+  },
+  summary: {
+    allClear: 'You are all caught up.',
+    overdue: '{n} overdue',
+    week: '{n} due this week',
+    joiner: ' · ',
+  },
+  groups: {
+    overdue: 'Overdue',
+    week: 'This week',
+    later: 'Later',
+    none: 'No date',
   },
   recent: {
     title: 'Recent projects',
@@ -21,7 +32,9 @@ export const DASHBOARD_MESSAGES = {
     emptyAction: 'Create project',
     open: 'Open',
     viewAll: 'View all',
+    member: 'member',
     members: 'members',
+    done: '{done} of {total} done',
     openBoard: 'Open board',
   },
   onboarding: {
@@ -36,7 +49,7 @@ export const DASHBOARD_MESSAGES = {
     step3Body: 'Use the board, press N, or quick-add under a column.',
   },
   myWork: {
-    title: 'My work',
+    title: 'My tasks',
     viewAll: 'All my tasks',
     more: 'more assigned to you',
     emptyTitle: 'Nothing on your plate',

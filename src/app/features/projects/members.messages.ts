@@ -7,6 +7,8 @@ export const MEMBERS_MESSAGES = {
   emptyTitle: 'Build your team',
   emptyBody: 'Invite teammates by email so they can work on this board.',
   emptyHint: 'Use the form above to send an invite.',
+  ownerLeaveHint: 'Transfer ownership before leaving.',
+  verifiedHint: 'Your email must be verified to invite teammates.',
   you: 'You',
   columns: {
     name: 'Name',
@@ -43,8 +45,7 @@ export const MEMBERS_MESSAGES = {
     leaveTitle: 'Leave this project?',
     leaveBody: 'You will lose access until someone invites you again.',
     transferTitle: 'Transfer ownership?',
-    transferBody:
-      'You will become an Admin. The selected member becomes the new Owner.',
+    transferBody: 'You will become an Admin. The selected member becomes the new Owner.',
   },
   validation: {
     emailRequired: 'Email is required.',

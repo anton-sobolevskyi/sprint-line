@@ -5,6 +5,7 @@ export const TASKS_MESSAGES = {
   retry: 'Try again',
   emptyColumn: 'No tasks',
   emptyColumnCta: '+ Add a task',
+  emptyColumnDrop: 'Drop a task here',
   emptyFilteredTitle: 'No matches',
   emptyFiltered: 'Nothing matches these filters. Clear them to see all tasks.',
   emptyListTitle: 'No tasks yet',
@@ -38,6 +39,9 @@ export const TASKS_MESSAGES = {
     descriptionLabel: 'Description',
     descriptionPlaceholder: 'Optional details',
     priorityLabel: 'Priority',
+    statusLabel: 'Status',
+    dueDateLabel: 'Due date',
+    assigneeLabel: 'Assignee',
     submit: 'Add task',
     submitting: 'Adding…',
     success: 'Task created.',
@@ -73,6 +77,8 @@ export const TASKS_MESSAGES = {
   },
   detail: {
     back: 'Back to project',
+    copyLink: 'Copy link',
+    linkCopied: 'Link copied',
     close: 'Close task',
     loading: 'Loading task…',
     retry: 'Try again',
@@ -80,6 +86,13 @@ export const TASKS_MESSAGES = {
     save: 'Save changes',
     saving: 'Saving…',
     saveSuccess: 'Task updated.',
+    autosave: {
+      saving: 'Saving…',
+      saved: 'All changes saved',
+      dirty: 'Unsaved changes',
+      invalid: 'Fix the highlighted fields to save',
+      error: 'Could not save. Your changes are still here.',
+    },
     titleLabel: 'Title',
     titlePlaceholder: 'Task title',
     descriptionLabel: 'Description',
@@ -90,7 +103,7 @@ export const TASKS_MESSAGES = {
     assigneeLabel: 'Assignee',
     unassigned: 'Unassigned',
     propertiesTitle: 'Properties',
-    collaborationTitle: 'Activity',
+    collaborationTitle: 'Comments and files',
     collaborationDescription: 'Comments and files for this task.',
     dangerTitle: 'Delete task',
     dangerBody: 'Soft-delete this task. History stays available.',
@@ -101,9 +114,4 @@ export const TASKS_MESSAGES = {
   },
 } as const;
 
-export const TASK_STATUS_ORDER = [
-  'TODO',
-  'IN_PROGRESS',
-  'IN_REVIEW',
-  'DONE',
-] as const;
+export const TASK_STATUS_ORDER = ['TODO', 'IN_PROGRESS', 'IN_REVIEW', 'DONE'] as const;

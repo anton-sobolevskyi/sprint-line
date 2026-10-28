@@ -80,7 +80,7 @@ export class HlmQuestionnaireChoice {
   constructor() {
     classes(
       () =>
-        'border-input bg-input/20 hover:bg-input/40 has-[>input:focus-visible]:border-ring has-[>input:focus-visible]:ring-ring/50 data-invalid:border-destructive data-checked:border-primary/40 data-checked:bg-primary/10 gap-3 rounded-4xl border px-4 py-3.5 text-sm transition-colors has-[>input:focus-visible]:ring-[3px] data-disabled:pointer-events-none data-disabled:cursor-not-allowed data-disabled:opacity-50 group/questionnaire-choice relative flex min-h-11 cursor-pointer items-start text-start outline-none select-none'
+        'border-input bg-input/20 hover:bg-input/40 has-[>input:focus-visible]:border-ring has-[>input:focus-visible]:ring-ring/50 data-invalid:border-destructive data-checked:border-primary/40 data-checked:bg-primary/10 gap-3 rounded-lg border px-4 py-3.5 text-sm transition-colors has-[>input:focus-visible]:ring-[3px] data-disabled:pointer-events-none data-disabled:cursor-not-allowed data-disabled:opacity-50 group/questionnaire-choice relative flex min-h-11 cursor-pointer items-start text-start outline-none select-none'
     );
   }
 }

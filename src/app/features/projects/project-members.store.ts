@@ -75,7 +75,7 @@ export const ProjectMembersStore = signalStore(
 
     invite(
       dto: { email: string; role: ProjectMemberRole },
-      callbacks?: { onSuccess?: () => void; onError?: (message: string) => void },
+      callbacks?: { onSuccess?: () => void; onError?: (message: string) => void }
     ): void {
       const projectId = store.projectId();
       if (!projectId) {
@@ -104,7 +104,7 @@ export const ProjectMembersStore = signalStore(
     updateRole(
       member: ProjectMemberResponseDto,
       role: ProjectMemberRole,
-      callbacks?: { onError?: (message: string) => void },
+      callbacks?: { onError?: (message: string) => void }
     ): void {
       const projectId = store.projectId();
       if (!projectId || role === member.role) {
@@ -138,7 +138,7 @@ export const ProjectMembersStore = signalStore(
 
     remove(
       userId: string,
-      callbacks?: { onSuccess?: () => void; onError?: (message: string) => void },
+      callbacks?: { onSuccess?: () => void; onError?: (message: string) => void }
     ): void {
       const projectId = store.projectId();
       if (!projectId) {
@@ -168,7 +168,7 @@ export const ProjectMembersStore = signalStore(
 
     transferOwnership(
       userId: string,
-      callbacks?: { onSuccess?: () => void; onError?: (message: string) => void },
+      callbacks?: { onSuccess?: () => void; onError?: (message: string) => void }
     ): void {
       const projectId = store.projectId();
       if (!projectId) {
@@ -200,5 +200,5 @@ export const ProjectMembersStore = signalStore(
         },
       });
     },
-  })),
+  }))
 );

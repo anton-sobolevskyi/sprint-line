@@ -1,60 +1,51 @@
-<main class="bg-background relative flex min-h-svh flex-col">
+<main class="bg-background grid min-h-svh md:grid-cols-2">
   <sl-auth-theme-toggle />
 
-  <div class="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-    <div
-      class="bg-primary/10 absolute -top-32 left-1/2 size-[40rem] -translate-x-1/2 rounded-full blur-3xl md:left-1/4"
-    ></div>
-    <div class="bg-primary/5 absolute -right-20 bottom-0 size-[28rem] rounded-full blur-3xl"></div>
-  </div>
+  <!-- Product pitch (desktop) -->
+  <aside class="bg-secondary hidden flex-col justify-center gap-8 p-12 md:flex lg:p-20">
+    <div class="font-display flex items-center gap-2.5 text-lg font-semibold">
+      <img src="favicon.svg" alt="" width="32" height="32" class="size-8 rounded-lg" />
+      {{ messages.brand }}
+    </div>
+    <div class="max-w-md">
+      <h2 class="font-display text-4xl leading-tight font-semibold">
+        {{ messages.benefits.title }}
+      </h2>
+      <p class="text-muted-foreground mt-3 text-base">{{ messages.tagline }}</p>
+    </div>
+    <ul class="flex max-w-md flex-col gap-3 text-sm">
+      @for (item of messages.benefits.items; track item) {
+        <li class="flex gap-2.5">
+          <span
+            class="bg-accent text-accent-foreground mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold"
+            aria-hidden="true"
+            >✓</span
+          >
+          <span>{{ item }}</span>
+        </li>
+      }
+    </ul>
+    <div class="sl-surface grid max-w-xs gap-2 p-4" aria-hidden="true">
+      <p class="text-sm font-semibold">{{ messages.preview.title }}</p>
+      <span class="sl-status sl-status-IN_PROGRESS">{{ messages.preview.status }}</span>
+    </div>
+  </aside>
 
-  <div
-    class="relative mx-auto flex w-full max-w-5xl flex-1 flex-col justify-center gap-10 px-4 py-10 md:flex-row md:items-center md:gap-16 md:px-8"
-  >
-    <!-- Product pitch (desktop) -->
-    <aside class="hidden max-w-sm flex-1 flex-col gap-6 md:flex">
-      <div class="flex items-center gap-3">
-        <img src="favicon.svg" alt="" width="40" height="40" class="size-10 rounded-xl shadow-sm" />
-        <div>
-          <p class="text-sm font-semibold tracking-tight">{{ messages.brand }}</p>
-          <p class="text-muted-foreground text-xs">{{ messages.tagline }}</p>
-        </div>
-      </div>
-      <div>
-        <h2 class="text-2xl font-semibold tracking-tight">{{ messages.benefits.title }}</h2>
-        <ul class="text-muted-foreground mt-4 flex flex-col gap-3 text-sm">
-          @for (item of messages.benefits.items; track item) {
-            <li class="flex gap-2.5">
-              <span
-                class="bg-primary/15 text-primary mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold"
-                aria-hidden="true"
-              >
-                ✓
-              </span>
-              <span>{{ item }}</span>
-            </li>
-          }
-        </ul>
-      </div>
-    </aside>
-
-    <!-- Form -->
-    <section class="border-border bg-card relative w-full max-w-md rounded-2xl border p-6 shadow-sm md:p-8">
-      <header class="mb-6 flex flex-col items-center text-center md:items-start md:text-left">
+  <!-- Form -->
+  <section class="flex items-center justify-center p-6 md:p-12">
+    <div class="w-full max-w-sm">
+      <header class="mb-6 flex flex-col">
         <div class="mb-4 flex items-center gap-2.5 md:hidden">
-          <img src="favicon.svg" alt="" width="36" height="36" class="size-9 rounded-xl shadow-sm" />
+          <img src="favicon.svg" alt="" width="36" height="36" class="size-9 rounded-lg" />
           <span class="text-sm font-semibold">{{ messages.brand }}</span>
         </div>
-        <h1 class="text-xl font-semibold tracking-tight">{{ messages.login.title }}</h1>
+        <h1 class="text-3xl font-semibold">{{ messages.login.title }}</h1>
         <p class="text-muted-foreground mt-1 text-sm">{{ messages.login.description }}</p>
       </header>
 
       <form class="flex flex-col gap-4" (submit)="onSubmit($event)">
         @if (serverError(); as error) {
-          <div
-            class="border-destructive/40 bg-destructive/10 text-destructive rounded-lg border px-3 py-2 text-sm"
-            role="alert"
-          >
+          <div class="sl-notice sl-notice-danger" role="alert">
             {{ error }}
           </div>
         }
@@ -83,42 +74,48 @@
               hlmBtn
               variant="link"
               routerLink="/forgot-password"
-              class="text-muted-foreground h-auto p-0 text-xs"
+              class="text-primary h-auto p-0 text-xs font-semibold"
             >
               {{ messages.login.forgotPasswordLink }}
             </a>
           </div>
-          <input
-            id="login-password"
-            type="password"
-            hlmInput
-            autocomplete="current-password"
-            [formField]="loginForm.password"
-            [attr.aria-invalid]="passwordError() ? true : null"
-            [attr.aria-describedby]="passwordError() ? 'login-password-error' : null"
-            [placeholder]="messages.login.passwordPlaceholder"
-          />
+          <div class="relative">
+            <input
+              id="login-password"
+              [type]="showPassword() ? 'text' : 'password'"
+              hlmInput
+              class="pe-16"
+              autocomplete="current-password"
+              [formField]="loginForm.password"
+              [attr.aria-invalid]="passwordError() ? true : null"
+              [attr.aria-describedby]="passwordError() ? 'login-password-error' : null"
+              [placeholder]="messages.login.passwordPlaceholder"
+            />
+            <button
+              type="button"
+              class="text-primary absolute inset-y-0 end-0 px-3 text-xs font-semibold"
+              [attr.aria-pressed]="showPassword()"
+              (click)="showPassword.set(!showPassword())"
+            >
+              {{ showPassword() ? messages.common.hide : messages.common.show }}
+            </button>
+          </div>
           @if (passwordError(); as message) {
             <hlm-field-error id="login-password-error" forceShow>{{ message }}</hlm-field-error>
           }
         </div>
 
-        <button
-          hlmBtn
-          type="submit"
-          class="mt-1 w-full"
-          [disabled]="loginForm().invalid() || isSubmitting()"
-        >
+        <button hlmBtn size="lg" type="submit" class="mt-1 w-full" [disabled]="isSubmitting()">
           {{ isSubmitting() ? messages.login.submitting : messages.login.submit }}
         </button>
       </form>
 
       <p class="text-muted-foreground mt-6 text-center text-sm">
         {{ messages.login.noAccount }}
-        <a hlmBtn variant="link" routerLink="/register" class="h-auto p-0">
+        <a hlmBtn variant="link" routerLink="/register" class="h-auto p-0 font-semibold">
           {{ messages.login.registerLink }}
         </a>
       </p>
-    </section>
-  </div>
+    </div>
+  </section>
 </main>

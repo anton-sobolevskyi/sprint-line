@@ -1,7 +1,7 @@
-<main class="mx-auto flex w-full max-w-2xl flex-col gap-5 p-4 py-6 md:p-6 md:py-8">
+<main class="mx-auto flex w-full max-w-2xl flex-col gap-5 p-4 py-6 md:p-8">
   <header class="flex flex-col gap-1">
-    <h1 class="text-xl font-semibold tracking-tight md:text-2xl">{{ messages.title }}</h1>
-    <p class="text-muted-foreground text-sm">{{ messages.description }}</p>
+    <h1 class="text-3xl font-semibold">{{ messages.title }}</h1>
+    <p class="text-muted-foreground">{{ messages.description }}</p>
   </header>
 
   @if (loadStatus() === 'loading' && !currentUser()) {
@@ -23,24 +23,18 @@
     <!-- Account -->
     <section class="border-border bg-card rounded-xl border p-4 md:p-5">
       <div class="mb-4">
-        <h2 class="text-sm font-semibold">{{ messages.profileSection.title }}</h2>
-        <p class="text-muted-foreground text-xs">{{ messages.profileSection.description }}</p>
+        <h2 class="text-lg font-semibold">{{ messages.profileSection.title }}</h2>
+        <p class="text-muted-foreground text-sm">{{ messages.profileSection.description }}</p>
       </div>
 
       <form class="flex flex-col gap-3" (submit)="onSaveDetails($event)">
         @if (detailsServerError(); as error) {
-          <div
-            class="border-destructive/40 bg-destructive/10 text-destructive rounded-lg border px-3 py-2 text-sm"
-            role="alert"
-          >
+          <div class="sl-notice sl-notice-danger" role="alert">
             {{ error }}
           </div>
         }
         @if (detailsSuccess(); as success) {
-          <div
-            class="rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-800 dark:text-emerald-200"
-            role="status"
-          >
+          <div class="sl-notice sl-notice-success" role="status">
             {{ success }}
           </div>
         }
@@ -100,11 +94,11 @@
 
         <div class="flex flex-col gap-2">
           @if (isEmailVerified()) {
-            <p class="text-muted-foreground text-xs font-medium">
+            <p class="sl-status sl-status-DONE w-fit">
               {{ messages.profileSection.emailVerified }}
             </p>
           } @else {
-            <p class="text-muted-foreground text-xs">{{ messages.profileSection.emailUnverified }}</p>
+            <p class="sl-notice w-fit">{{ messages.profileSection.emailUnverified }}</p>
             @if (resendError(); as error) {
               <p class="text-destructive text-sm" role="alert">{{ error }}</p>
             }
@@ -129,13 +123,7 @@
           }
         </div>
 
-        <button
-          hlmBtn
-          type="submit"
-          size="sm"
-          class="mt-1 w-fit"
-          [disabled]="detailsForm().invalid() || detailsSubmitting()"
-        >
+        <button hlmBtn type="submit" class="mt-1 w-fit" [disabled]="detailsSubmitting()">
           {{ detailsSubmitting() ? messages.profileSection.saving : messages.profileSection.save }}
         </button>
       </form>
@@ -144,21 +132,18 @@
     <!-- Photo -->
     <section class="border-border bg-card rounded-xl border p-4 md:p-5">
       <div class="mb-4">
-        <h2 class="text-sm font-semibold">{{ messages.avatarSection.title }}</h2>
-        <p class="text-muted-foreground text-xs">{{ messages.avatarSection.description }}</p>
+        <h2 class="text-lg font-semibold">{{ messages.avatarSection.title }}</h2>
+        <p class="text-muted-foreground text-sm">{{ messages.avatarSection.description }}</p>
       </div>
 
       <div class="flex flex-col gap-3">
         @if (avatarError(); as error) {
-          <div
-            class="border-destructive/40 bg-destructive/10 text-destructive rounded-lg border px-3 py-2 text-sm"
-            role="alert"
-          >
+          <div class="sl-notice sl-notice-danger" role="alert">
             {{ error }}
           </div>
         }
         @if (avatarSuccess(); as success) {
-          <div class="border-border bg-muted/40 rounded-lg border px-3 py-2 text-sm" role="status">
+          <div class="sl-notice sl-notice-success" role="status">
             {{ success }}
           </div>
         }
@@ -168,30 +153,35 @@
             <img
               [src]="url"
               [alt]="messages.avatarSection.previewAlt"
-              class="border-border size-14 rounded-full border object-cover"
+              class="border-border size-16 rounded-full border object-cover"
             />
           } @else {
             <span
-              class="bg-primary/10 text-primary flex size-14 shrink-0 items-center justify-center rounded-full text-base font-semibold"
+              class="bg-accent text-accent-foreground flex size-16 shrink-0 items-center justify-center rounded-full text-lg font-semibold"
               aria-hidden="true"
             >
               {{ userInitials() }}
             </span>
           }
           <div class="min-w-0 flex-1">
-            <label class="inline-flex flex-col gap-1">
-              <span class="text-sm font-medium">{{ messages.avatarSection.choose }}</span>
+            <label
+              class="border-input bg-card hover:bg-muted focus-within:outline-ring inline-flex h-10 cursor-pointer items-center rounded-lg border px-4 text-sm font-semibold focus-within:outline-2 focus-within:outline-offset-2"
+              [class.opacity-60]="avatarUploading()"
+            >
+              {{ messages.avatarSection.choose }}
               <input
                 type="file"
                 accept="image/*"
-                class="text-xs file:bg-secondary file:text-secondary-foreground file:mr-3 file:rounded-full file:border-0 file:px-3 file:py-1.5"
+                class="sr-only"
                 [disabled]="avatarUploading()"
                 (change)="onAvatarSelected($event)"
               />
             </label>
             <p class="text-muted-foreground mt-1 text-xs">{{ messages.avatarSection.hint }}</p>
             @if (avatarUploading()) {
-              <p class="text-muted-foreground mt-1 text-xs">{{ messages.avatarSection.uploading }}</p>
+              <p class="text-muted-foreground mt-1 text-xs">
+                {{ messages.avatarSection.uploading }}
+              </p>
             }
           </div>
         </div>
@@ -201,22 +191,21 @@
     <!-- Security -->
     <section class="border-border bg-card rounded-xl border p-4 md:p-5">
       <div class="mb-4">
-        <h2 class="text-sm font-semibold">{{ messages.passwordSection.title }}</h2>
-        <p class="text-muted-foreground text-xs">{{ messages.passwordSection.description }}</p>
+        <h2 class="text-lg font-semibold">{{ messages.passwordSection.title }}</h2>
+        <p class="text-muted-foreground text-sm">{{ messages.passwordSection.description }}</p>
       </div>
 
       <form class="flex flex-col gap-3" (submit)="onChangePassword($event)">
         @if (passwordServerError(); as error) {
-          <div
-            class="border-destructive/40 bg-destructive/10 text-destructive rounded-lg border px-3 py-2 text-sm"
-            role="alert"
-          >
+          <div class="sl-notice sl-notice-danger" role="alert">
             {{ error }}
           </div>
         }
 
         <div hlmField>
-          <label hlmFieldLabel for="current-password">{{ messages.passwordSection.currentLabel }}</label>
+          <label hlmFieldLabel for="current-password">{{
+            messages.passwordSection.currentLabel
+          }}</label>
           <input
             id="current-password"
             type="password"
@@ -246,7 +235,9 @@
         </div>
 
         <div hlmField>
-          <label hlmFieldLabel for="confirm-password">{{ messages.passwordSection.confirmLabel }}</label>
+          <label hlmFieldLabel for="confirm-password">{{
+            messages.passwordSection.confirmLabel
+          }}</label>
           <input
             id="confirm-password"
             type="password"
@@ -260,13 +251,7 @@
           }
         </div>
 
-        <button
-          hlmBtn
-          type="submit"
-          size="sm"
-          class="w-fit"
-          [disabled]="passwordForm().invalid() || passwordSubmitting()"
-        >
+        <button hlmBtn type="submit" class="w-fit" [disabled]="passwordSubmitting()">
           {{
             passwordSubmitting()
               ? messages.passwordSection.submitting
@@ -277,24 +262,23 @@
     </section>
 
     <!-- Danger zone -->
-    <section class="border-destructive/40 bg-destructive/5 rounded-xl border p-4 md:p-5">
+    <section class="border-destructive/30 bg-card rounded-xl border p-4 md:p-5">
       <div class="mb-4">
-        <h2 class="text-destructive text-sm font-semibold">{{ messages.deleteSection.title }}</h2>
-        <p class="text-muted-foreground mt-0.5 text-xs">{{ messages.deleteSection.body }}</p>
+        <h2 class="text-destructive text-lg font-semibold">{{ messages.deleteSection.title }}</h2>
+        <p class="text-muted-foreground mt-0.5 text-sm">{{ messages.deleteSection.body }}</p>
       </div>
 
       <div class="flex flex-col gap-3">
         @if (deleteError(); as error) {
-          <div
-            class="border-destructive/40 bg-destructive/10 text-destructive rounded-lg border px-3 py-2 text-sm"
-            role="alert"
-          >
+          <div class="sl-notice sl-notice-danger" role="alert">
             {{ error }}
           </div>
         }
 
         <div hlmField>
-          <label hlmFieldLabel for="delete-password">{{ messages.deleteSection.passwordLabel }}</label>
+          <label hlmFieldLabel for="delete-password">{{
+            messages.deleteSection.passwordLabel
+          }}</label>
           <input
             id="delete-password"
             type="password"
@@ -310,15 +294,12 @@
           hlmBtn
           variant="destructive"
           type="button"
-          size="sm"
           class="w-fit"
           [disabled]="deleteSubmitting() || !deletePassword().trim()"
           (click)="onDeleteAccount()"
         >
           {{
-            deleteSubmitting()
-              ? messages.deleteSection.confirming
-              : messages.deleteSection.confirm
+            deleteSubmitting() ? messages.deleteSection.confirming : messages.deleteSection.confirm
           }}
         </button>
       </div>

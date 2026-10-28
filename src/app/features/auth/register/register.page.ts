@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { form, FormField, validateStandardSchema } from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
 
@@ -10,7 +10,7 @@ import { HlmInputImports } from '@spartan-ng/helm/input';
 import { getApiErrorMessage } from '../../../core/api/api-error';
 import { AuthApiService } from '../../../core/auth/auth-api.service';
 import { AuthThemeToggle } from '../auth-theme-toggle.component';
-import { firstFieldErrorMessage } from '../auth.form-utils';
+import { firstFieldErrorMessage, passwordRuleChecks } from '../auth.form-utils';
 import { AUTH_MESSAGES } from '../auth.messages';
 import { registerFormSchema, type RegisterFormModel } from '../auth.schemas';
 
@@ -33,6 +33,7 @@ export class RegisterPage {
 
   readonly messages = AUTH_MESSAGES;
   readonly isSubmitting = signal(false);
+  readonly showPassword = signal(false);
   readonly serverError = signal<string | null>(null);
   readonly showErrors = signal(false);
 
@@ -41,6 +42,10 @@ export class RegisterPage {
     email: '',
     password: '',
   });
+
+  readonly passwordRules = computed(() =>
+    passwordRuleChecks(this.model().password, this.messages.rules)
+  );
 
   readonly registerForm = form(this.model, (schemaPath) => {
     validateStandardSchema(schemaPath, registerFormSchema);

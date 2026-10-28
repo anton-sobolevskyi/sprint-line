@@ -1,6 +1,6 @@
-import { Component, HostListener, effect, inject, signal } from '@angular/core';
+import { Component, HostListener, computed, effect, inject, signal } from '@angular/core';
 import { form, FormField, validateStandardSchema } from '@angular/forms/signals';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmCardImports } from '@spartan-ng/helm/card';
@@ -28,10 +28,7 @@ import { firstFieldErrorMessage } from '../auth/auth.form-utils';
 import { TaskAttachmentsPanel } from './task-attachments.panel';
 import { TaskCommentsPanel } from './task-comments.panel';
 import { TASK_STATUS_ORDER, TASKS_MESSAGES } from './tasks.messages';
-import {
-  type UpdateTaskModel,
-  updateTaskSchema,
-} from './tasks.schemas';
+import { type UpdateTaskModel, updateTaskSchema } from './tasks.schemas';
 
 const MEMBERS_LIMIT = 100 as const;
 
@@ -41,7 +38,6 @@ const PRIORITY_OPTIONS = ['LOW', 'MEDIUM', 'HIGH', 'URGENT'] as const;
   selector: 'sl-task-detail-page',
   imports: [
     FormField,
-    RouterLink,
     TaskCommentsPanel,
     TaskAttachmentsPanel,
     ...HlmButtonImports,
@@ -97,6 +93,39 @@ export class TaskDetailPage {
   });
 
   private readonly syncedTaskId = signal<string | null>(null);
+
+  readonly saveState = signal<'idle' | 'saving' | 'saved' | 'error'>('idle');
+
+  /** True when the form differs from the last task returned by the API. */
+  readonly isDirty = computed(() => {
+    const task = this.task();
+    const values = this.model();
+    if (!task || this.syncedTaskId() !== task.id) {
+      return false;
+    }
+    return (
+      values.title !== task.title ||
+      values.description.trim() !== (task.description ?? '').trim() ||
+      values.status !== task.status ||
+      values.priority !== task.priority ||
+      values.dueDate !== toDateInputValue(task.dueDate) ||
+      values.assignedToId !== (task.assignedToId ?? '')
+    );
+  });
+
+  readonly saveLabel = computed(() => {
+    const labels = this.messages.detail.autosave;
+    if (this.saveState() === 'saving' || this.submitting()) {
+      return labels.saving;
+    }
+    if (this.saveState() === 'error') {
+      return labels.error;
+    }
+    if (this.isDirty()) {
+      return this.editForm().invalid() ? labels.invalid : labels.dirty;
+    }
+    return labels.saved;
+  });
   private readonly loadedKey = signal<string | null>(null);
 
   constructor() {
@@ -110,6 +139,16 @@ export class TaskDetailPage {
       }
       this.loadedKey.set(key);
       this.load(projectId!, taskId!);
+    });
+
+    // Autosave: debounce edits, skip while the form is invalid.
+    effect((onCleanup) => {
+      if (!this.isDirty() || this.editForm().invalid() || this.saveState() === 'error') {
+        return;
+      }
+      this.model();
+      const timer = setTimeout(() => void this.persist(), 700);
+      onCleanup(() => clearTimeout(timer));
     });
 
     effect(() => {
@@ -145,7 +184,10 @@ export class TaskDetailPage {
   }
 
   /** Close drawer and return to the project board (parent stays mounted). */
-  close(): void {
+  async close(): Promise<void> {
+    if (this.isDirty() && !this.editForm().invalid() && !this.submitting()) {
+      await this.persist();
+    }
     const projectId = this.projectId();
     if (projectId) {
       void this.router.navigate(['/projects', projectId]);
@@ -189,6 +231,31 @@ export class TaskDetailPage {
     }
   }
 
+  /** Select trigger labels. Without these the trigger shows the raw value (IN_PROGRESS, user id). */
+  readonly statusToString = (value: unknown): string =>
+    this.messages.status[value as keyof typeof this.messages.status] ?? String(value ?? '');
+
+  readonly priorityToString = (value: unknown): string =>
+    this.messages.priority[value as keyof typeof this.messages.priority] ?? String(value ?? '');
+
+  readonly assigneeToString = (value: unknown): string => {
+    const id = String(value ?? '');
+    if (!id) {
+      return this.messages.detail.unassigned;
+    }
+    const member = this.members().find((m) => m.userId === id);
+    return member ? this.memberLabel(member) : id;
+  };
+
+  async copyLink(): Promise<void> {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      appToast.success(this.messages.detail.linkCopied);
+    } catch {
+      appToast.error(this.messages.detail.copyLink);
+    }
+  }
+
   memberLabel(member: ProjectMemberResponseDto): string {
     return member.user?.name ?? member.user?.email ?? member.userId;
   }
@@ -220,30 +287,35 @@ export class TaskDetailPage {
     return this.model().assignedToId;
   }
 
+  /** Any edit clears a previous save error so autosave can retry. */
+  private touchEdit(): void {
+    if (this.saveState() === 'error') {
+      this.saveState.set('idle');
+    }
+  }
+
   setEditStatus(value: unknown): void {
-    if (
-      value === 'TODO' ||
-      value === 'IN_PROGRESS' ||
-      value === 'IN_REVIEW' ||
-      value === 'DONE'
-    ) {
+    this.touchEdit();
+    if (value === 'TODO' || value === 'IN_PROGRESS' || value === 'IN_REVIEW' || value === 'DONE') {
       this.model.update((current) => ({ ...current, status: value }));
     }
   }
 
   setEditPriority(value: unknown): void {
+    this.touchEdit();
     if (value === 'LOW' || value === 'MEDIUM' || value === 'HIGH' || value === 'URGENT') {
       this.model.update((current) => ({ ...current, priority: value }));
     }
   }
 
   setEditAssignee(value: unknown): void {
+    this.touchEdit();
     const id = value == null ? '' : String(value);
     this.model.update((current) => ({ ...current, assignedToId: id }));
   }
 
   fieldError(
-    field: 'title' | 'description' | 'status' | 'priority' | 'dueDate' | 'assignedToId',
+    field: 'title' | 'description' | 'status' | 'priority' | 'dueDate' | 'assignedToId'
   ): string | null {
     const state = this.editForm[field]();
     if (!this.showErrors() && !state.touched()) {
@@ -252,21 +324,25 @@ export class TaskDetailPage {
     return firstFieldErrorMessage(state.errors());
   }
 
+  /** Enter in the title field flushes immediately. */
   onSave(event: Event): void {
     event.preventDefault();
+    this.showErrors.set(true);
+    if (!this.editForm().invalid()) {
+      void this.persist();
+    }
+  }
+
+  /** Sends the current form values. The form is not reset afterwards, so typing is never overwritten. */
+  private persist(): Promise<void> {
     const task = this.task();
-    if (!task) {
-      return;
+    if (!task || this.submitting() || !this.isDirty() || this.editForm().invalid()) {
+      return Promise.resolve();
     }
 
     this.serverError.set(null);
-    this.showErrors.set(true);
-
-    if (this.editForm().invalid() || this.submitting()) {
-      return;
-    }
-
     this.submitting.set(true);
+    this.saveState.set('saving');
     const values = this.model();
 
     const dto = {
@@ -278,18 +354,22 @@ export class TaskDetailPage {
       assignedToId: values.assignedToId.trim().length > 0 ? values.assignedToId : null,
     };
 
-    this.tasksApi.update(task.id, dto).subscribe({
-      next: (updated) => {
-        this.submitting.set(false);
-        this.syncedTaskId.set(null);
-        this.task.set(updated);
-        appToast.success(this.messages.detail.saveSuccess);
-      },
-      error: (error: unknown) => {
-        this.submitting.set(false);
-        this.serverError.set(getApiErrorMessage(error));
-        appToast.error(getApiErrorMessage(error));
-      },
+    return new Promise<void>((resolve) => {
+      this.tasksApi.update(task.id, dto).subscribe({
+        next: (updated) => {
+          this.submitting.set(false);
+          this.saveState.set('saved');
+          this.task.set(updated);
+          resolve();
+        },
+        error: (error: unknown) => {
+          this.submitting.set(false);
+          this.saveState.set('error');
+          this.serverError.set(getApiErrorMessage(error));
+          appToast.error(getApiErrorMessage(error));
+          resolve();
+        },
+      });
     });
   }
 

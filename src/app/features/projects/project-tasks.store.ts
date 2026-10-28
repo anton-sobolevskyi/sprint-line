@@ -1,11 +1,5 @@
 import { computed, inject } from '@angular/core';
-import {
-  patchState,
-  signalStore,
-  withComputed,
-  withMethods,
-  withState,
-} from '@ngrx/signals';
+import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
 
 import { getApiErrorMessage } from '../../core/api/api-error';
 import {
@@ -52,9 +46,7 @@ export const ProjectTasksStore = signalStore(
   withComputed((store) => ({
     hasActiveFilters: computed(
       () =>
-        store.activeQuery().trim().length > 0 ||
-        store.activeAssignedToMe() ||
-        store.activeOverdue(),
+        store.activeQuery().trim().length > 0 || store.activeAssignedToMe() || store.activeOverdue()
     ),
     totalVisible: computed(() => store.tasks().length),
     columns: computed(() => {
@@ -98,11 +90,7 @@ export const ProjectTasksStore = signalStore(
         patchState(store, { currentUserId: userId });
       },
 
-      setFilters(filters: {
-        query: string;
-        assignedToMe: boolean;
-        overdue: boolean;
-      }): void {
+      setFilters(filters: { query: string; assignedToMe: boolean; overdue: boolean }): void {
         patchState(store, {
           activeQuery: filters.query.trim(),
           activeAssignedToMe: filters.assignedToMe,
@@ -146,6 +134,7 @@ export const ProjectTasksStore = signalStore(
       create(
         dto: CreateTaskDto,
         callbacks?: { onSuccess?: () => void; onError?: (message: string) => void },
+        status?: TaskStatus
       ): void {
         const projectId = store.projectId();
         if (!projectId) {
@@ -153,7 +142,21 @@ export const ProjectTasksStore = signalStore(
         }
 
         tasksApi.create(projectId, dto).subscribe({
-          next: () => {
+          next: (created) => {
+            // The create endpoint has no status field: move the task afterwards.
+            if (status && status !== created.status) {
+              tasksApi.update(created.id, { status }).subscribe({
+                next: () => {
+                  callbacks?.onSuccess?.();
+                  reload(projectId);
+                },
+                error: () => {
+                  callbacks?.onSuccess?.();
+                  reload(projectId);
+                },
+              });
+              return;
+            }
             callbacks?.onSuccess?.();
             reload(projectId);
           },
@@ -166,7 +169,7 @@ export const ProjectTasksStore = signalStore(
       createInColumn(
         title: string,
         status: TaskStatus,
-        callbacks?: { onSuccess?: () => void; onError?: (message: string) => void },
+        callbacks?: { onSuccess?: () => void; onError?: (message: string) => void }
       ): void {
         const projectId = store.projectId();
         if (!projectId) {
@@ -201,7 +204,7 @@ export const ProjectTasksStore = signalStore(
       updateStatus(
         task: TaskResponseDto,
         status: TaskStatus,
-        callbacks?: { onError?: (message: string) => void },
+        callbacks?: { onError?: (message: string) => void }
       ): void {
         if (task.status === status) {
           return;
@@ -211,18 +214,14 @@ export const ProjectTasksStore = signalStore(
         patchState(store, {
           actionError: null,
           actionTaskId: task.id,
-          tasks: store
-            .tasks()
-            .map((item) => (item.id === task.id ? { ...item, status } : item)),
+          tasks: store.tasks().map((item) => (item.id === task.id ? { ...item, status } : item)),
         });
 
         tasksApi.update(task.id, { status }).subscribe({
           next: (updated) => {
             patchState(store, {
               actionTaskId: null,
-              tasks: store
-                .tasks()
-                .map((item) => (item.id === updated.id ? updated : item)),
+              tasks: store.tasks().map((item) => (item.id === updated.id ? updated : item)),
             });
           },
           error: (error: unknown) => {
@@ -232,9 +231,7 @@ export const ProjectTasksStore = signalStore(
               actionError: message,
               tasks: store
                 .tasks()
-                .map((item) =>
-                  item.id === task.id ? { ...item, status: previousStatus } : item,
-                ),
+                .map((item) => (item.id === task.id ? { ...item, status: previousStatus } : item)),
             });
             callbacks?.onError?.(message);
           },
@@ -243,7 +240,7 @@ export const ProjectTasksStore = signalStore(
 
       softDelete(
         task: TaskResponseDto,
-        callbacks?: { onSuccess?: () => void; onError?: (message: string) => void },
+        callbacks?: { onSuccess?: () => void; onError?: (message: string) => void }
       ): void {
         patchState(store, { actionError: null, actionTaskId: task.id });
 
@@ -266,7 +263,7 @@ export const ProjectTasksStore = signalStore(
         });
       },
     };
-  }),
+  })
 );
 
 function buildListQuery(store: {

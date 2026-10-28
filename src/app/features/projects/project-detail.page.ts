@@ -1,4 +1,4 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { form, FormField, validateStandardSchema } from '@angular/forms/signals';
 import { ActivatedRoute, Router, RouterLink, RouterOutlet } from '@angular/router';
 
@@ -21,10 +21,7 @@ import { firstFieldErrorMessage } from '../auth/auth.form-utils';
 import { ProjectMembersPanel } from './project-members.panel';
 import { ProjectTasksBoardPanel } from './project-tasks-board.panel';
 import { PROJECTS_MESSAGES } from './projects.messages';
-import {
-  type UpdateProjectModel,
-  updateProjectSchema,
-} from './projects.schemas';
+import { type UpdateProjectModel, updateProjectSchema } from './projects.schemas';
 
 export type ProjectDetailTab = 'board' | 'members' | 'settings';
 
@@ -69,6 +66,12 @@ export class ProjectDetailPage {
 
   /** Active section — board is the default hero. */
   readonly activeTab = signal<ProjectDetailTab>('board');
+
+  readonly tabs: readonly { id: ProjectDetailTab; label: string }[] = [
+    { id: 'board', label: this.messages.detail.sections.board },
+    { id: 'members', label: this.messages.detail.sections.members },
+    { id: 'settings', label: this.messages.detail.sections.settings },
+  ];
 
   readonly settingsShowErrors = signal(false);
   readonly settingsSubmitting = signal(false);
@@ -199,9 +202,19 @@ export class ProjectDetailPage {
       });
   }
 
+  readonly deleteConfirmText = signal('');
+
+  readonly canDelete = computed(
+    () => !!this.project() && this.deleteConfirmText().trim() === this.project()!.name.trim()
+  );
+
+  onDeleteConfirmInput(event: Event): void {
+    this.deleteConfirmText.set((event.target as HTMLInputElement).value);
+  }
+
   async onDelete(): Promise<void> {
     const project = this.project();
-    if (!project || this.deleteSubmitting()) {
+    if (!project || this.deleteSubmitting() || !this.canDelete()) {
       return;
     }
 

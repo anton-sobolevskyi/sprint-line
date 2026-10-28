@@ -1,18 +1,15 @@
-import {
-  CdkDrag,
-  CdkDragDrop,
-  CdkDropList,
-  CdkDropListGroup,
-} from '@angular/cdk/drag-drop';
+import { CdkDrag, CdkDragDrop, CdkDropList, CdkDropListGroup } from '@angular/cdk/drag-drop';
 import {
   Component,
-  DestroyRef,
-  HostListener,
   computed,
+  DestroyRef,
   effect,
+  HostListener,
   inject,
   input,
   signal,
+  TemplateRef,
+  viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { form, FormField, validateStandardSchema } from '@angular/forms/signals';
@@ -20,8 +17,9 @@ import { RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 
+import { BrnDialogRef } from '@spartan-ng/brain/dialog';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
-import { HlmCardImports } from '@spartan-ng/helm/card';
+import { HlmDialogImports, HlmDialogService } from '@spartan-ng/helm/dialog';
 import { HlmFieldImports } from '@spartan-ng/helm/field';
 import { HlmInputImports } from '@spartan-ng/helm/input';
 import { HlmSelectImports } from '@spartan-ng/helm/select';
@@ -79,7 +77,7 @@ function isEditableTarget(target: EventTarget | null): boolean {
     CdkDropList,
     CdkDrag,
     ...HlmButtonImports,
-    ...HlmCardImports,
+    ...HlmDialogImports,
     ...HlmFieldImports,
     ...HlmInputImports,
     ...HlmSelectImports,
@@ -120,12 +118,9 @@ export class ProjectTasksBoardPanel {
 
   /** Flat list ordered by status then priority (for list view). */
   readonly listTasks = computed(() => {
-    const statusIndex = new Map(
-      TASK_STATUS_ORDER.map((status, index) => [status, index] as const),
-    );
+    const statusIndex = new Map(TASK_STATUS_ORDER.map((status, index) => [status, index] as const));
     return [...this.tasks()].sort((a, b) => {
-      const statusDiff =
-        (statusIndex.get(a.status) ?? 99) - (statusIndex.get(b.status) ?? 99);
+      const statusDiff = (statusIndex.get(a.status) ?? 99) - (statusIndex.get(b.status) ?? 99);
       if (statusDiff !== 0) {
         return statusDiff;
       }
@@ -138,6 +133,13 @@ export class ProjectTasksBoardPanel {
   readonly draftOverdue = signal(false);
 
   readonly createOpen = signal(false);
+
+  /** Small screens show one status column at a time. */
+  readonly mobileStatus = signal<TaskStatus>('TODO');
+
+  private readonly dialog = inject(HlmDialogService);
+  private readonly createTpl = viewChild.required<TemplateRef<unknown>>('createDialog');
+  private createRef: BrnDialogRef | null = null;
   readonly createShowErrors = signal(false);
   readonly createSubmitting = signal(false);
   readonly createServerError = signal<string | null>(null);
@@ -146,11 +148,7 @@ export class ProjectTasksBoardPanel {
   readonly quickAddTitle = signal('');
   readonly quickAddSubmitting = signal(false);
 
-  private readonly createModel = signal<CreateTaskModel>({
-    title: '',
-    description: '',
-    priority: 'MEDIUM',
-  });
+  private readonly createModel = signal<CreateTaskModel>(emptyCreateModel());
 
   readonly createForm = form(this.createModel, (schemaPath) => {
     validateStandardSchema(schemaPath, createTaskSchema);
@@ -310,13 +308,30 @@ export class ProjectTasksBoardPanel {
   openCreate(): void {
     this.createOpen.set(true);
     this.createServerError.set(null);
+    this.createModel.update((current) => ({ ...current, status: this.mobileStatus() }));
+
+    if (!this.createRef) {
+      const ref = this.dialog.open(this.createTpl(), {
+        contentClass: 'sm:max-w-lg',
+        showCloseButton: true,
+        closeLabel: this.messages.create.cancel,
+      });
+      this.createRef = ref;
+      ref.closed$.subscribe(() => {
+        this.createRef = null;
+        if (this.createOpen()) {
+          this.closeCreate();
+        }
+      });
+    }
   }
 
   closeCreate(): void {
     this.createOpen.set(false);
+    this.createRef?.close();
     this.createShowErrors.set(false);
     this.createServerError.set(null);
-    this.createModel.set({ title: '', description: '', priority: 'MEDIUM' });
+    this.createModel.set(emptyCreateModel());
   }
 
   openQuickAdd(status: TaskStatus): void {
@@ -419,6 +434,9 @@ export class ProjectTasksBoardPanel {
     }
   }
 
+  readonly priorityToString = (value: unknown): string =>
+    this.messages.priority[value as keyof typeof this.messages.priority] ?? String(value ?? '');
+
   priorityLabel(priority: TaskPriority): string {
     switch (priority) {
       case 'LOW':
@@ -441,6 +459,38 @@ export class ProjectTasksBoardPanel {
 
   createPriority(): TaskPriority {
     return this.createModel().priority;
+  }
+
+  readonly statusToString = (value: unknown): string =>
+    this.messages.status[value as TaskStatus] ?? String(value ?? '');
+
+  readonly assigneeToString = (value: unknown): string => {
+    const id = String(value ?? '');
+    if (!id) {
+      return this.messages.detail.unassigned;
+    }
+    const member = this.membersByUserId().get(id);
+    return member ? (member.user?.name ?? member.user?.email ?? id) : id;
+  };
+
+  readonly memberOptions = computed(() =>
+    [...this.membersByUserId().values()].map((member) => ({
+      id: member.userId,
+      label: member.user?.name ?? member.user?.email ?? member.userId,
+    })),
+  );
+
+  readonly createStatus = computed(() => this.createModel().status);
+  readonly createAssignee = computed(() => this.createModel().assignedToId);
+
+  setCreateStatus(value: unknown): void {
+    if (typeof value === 'string' && TASK_STATUS_ORDER.includes(value as TaskStatus)) {
+      this.createModel.update((current) => ({ ...current, status: value as TaskStatus }));
+    }
+  }
+
+  setCreateAssignee(value: unknown): void {
+    this.createModel.update((current) => ({ ...current, assignedToId: String(value ?? '') }));
   }
 
   setCreatePriority(value: unknown): void {
@@ -467,26 +517,32 @@ export class ProjectTasksBoardPanel {
     }
 
     this.createSubmitting.set(true);
-    const { title, description, priority } = this.createModel();
+    const { title, description, priority, status, dueDate, assignedToId } = this.createModel();
     const dto = {
       title,
       priority,
       ...(description.trim().length > 0 ? { description: description.trim() } : {}),
+      ...(dueDate.trim().length > 0 ? { dueDate: `${dueDate.trim()}T17:00:00Z` } : {}),
+      ...(assignedToId ? { assignedToId } : {}),
     };
 
-    this.tasksStore.create(dto, {
+    this.tasksStore.create(
+      dto,
+      {
       onSuccess: () => {
         this.createSubmitting.set(false);
         appToast.success(this.messages.create.success);
-        this.createModel.set({ title: '', description: '', priority: 'MEDIUM' });
+        this.createModel.set(emptyCreateModel());
         this.createShowErrors.set(false);
-        this.createOpen.set(false);
+        this.closeCreate();
       },
       onError: (message) => {
         this.createSubmitting.set(false);
         this.createServerError.set(message);
       },
-    });
+      },
+      status,
+    );
   }
 
   onTaskDrop(event: CdkDragDrop<TaskStatus, TaskStatus, TaskResponseDto>): void {
@@ -535,4 +591,15 @@ export class ProjectTasksBoardPanel {
       onError: (message) => appToast.error(message),
     });
   }
+}
+
+function emptyCreateModel(): CreateTaskModel {
+  return {
+    title: '',
+    description: '',
+    status: 'TODO',
+    priority: 'MEDIUM',
+    dueDate: '',
+    assignedToId: '',
+  };
 }

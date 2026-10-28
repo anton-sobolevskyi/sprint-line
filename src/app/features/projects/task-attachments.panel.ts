@@ -13,10 +13,7 @@ import {
 } from '../../core/attachments/attachments-api.service';
 import { UserActions } from '../../core/users/user.actions';
 import { selectCurrentUser } from '../../core/users/user.reducer';
-import {
-  ATTACHMENTS_MESSAGES,
-  formatFileSize,
-} from './attachments.messages';
+import { ATTACHMENTS_MESSAGES, formatFileSize } from './attachments.messages';
 
 @Component({
   selector: 'sl-task-attachments-panel',
@@ -151,9 +148,7 @@ export class TaskAttachmentsPanel {
     this.attachmentsApi.remove(attachment.id).subscribe({
       next: () => {
         this.actionId.set(null);
-        this.attachments.update((list) =>
-          list.filter((item) => item.id !== attachment.id),
-        );
+        this.attachments.update((list) => list.filter((item) => item.id !== attachment.id));
         appToast.success(this.messages.delete);
       },
       error: (error: unknown) => {

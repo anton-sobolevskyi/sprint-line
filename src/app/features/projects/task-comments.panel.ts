@@ -113,6 +113,42 @@ export class TaskCommentsPanel {
     });
   }
 
+  authorInitials(comment: CommentResponseDto): string {
+    const name = this.authorName(comment).trim();
+    const parts = name.split(/\s+/).filter(Boolean);
+    const letters =
+      parts.length > 1 ? parts[0]![0]! + parts[parts.length - 1]![0]! : name.slice(0, 2);
+    return letters.toUpperCase();
+  }
+
+  /** "2 hours ago", "yesterday" ... falls back to the date for older comments. */
+  timeAgo(comment: CommentResponseDto): string {
+    const created = new Date(comment.createdAt).getTime();
+    if (Number.isNaN(created)) {
+      return '';
+    }
+    const seconds = Math.round((created - Date.now()) / 1000);
+    const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
+    const steps: [Intl.RelativeTimeFormatUnit, number][] = [
+      ['minute', 60],
+      ['hour', 3600],
+      ['day', 86400],
+    ];
+    if (Math.abs(seconds) < 60) {
+      return rtf.format(0, 'second');
+    }
+    for (let i = steps.length - 1; i >= 0; i--) {
+      const [unit, size] = steps[i]!;
+      if (Math.abs(seconds) >= size) {
+        if (unit === 'day' && Math.abs(seconds) >= 7 * 86400) {
+          return new Date(created).toLocaleDateString('en', { month: 'short', day: 'numeric' });
+        }
+        return rtf.format(Math.round(seconds / size), unit);
+      }
+    }
+    return '';
+  }
+
   authorName(comment: CommentResponseDto): string {
     return comment.author?.name ?? comment.authorId;
   }

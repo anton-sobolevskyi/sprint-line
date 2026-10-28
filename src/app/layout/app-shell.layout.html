@@ -3,10 +3,10 @@
     <div hlmSidebarHeader class="border-sidebar-border border-b">
       <a
         routerLink="/"
-        class="text-sidebar-foreground flex items-center gap-2.5 px-2 py-1.5 text-sm font-semibold tracking-tight"
+        class="text-sidebar-foreground font-display flex items-center gap-2.5 px-2 py-1.5 text-base font-semibold tracking-tight"
       >
         <span
-          class="bg-primary text-primary-foreground flex size-8 shrink-0 items-center justify-center rounded-xl shadow-sm"
+          class="bg-primary text-primary-foreground flex size-7 shrink-0 items-center justify-center rounded-lg"
           aria-hidden="true"
         >
           <svg
@@ -60,20 +60,6 @@
                 <span>{{ messages.nav.projects }}</span>
               </a>
             </li>
-
-            <li hlmSidebarMenuItem>
-              <a
-                hlmSidebarMenuButton
-                routerLink="/profile"
-                routerLinkActive
-                #profileActive="routerLinkActive"
-                [isActive]="profileActive.isActive"
-                [tooltip]="messages.nav.profile"
-              >
-                <ng-icon name="lucideUserRound" />
-                <span>{{ messages.nav.profile }}</span>
-              </a>
-            </li>
           </ul>
         </div>
       </div>
@@ -113,14 +99,14 @@
       @if (currentUser(); as user) {
         <a
           routerLink="/profile"
-          class="bg-card hover:bg-card/80 flex items-center gap-2.5 rounded-2xl px-2.5 py-2 transition-colors group-data-[collapsible=icon]:justify-center"
+          class="bg-card hover:bg-card/80 flex items-center gap-2.5 rounded-xl border px-2.5 py-2 transition-colors group-data-[collapsible=icon]:justify-center"
           [attr.aria-label]="messages.nav.profile"
         >
           @if (avatarUrl(); as url) {
             <img [src]="url" alt="" class="size-8 shrink-0 rounded-full object-cover" />
           } @else {
             <span
-              class="bg-sidebar-accent text-sidebar-accent-foreground flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold"
+              class="bg-accent text-accent-foreground flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold"
               aria-hidden="true"
             >
               {{ userInitials() }}
@@ -146,7 +132,7 @@
             } @else {
               <ng-icon name="lucideMoon" />
             }
-            <span>{{ themeLabel() }}</span>
+            <span>{{ messages.theme.label }}: {{ themeLabel() }}</span>
           </button>
         </li>
 
@@ -176,9 +162,7 @@
 
       @if (activeProjectName(); as projectName) {
         <div class="min-w-0 flex-1">
-          <p class="text-muted-foreground text-[10px] font-medium tracking-wide uppercase">
-            {{ messages.projectContext }}
-          </p>
+          <p class="sl-eyebrow">{{ messages.projectContext }}</p>
           <a
             class="hover:text-primary block truncate text-sm font-semibold"
             [routerLink]="['/projects', activeProjectId()]"
@@ -203,7 +187,7 @@
         <kbd
           class="bg-muted text-muted-foreground pointer-events-none ml-1 hidden rounded border px-1.5 py-0.5 font-mono text-[10px] font-medium sm:inline"
         >
-          {{ messages.commandPalette.triggerHint }}\n
+          {{ shortcutHint }}
         </kbd>
       </button>
       <button
@@ -220,33 +204,72 @@
     </header>
 
     @if (needsEmailVerification()) {
-      <div class="border-border bg-primary/5 border-b" role="status">
-        <div class="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-          <div class="min-w-0">
-            <p class="text-sm font-medium">{{ messages.verify.title }}</p>
-            <p class="text-muted-foreground text-xs">{{ messages.verify.body }}</p>
-          </div>
-          <div class="flex flex-wrap gap-2">
-            <button
-              hlmBtn
-              type="button"
-              size="sm"
-              [disabled]="resendSubmitting()"
-              (click)="resendVerification()"
-            >
-              {{ resendSubmitting() ? messages.verify.resending : messages.verify.resend }}
-            </button>
-            <a hlmBtn variant="outline" size="sm" routerLink="/profile">
-              {{ messages.verify.profile }}
-            </a>
-          </div>
+      <div class="bg-accent text-accent-foreground border-b" role="status">
+        <div class="mx-auto flex max-w-6xl items-center gap-3 px-4 py-2 text-sm">
+          <p class="min-w-0 flex-1">{{ messages.verify.body }}</p>
+          <button
+            type="button"
+            class="font-semibold underline-offset-4 hover:underline disabled:opacity-60"
+            [disabled]="resendSubmitting()"
+            (click)="resendVerification()"
+          >
+            {{ resendSubmitting() ? messages.verify.resending : messages.verify.resend }}
+          </button>
+          <button
+            type="button"
+            class="hover:bg-background/60 -me-1 rounded-md p-1"
+            [attr.aria-label]="messages.verify.dismiss"
+            (click)="verifyDismissed.set(true)"
+          >
+            <ng-icon name="lucideX" class="size-4" />
+          </button>
         </div>
       </div>
     }
 
-    <div class="flex-1">
+    <div class="flex-1 pb-16 md:pb-0">
       <router-outlet />
     </div>
+
+    <!-- Mobile bottom navigation -->
+    <nav
+      class="bg-card fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t md:hidden"
+      [attr.aria-label]="messages.mobileNav"
+    >
+      <a
+        routerLink="/"
+        routerLinkActive="text-primary"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="text-muted-foreground flex flex-col items-center gap-0.5 py-2 text-xs font-medium"
+      >
+        <ng-icon name="lucideHouse" class="size-5" />
+        {{ messages.nav.home }}
+      </a>
+      <a
+        routerLink="/projects"
+        routerLinkActive="text-primary"
+        class="text-muted-foreground flex flex-col items-center gap-0.5 py-2 text-xs font-medium"
+      >
+        <ng-icon name="lucideFolderKanban" class="size-5" />
+        {{ messages.nav.projects }}
+      </a>
+      <button
+        type="button"
+        class="text-muted-foreground flex flex-col items-center gap-0.5 py-2 text-xs font-medium"
+        (click)="commandPalette.toggle()"
+      >
+        <ng-icon name="lucideSearch" class="size-5" />
+        {{ messages.nav.search }}
+      </button>
+      <a
+        routerLink="/profile"
+        routerLinkActive="text-primary"
+        class="text-muted-foreground flex flex-col items-center gap-0.5 py-2 text-xs font-medium"
+      >
+        <ng-icon name="lucideUserRound" class="size-5" />
+        {{ messages.nav.profile }}
+      </a>
+    </nav>
   </main>
 
   <sl-command-palette [recentProjects]="recentProjects()" [onSignOut]="signOutAction" />
