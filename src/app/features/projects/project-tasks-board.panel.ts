@@ -1,4 +1,3 @@
-import { CdkDrag, CdkDragDrop, CdkDropList, CdkDropListGroup } from '@angular/cdk/drag-drop';
 import {
   Component,
   computed,
@@ -8,23 +7,17 @@ import {
   inject,
   input,
   signal,
-  TemplateRef,
-  viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { form, FormField, validateStandardSchema } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 
 import { BrnDialogRef } from '@spartan-ng/brain/dialog';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
-import { HlmDialogImports, HlmDialogService } from '@spartan-ng/helm/dialog';
-import { HlmFieldImports } from '@spartan-ng/helm/field';
+import { HlmDialogService } from '@spartan-ng/helm/dialog';
 import { HlmInputImports } from '@spartan-ng/helm/input';
-import { HlmSelectImports } from '@spartan-ng/helm/select';
 import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
-import { HlmTextareaImports } from '@spartan-ng/helm/textarea';
 
 import {
   type ProjectMemberResponseDto,
@@ -40,10 +33,9 @@ import {
 } from '../../core/tasks/tasks-api.service';
 import { UserActions } from '../../core/users/user.actions';
 import { selectCurrentUser } from '../../core/users/user.reducer';
-import { firstFieldErrorMessage } from '../auth/auth.form-utils';
 import { ProjectTasksStore } from './project-tasks.store';
 import { TASK_STATUS_ORDER, TASKS_MESSAGES } from './tasks.messages';
-import { createTaskSchema, type CreateTaskModel } from './tasks.schemas';
+import { TaskCreateDialog, type TaskCreateDialogData } from './task-create.dialog';
 
 export type TasksViewMode = 'board' | 'list';
 
@@ -70,20 +62,7 @@ function isEditableTarget(target: EventTarget | null): boolean {
 @Component({
   selector: 'sl-project-tasks-board-panel',
   providers: [ProjectTasksStore],
-  imports: [
-    FormField,
-    RouterLink,
-    CdkDropListGroup,
-    CdkDropList,
-    CdkDrag,
-    ...HlmButtonImports,
-    ...HlmDialogImports,
-    ...HlmFieldImports,
-    ...HlmInputImports,
-    ...HlmSelectImports,
-    ...HlmSkeletonImports,
-    ...HlmTextareaImports,
-  ],
+  imports: [RouterLink, ...HlmButtonImports, ...HlmInputImports, ...HlmSkeletonImports],
   templateUrl: './project-tasks-board.panel.html',
 })
 export class ProjectTasksBoardPanel {
@@ -97,7 +76,6 @@ export class ProjectTasksBoardPanel {
 
   readonly messages = TASKS_MESSAGES;
   readonly statusOrder = TASK_STATUS_ORDER;
-  readonly priorityOptions = ['LOW', 'MEDIUM', 'HIGH', 'URGENT'] as const;
 
   readonly currentUser = this.ngrxStore.selectSignal(selectCurrentUser);
 
@@ -138,21 +116,7 @@ export class ProjectTasksBoardPanel {
   readonly mobileStatus = signal<TaskStatus>('TODO');
 
   private readonly dialog = inject(HlmDialogService);
-  private readonly createTpl = viewChild.required<TemplateRef<unknown>>('createDialog');
-  private createRef: BrnDialogRef | null = null;
-  readonly createShowErrors = signal(false);
-  readonly createSubmitting = signal(false);
-  readonly createServerError = signal<string | null>(null);
-
-  readonly quickAddStatus = signal<TaskStatus | null>(null);
-  readonly quickAddTitle = signal('');
-  readonly quickAddSubmitting = signal(false);
-
-  private readonly createModel = signal<CreateTaskModel>(emptyCreateModel());
-
-  readonly createForm = form(this.createModel, (schemaPath) => {
-    validateStandardSchema(schemaPath, createTaskSchema);
-  });
+  private createRef: BrnDialogRef<boolean> | null = null;
 
   private readonly loadedForProjectId = signal<string | null>(null);
   private readonly search$ = new Subject<string>();
@@ -192,7 +156,7 @@ export class ProjectTasksBoardPanel {
 
   /**
    * Board shortcuts (ignored while typing in inputs):
-   * n — new task · / — focus search · 1 board · 2 list · Esc — close create/quick-add
+   * n — new task · / — focus search · 1 board · 2 list · Esc — close create
    */
   @HostListener('document:keydown', ['$event'])
   onDocumentKeydown(event: KeyboardEvent): void {
@@ -208,10 +172,6 @@ export class ProjectTasksBoardPanel {
         this.closeCreate();
         return;
       }
-      if (this.quickAddStatus()) {
-        event.preventDefault();
-        this.closeQuickAdd();
-      }
       return;
     }
 
@@ -222,9 +182,7 @@ export class ProjectTasksBoardPanel {
     if (key === 'n' || key === 'N') {
       event.preventDefault();
       this.openCreate();
-      queueMicrotask(() => {
-        document.getElementById('task-title')?.focus();
-      });
+      setTimeout(() => document.getElementById('task-title')?.focus(), 50);
       return;
     }
 
@@ -306,68 +264,32 @@ export class ProjectTasksBoardPanel {
   }
 
   openCreate(): void {
-    this.createOpen.set(true);
-    this.createServerError.set(null);
-    this.createModel.update((current) => ({ ...current, status: this.mobileStatus() }));
-
-    if (!this.createRef) {
-      const ref = this.dialog.open(this.createTpl(), {
-        contentClass: 'sm:max-w-lg',
-        showCloseButton: true,
-        closeLabel: this.messages.create.cancel,
-      });
-      this.createRef = ref;
-      ref.closed$.subscribe(() => {
-        this.createRef = null;
-        if (this.createOpen()) {
-          this.closeCreate();
-        }
-      });
+    if (this.createRef) {
+      return;
     }
+    this.createOpen.set(true);
+
+    const data: TaskCreateDialogData = {
+      initialStatus: this.mobileStatus(),
+      memberOptions: this.memberOptions,
+      create: (dto, callbacks, status) => this.tasksStore.create(dto, callbacks, status),
+    };
+
+    const ref = this.dialog.open<boolean, TaskCreateDialogData>(TaskCreateDialog, {
+      contentClass: 'sm:max-w-lg',
+      showCloseButton: true,
+      closeLabel: this.messages.create.cancel,
+      context: data,
+    });
+    this.createRef = ref;
+    ref.closed$.subscribe(() => {
+      this.createRef = null;
+      this.createOpen.set(false);
+    });
   }
 
   closeCreate(): void {
-    this.createOpen.set(false);
     this.createRef?.close();
-    this.createShowErrors.set(false);
-    this.createServerError.set(null);
-    this.createModel.set(emptyCreateModel());
-  }
-
-  openQuickAdd(status: TaskStatus): void {
-    this.quickAddStatus.set(status);
-    this.quickAddTitle.set('');
-  }
-
-  closeQuickAdd(): void {
-    this.quickAddStatus.set(null);
-    this.quickAddTitle.set('');
-    this.quickAddSubmitting.set(false);
-  }
-
-  onQuickAddTitleInput(event: Event): void {
-    this.quickAddTitle.set((event.target as HTMLInputElement).value);
-  }
-
-  submitQuickAdd(status: TaskStatus, event?: Event): void {
-    event?.preventDefault();
-    const title = this.quickAddTitle().trim();
-    if (title.length < 2 || this.quickAddSubmitting()) {
-      return;
-    }
-
-    this.quickAddSubmitting.set(true);
-    this.tasksStore.createInColumn(title, status, {
-      onSuccess: () => {
-        this.quickAddSubmitting.set(false);
-        this.closeQuickAdd();
-        appToast.success(this.messages.create.success);
-      },
-      onError: (message) => {
-        this.quickAddSubmitting.set(false);
-        appToast.error(message);
-      },
-    });
   }
 
   dueLabel(task: TaskResponseDto): string | null {
@@ -434,9 +356,6 @@ export class ProjectTasksBoardPanel {
     }
   }
 
-  readonly priorityToString = (value: unknown): string =>
-    this.messages.priority[value as keyof typeof this.messages.priority] ?? String(value ?? '');
-
   priorityLabel(priority: TaskPriority): string {
     switch (priority) {
       case 'LOW':
@@ -457,109 +376,12 @@ export class ProjectTasksBoardPanel {
     return `sl-priority-chip sl-priority-chip-${priority}`;
   }
 
-  createPriority(): TaskPriority {
-    return this.createModel().priority;
-  }
-
-  readonly statusToString = (value: unknown): string =>
-    this.messages.status[value as TaskStatus] ?? String(value ?? '');
-
-  readonly assigneeToString = (value: unknown): string => {
-    const id = String(value ?? '');
-    if (!id) {
-      return this.messages.detail.unassigned;
-    }
-    const member = this.membersByUserId().get(id);
-    return member ? (member.user?.name ?? member.user?.email ?? id) : id;
-  };
-
   readonly memberOptions = computed(() =>
     [...this.membersByUserId().values()].map((member) => ({
       id: member.userId,
       label: member.user?.name ?? member.user?.email ?? member.userId,
-    })),
+    }))
   );
-
-  readonly createStatus = computed(() => this.createModel().status);
-  readonly createAssignee = computed(() => this.createModel().assignedToId);
-
-  setCreateStatus(value: unknown): void {
-    if (typeof value === 'string' && TASK_STATUS_ORDER.includes(value as TaskStatus)) {
-      this.createModel.update((current) => ({ ...current, status: value as TaskStatus }));
-    }
-  }
-
-  setCreateAssignee(value: unknown): void {
-    this.createModel.update((current) => ({ ...current, assignedToId: String(value ?? '') }));
-  }
-
-  setCreatePriority(value: unknown): void {
-    if (value === 'LOW' || value === 'MEDIUM' || value === 'HIGH' || value === 'URGENT') {
-      this.createModel.update((current) => ({ ...current, priority: value }));
-    }
-  }
-
-  createFieldError(field: 'title' | 'description' | 'priority'): string | null {
-    const state = this.createForm[field]();
-    if (!this.createShowErrors() && !state.touched()) {
-      return null;
-    }
-    return firstFieldErrorMessage(state.errors());
-  }
-
-  onCreateSubmit(event: Event): void {
-    event.preventDefault();
-    this.createServerError.set(null);
-    this.createShowErrors.set(true);
-
-    if (this.createForm().invalid() || this.createSubmitting()) {
-      return;
-    }
-
-    this.createSubmitting.set(true);
-    const { title, description, priority, status, dueDate, assignedToId } = this.createModel();
-    const dto = {
-      title,
-      priority,
-      ...(description.trim().length > 0 ? { description: description.trim() } : {}),
-      ...(dueDate.trim().length > 0 ? { dueDate: `${dueDate.trim()}T17:00:00Z` } : {}),
-      ...(assignedToId ? { assignedToId } : {}),
-    };
-
-    this.tasksStore.create(
-      dto,
-      {
-      onSuccess: () => {
-        this.createSubmitting.set(false);
-        appToast.success(this.messages.create.success);
-        this.createModel.set(emptyCreateModel());
-        this.createShowErrors.set(false);
-        this.closeCreate();
-      },
-      onError: (message) => {
-        this.createSubmitting.set(false);
-        this.createServerError.set(message);
-      },
-      },
-      status,
-    );
-  }
-
-  onTaskDrop(event: CdkDragDrop<TaskStatus, TaskStatus, TaskResponseDto>): void {
-    if (event.previousContainer === event.container) {
-      return;
-    }
-
-    const task = event.item.data;
-    const nextStatus = event.container.data;
-    if (!task || task.status === nextStatus) {
-      return;
-    }
-
-    this.tasksStore.updateStatus(task, nextStatus, {
-      onError: (message) => appToast.error(message),
-    });
-  }
 
   onStatusChange(task: TaskResponseDto, event: Event): void {
     const select = event.target as HTMLSelectElement;
@@ -591,15 +413,4 @@ export class ProjectTasksBoardPanel {
       onError: (message) => appToast.error(message),
     });
   }
-}
-
-function emptyCreateModel(): CreateTaskModel {
-  return {
-    title: '',
-    description: '',
-    status: 'TODO',
-    priority: 'MEDIUM',
-    dueDate: '',
-    assignedToId: '',
-  };
 }

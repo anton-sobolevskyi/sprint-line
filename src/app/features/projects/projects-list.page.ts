@@ -1,15 +1,11 @@
-import { AfterViewInit, Component, computed, inject, OnInit, signal, TemplateRef, viewChild } from '@angular/core';
-import { form, FormField, validateStandardSchema } from '@angular/forms/signals';
+import { AfterViewInit, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { BrnDialogRef } from '@spartan-ng/brain/dialog';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
-import { HlmDialogImports, HlmDialogService } from '@spartan-ng/helm/dialog';
+import { HlmDialogService } from '@spartan-ng/helm/dialog';
 import { HlmCardImports } from '@spartan-ng/helm/card';
-import { HlmFieldImports } from '@spartan-ng/helm/field';
-import { HlmInputImports } from '@spartan-ng/helm/input';
 import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
-import { HlmTextareaImports } from '@spartan-ng/helm/textarea';
 
 import { getApiErrorMessage } from '../../core/api/api-error';
 import {
@@ -17,26 +13,15 @@ import {
   type ProjectResponseDto,
   ProjectsApiService,
 } from '../../core/projects/projects-api.service';
-import { firstFieldErrorMessage } from '../auth/auth.form-utils';
+import { ProjectCreateDialog } from './project-create.dialog';
 import { PROJECTS_MESSAGES } from './projects.messages';
-import { createProjectSchema, type CreateProjectModel } from './projects.schemas';
 
 const DEFAULT_PAGE = 1 as const;
 const DEFAULT_LIMIT = 20 as const;
 
 @Component({
   selector: 'sl-projects-list-page',
-  imports: [
-    FormField,
-    RouterLink,
-    ...HlmButtonImports,
-    ...HlmDialogImports,
-    ...HlmCardImports,
-    ...HlmFieldImports,
-    ...HlmInputImports,
-    ...HlmSkeletonImports,
-    ...HlmTextareaImports,
-  ],
+  imports: [RouterLink, ...HlmButtonImports, ...HlmCardImports, ...HlmSkeletonImports],
   templateUrl: './projects-list.page.html',
 })
 export class ProjectsListPage implements OnInit, AfterViewInit {
@@ -62,23 +47,8 @@ export class ProjectsListPage implements OnInit, AfterViewInit {
   readonly loadStatus = signal<'idle' | 'loading' | 'success' | 'error'>('idle');
   readonly loadError = signal<string | null>(null);
 
-  readonly showCreate = signal(false);
-
   private readonly dialog = inject(HlmDialogService);
-  private readonly createTpl = viewChild.required<TemplateRef<unknown>>('createDialog');
-  private createRef: BrnDialogRef | null = null;
-  readonly createShowErrors = signal(false);
-  readonly createSubmitting = signal(false);
-  readonly createServerError = signal<string | null>(null);
-
-  private readonly createModel = signal<CreateProjectModel>({
-    name: '',
-    description: '',
-  });
-
-  readonly createForm = form(this.createModel, (schemaPath) => {
-    validateStandardSchema(schemaPath, createProjectSchema);
-  });
+  private createRef: BrnDialogRef<ProjectResponseDto | undefined> | null = null;
 
   ngOnInit(): void {
     // if (this.route.snapshot.queryParamMap.get('new') === '1') {
@@ -126,64 +96,21 @@ export class ProjectsListPage implements OnInit, AfterViewInit {
   }
 
   openCreate(): void {
-    this.createServerError.set(null);
-    this.createShowErrors.set(false);
-    this.createModel.set({ name: '', description: '' });
-    this.showCreate.set(true);
-
-    if (!this.createRef) {
-      const ref = this.dialog.open(this.createTpl(), {
-        contentClass: 'sm:max-w-md',
-        showCloseButton: true,
-        closeLabel: this.messages.create.cancel,
-      });
-      this.createRef = ref;
-      ref.closed$.subscribe(() => {
-        this.createRef = null;
-        this.showCreate.set(false);
-      });
-    }
-  }
-
-  closeCreate(): void {
-    this.showCreate.set(false);
-    this.createRef?.close();
-  }
-
-  createFieldError(field: 'name' | 'description'): string | null {
-    const state = this.createForm[field]();
-    if (!this.createShowErrors() && !state.touched()) {
-      return null;
-    }
-    return firstFieldErrorMessage(state.errors());
-  }
-
-  onCreateSubmit(event: Event): void {
-    event.preventDefault();
-    this.createServerError.set(null);
-    this.createShowErrors.set(true);
-
-    if (this.createForm().invalid() || this.createSubmitting()) {
+    if (this.createRef) {
       return;
     }
 
-    this.createSubmitting.set(true);
-    const { name, description } = this.createModel();
-    const dto = {
-      name,
-      ...(description.trim().length > 0 ? { description: description.trim() } : {}),
-    };
-
-    this.projectsApi.create(dto).subscribe({
-      next: (project) => {
-        this.createSubmitting.set(false);
-        this.closeCreate();
+    const ref = this.dialog.open<ProjectResponseDto | undefined>(ProjectCreateDialog, {
+      contentClass: 'sm:max-w-md',
+      showCloseButton: true,
+      closeLabel: this.messages.create.cancel,
+    });
+    this.createRef = ref;
+    ref.closed$.subscribe((project) => {
+      this.createRef = null;
+      if (project) {
         void this.router.navigate(['/projects', project.id]);
-      },
-      error: (error: unknown) => {
-        this.createSubmitting.set(false);
-        this.createServerError.set(getApiErrorMessage(error));
-      },
+      }
     });
   }
 

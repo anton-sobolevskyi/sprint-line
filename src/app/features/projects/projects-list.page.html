@@ -8,118 +8,95 @@
   </header>
 
   @if (loadStatus() === 'success' && projects().length > 0) {
-  <input type="search" hlmInput class="max-w-sm" [placeholder]="messages.list.searchPlaceholder"
-    [attr.aria-label]="messages.list.searchPlaceholder" [value]="search()" (input)="onSearch($event)" />
+    <input
+      type="search"
+      hlmInput
+      class="max-w-sm"
+      [placeholder]="messages.list.searchPlaceholder"
+      [attr.aria-label]="messages.list.searchPlaceholder"
+      [value]="search()"
+      (input)="onSearch($event)"
+    />
   }
 
   @if (loadStatus() === 'loading') {
-  <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" aria-busy="true">
-    <div hlmSkeleton class="h-32 w-full rounded-xl"></div>
-    <div hlmSkeleton class="h-32 w-full rounded-xl"></div>
-    <div hlmSkeleton class="h-32 w-full rounded-xl"></div>
-  </div>
+    <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" aria-busy="true">
+      <div hlmSkeleton class="h-32 w-full rounded-xl"></div>
+      <div hlmSkeleton class="h-32 w-full rounded-xl"></div>
+      <div hlmSkeleton class="h-32 w-full rounded-xl"></div>
+    </div>
   } @else if (loadStatus() === 'error') {
-  <section class="border-border rounded-xl border p-5">
-    <p class="sl-notice sl-notice-danger" role="alert">{{ loadError() }}</p>
-    <button hlmBtn type="button" variant="outline" size="sm" class="mt-3 w-fit" (click)="load()">
-      {{ messages.list.retry }}
-    </button>
-  </section>
+    <section class="border-border rounded-xl border p-5">
+      <p class="sl-notice sl-notice-danger" role="alert">{{ loadError() }}</p>
+      <button hlmBtn type="button" variant="outline" size="sm" class="mt-3 w-fit" (click)="load()">
+        {{ messages.list.retry }}
+      </button>
+    </section>
   } @else if (projects().length === 0) {
-  <section class="border-border rounded-xl border border-dashed px-4 py-10 text-center">
-    <p class="text-sm font-medium">{{ messages.list.emptyTitle }}</p>
-    <p class="text-muted-foreground mx-auto mt-1 max-w-sm text-sm">
-      {{ messages.list.emptyBody }}
-    </p>
-    <button hlmBtn type="button" size="sm" class="mt-4" (click)="openCreate()">
-      {{ messages.list.emptyAction }}
-    </button>
-  </section>
+    <section class="border-border rounded-xl border border-dashed px-4 py-10 text-center">
+      <p class="text-sm font-medium">{{ messages.list.emptyTitle }}</p>
+      <p class="text-muted-foreground mx-auto mt-1 max-w-sm text-sm">
+        {{ messages.list.emptyBody }}
+      </p>
+      <button hlmBtn type="button" size="sm" class="mt-4" (click)="openCreate()">
+        {{ messages.list.emptyAction }}
+      </button>
+    </section>
   } @else if (visibleProjects().length === 0) {
-  <section class="border-border rounded-xl border border-dashed px-4 py-10 text-center">
-    <p class="font-semibold">{{ messages.list.noMatchTitle }}</p>
-    <p class="text-muted-foreground mt-1 text-sm">{{ messages.list.noMatchBody }}</p>
-  </section>
+    <section class="border-border rounded-xl border border-dashed px-4 py-10 text-center">
+      <p class="font-semibold">{{ messages.list.noMatchTitle }}</p>
+      <p class="text-muted-foreground mt-1 text-sm">{{ messages.list.noMatchBody }}</p>
+    </section>
   } @else {
-  <ul class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-    @for (project of visibleProjects(); track project.id) {
-    <li>
-      <a class="border-border bg-card hover:border-primary/40 group flex h-full flex-col gap-4 rounded-xl border p-4 transition-colors"
-        [routerLink]="['/projects', project.id]">
-        <div class="flex items-start gap-3">
-          <span
-            class="bg-accent text-accent-foreground flex size-9 shrink-0 items-center justify-center rounded-lg text-sm font-bold"
-            aria-hidden="true">
-            {{ project.name.slice(0, 1).toUpperCase() }}
-          </span>
-          <div class="min-w-0 flex-1">
-            <p class="truncate font-semibold group-hover:underline">{{ project.name }}</p>
-            @if (project.description) {
-            <p class="text-muted-foreground line-clamp-1 text-xs">
-              {{ project.description }}
-            </p>
-            }
-          </div>
-        </div>
-        @let percent = progressPercent(project);
-        <div class="mt-auto flex flex-col gap-1.5">
-          @if (percent !== null) {
-          <div class="bg-muted h-1.5 overflow-hidden rounded-full" role="progressbar" [attr.aria-valuenow]="percent"
-            aria-valuemin="0" aria-valuemax="100" [attr.aria-label]="progressText(project)">
-            <div class="h-full rounded-full" style="background: var(--status-done)" [style.width.%]="percent"></div>
-          </div>
-          }
-          <div class="text-muted-foreground flex justify-between text-xs">
-            <span>{{ percent !== null ? progressText(project) : messages.list.noTasks }}</span>
-            <span>{{ memberText(project) }}</span>
-          </div>
-        </div>
-      </a>
-    </li>
-    }
-  </ul>
+    <ul class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      @for (project of visibleProjects(); track project.id) {
+        <li>
+          <a
+            class="border-border bg-card hover:border-primary/40 group flex h-full flex-col gap-4 rounded-xl border p-4 transition-colors"
+            [routerLink]="['/projects', project.id]"
+          >
+            <div class="flex items-start gap-3">
+              <span
+                class="bg-accent text-accent-foreground flex size-9 shrink-0 items-center justify-center rounded-lg text-sm font-bold"
+                aria-hidden="true"
+              >
+                {{ project.name.slice(0, 1).toUpperCase() }}
+              </span>
+              <div class="min-w-0 flex-1">
+                <p class="truncate font-semibold group-hover:underline">{{ project.name }}</p>
+                @if (project.description) {
+                  <p class="text-muted-foreground line-clamp-1 text-xs">
+                    {{ project.description }}
+                  </p>
+                }
+              </div>
+            </div>
+            @let percent = progressPercent(project);
+            <div class="mt-auto flex flex-col gap-1.5">
+              @if (percent !== null) {
+                <div
+                  class="bg-muted h-1.5 overflow-hidden rounded-full"
+                  role="progressbar"
+                  [attr.aria-valuenow]="percent"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                  [attr.aria-label]="progressText(project)"
+                >
+                  <div
+                    class="h-full rounded-full"
+                    style="background: var(--status-done)"
+                    [style.width.%]="percent"
+                  ></div>
+                </div>
+              }
+              <div class="text-muted-foreground flex justify-between text-xs">
+                <span>{{ percent !== null ? progressText(project) : messages.list.noTasks }}</span>
+                <span>{{ memberText(project) }}</span>
+              </div>
+            </div>
+          </a>
+        </li>
+      }
+    </ul>
   }
 </main>
-
-<ng-template #createDialog>
-  <div class="flex flex-col gap-4">
-    <div class="flex flex-col gap-1">
-      <h2 hlmDialogTitle>{{ messages.create.title }}</h2>
-      <p hlmDialogDescription>{{ messages.create.description }}</p>
-    </div>
-    <form class="flex flex-col gap-3" (submit)="onCreateSubmit($event)">
-      @if (createServerError(); as error) {
-      <div class="sl-notice sl-notice-danger" role="alert">
-        {{ error }}
-      </div>
-      }
-
-      <div hlmField>
-        <label hlmFieldLabel for="project-name">{{ messages.create.nameLabel }}</label>
-        <input id="project-name" type="text" hlmInput [formField]="createForm.name"
-          [placeholder]="messages.create.namePlaceholder"
-          [attr.aria-invalid]="createFieldError('name') ? true : null" />
-        @if (createFieldError('name'); as message) {
-        <hlm-field-error forceShow>{{ message }}</hlm-field-error>
-        }
-      </div>
-
-      <div hlmField>
-        <label hlmFieldLabel for="project-description">
-          {{ messages.create.descriptionLabel }}
-        </label>
-        <textarea id="project-description" hlmTextarea rows="2" [formField]="createForm.description"
-          [placeholder]="messages.create.descriptionPlaceholder"></textarea>
-      </div>
-
-      <div class="flex flex-wrap gap-2">
-        <button hlmBtn type="submit" [disabled]="createSubmitting()">
-          {{ createSubmitting() ? messages.create.submitting : messages.create.submit }}
-        </button>
-        <button hlmBtn type="button" variant="outline" (click)="closeCreate()">
-          {{ messages.create.cancel }}
-        </button>
-      </div>
-    </form>
-  </div>
-</ng-template>

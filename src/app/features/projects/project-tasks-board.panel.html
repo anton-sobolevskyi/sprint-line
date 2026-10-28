@@ -273,17 +273,12 @@
           </button>
         }
       </div>
-      <p class="text-muted-foreground hidden text-xs md:block">{{ messages.dnd.hint }}</p>
-      <div class="sl-board-scroll grid gap-2.5 pb-1 md:grid-cols-2 lg:grid-cols-4" cdkDropListGroup>
+      <div class="sl-board-scroll grid gap-2.5 pb-1 md:grid-cols-2 lg:grid-cols-4">
         @for (column of columns(); track column.status) {
           <div
             class="sl-board-column w-full md:flex md:w-auto"
             [class]="'sl-board-column-' + column.status"
             [class.hidden]="column.status !== mobileStatus()"
-            cdkDropList
-            [cdkDropListData]="column.status"
-            [id]="'col-' + column.status"
-            (cdkDropListDropped)="onTaskDrop($event)"
           >
             <div class="flex items-center justify-between gap-2 px-0.5">
               <h3>{{ column.label }}</h3>
@@ -294,7 +289,7 @@
               </span>
             </div>
 
-            @if (column.tasks.length === 0 && quickAddStatus() !== column.status) {
+            @if (column.tasks.length === 0) {
               <div
                 class="text-muted-foreground border-border rounded-lg border border-dashed px-2 py-5 text-center text-xs"
               >
@@ -304,12 +299,7 @@
 
             <ul class="flex min-h-10 flex-1 flex-col gap-1.5">
               @for (task of column.tasks; track task.id) {
-                <li
-                  class="sl-task-card group"
-                  cdkDrag
-                  [cdkDragData]="task"
-                  [cdkDragDisabled]="actionTaskId() === task.id"
-                >
+                <li class="sl-task-card group">
                   <div class="flex items-start gap-1.5">
                     <a
                       class="min-w-0 flex-1 rounded-sm text-sm leading-snug font-semibold hover:underline"
@@ -317,18 +307,6 @@
                     >
                       {{ task.title }}
                     </a>
-                    <button
-                      hlmBtn
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      class="text-muted-foreground hover:text-destructive h-5 shrink-0 px-1 text-xs opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
-                      [disabled]="actionTaskId() === task.id"
-                      [attr.aria-label]="messages.actions.delete"
-                      (click)="onDelete(task)"
-                    >
-                      ×
-                    </button>
                   </div>
 
                   <div class="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1">
@@ -354,81 +332,9 @@
                       </span>
                     }
                   </div>
-
-                  <div
-                    class="mt-2 opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100 [@media(hover:none)]:opacity-100"
-                  >
-                    <label class="sr-only" [attr.for]="'status-' + task.id">
-                      {{ messages.actions.changeStatus }}
-                    </label>
-                    <select
-                      class="border-input bg-card text-muted-foreground h-7 w-full rounded-md border px-1.5 text-xs"
-                      [id]="'status-' + task.id"
-                      [value]="task.status"
-                      [disabled]="actionTaskId() === task.id"
-                      (change)="onStatusChange(task, $event)"
-                    >
-                      @for (status of statusOrder; track status) {
-                        <option [value]="status" [selected]="status === task.status">
-                          {{ messages.status[status] }}
-                        </option>
-                      }
-                    </select>
-                  </div>
                 </li>
               }
             </ul>
-
-            @if (quickAddStatus() === column.status) {
-              <form
-                class="mt-0.5 flex flex-col gap-1.5"
-                (submit)="submitQuickAdd(column.status, $event)"
-              >
-                <input
-                  type="text"
-                  hlmInput
-                  class="h-9 text-sm"
-                  [value]="quickAddTitle()"
-                  [placeholder]="messages.create.quickPlaceholder"
-                  (input)="onQuickAddTitleInput($event)"
-                  [attr.aria-label]="messages.create.quickAdd"
-                />
-                <div class="flex gap-1.5">
-                  <button
-                    hlmBtn
-                    type="submit"
-                    size="sm"
-                    class="h-8"
-                    [disabled]="quickAddTitle().trim().length < 2 || quickAddSubmitting()"
-                  >
-                    {{
-                      quickAddSubmitting() ? messages.create.submitting : messages.create.quickAdd
-                    }}
-                  </button>
-                  <button
-                    hlmBtn
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    class="h-7"
-                    (click)="closeQuickAdd()"
-                  >
-                    {{ messages.create.cancel }}
-                  </button>
-                </div>
-              </form>
-            } @else {
-              <button
-                hlmBtn
-                type="button"
-                variant="ghost"
-                size="sm"
-                class="text-muted-foreground hover:text-foreground mt-0.5 h-8 w-full justify-start"
-                (click)="openQuickAdd(column.status)"
-              >
-                + {{ messages.create.quickAdd }}
-              </button>
-            }
           </div>
         }
       </div>
@@ -446,123 +352,3 @@
 >
   +
 </button>
-
-<ng-template #createDialog>
-  <div class="flex flex-col gap-4">
-    <h2 hlmDialogTitle>{{ messages.create.title }}</h2>
-    <form class="flex flex-col gap-3" (submit)="onCreateSubmit($event)">
-      @if (createServerError(); as error) {
-        <div class="sl-notice sl-notice-danger" role="alert">
-          {{ error }}
-        </div>
-      }
-
-      <div class="grid gap-3">
-        <div hlmField>
-          <label hlmFieldLabel for="task-title">{{ messages.create.titleLabel }}</label>
-          <input
-            id="task-title"
-            type="text"
-            hlmInput
-            [formField]="createForm.title"
-            [placeholder]="messages.create.titlePlaceholder"
-            [attr.aria-invalid]="createFieldError('title') ? true : null"
-          />
-          @if (createFieldError('title'); as message) {
-            <hlm-field-error forceShow>{{ message }}</hlm-field-error>
-          }
-        </div>
-      </div>
-
-      <div class="grid grid-cols-2 gap-3">
-        <div hlmField>
-          <span hlmFieldLabel id="task-status-label">{{ messages.create.statusLabel }}</span>
-          <hlm-select
-            class="w-full"
-            [value]="createStatus()"
-            [itemToString]="statusToString"
-            (valueChange)="setCreateStatus($event)"
-            aria-labelledby="task-status-label"
-          >
-            <hlm-select-trigger class="w-full"><hlm-select-value /></hlm-select-trigger>
-            <hlm-select-content *hlmSelectPortal>
-              <hlm-select-group>
-                @for (status of statusOrder; track status) {
-                  <hlm-select-item [value]="status">{{ messages.status[status] }}</hlm-select-item>
-                }
-              </hlm-select-group>
-            </hlm-select-content>
-          </hlm-select>
-        </div>
-
-        <div hlmField>
-          <span hlmFieldLabel id="task-priority-label">{{ messages.create.priorityLabel }}</span>
-          <hlm-select
-            class="w-full"
-            [value]="createPriority()"
-            [itemToString]="priorityToString"
-            (valueChange)="setCreatePriority($event)"
-            aria-labelledby="task-priority-label"
-          >
-            <hlm-select-trigger class="w-full"><hlm-select-value /></hlm-select-trigger>
-            <hlm-select-content *hlmSelectPortal>
-              <hlm-select-group>
-                @for (priority of priorityOptions; track priority) {
-                  <hlm-select-item [value]="priority">{{
-                    messages.priority[priority]
-                  }}</hlm-select-item>
-                }
-              </hlm-select-group>
-            </hlm-select-content>
-          </hlm-select>
-        </div>
-
-        <div hlmField>
-          <label hlmFieldLabel for="task-due">{{ messages.create.dueDateLabel }}</label>
-          <input id="task-due" type="date" hlmInput [formField]="createForm.dueDate" />
-        </div>
-
-        <div hlmField>
-          <span hlmFieldLabel id="task-assignee-label">{{ messages.create.assigneeLabel }}</span>
-          <hlm-select
-            class="w-full"
-            [value]="createAssignee()"
-            [itemToString]="assigneeToString"
-            (valueChange)="setCreateAssignee($event)"
-            aria-labelledby="task-assignee-label"
-          >
-            <hlm-select-trigger class="w-full"><hlm-select-value /></hlm-select-trigger>
-            <hlm-select-content *hlmSelectPortal>
-              <hlm-select-group>
-                <hlm-select-item value="">{{ messages.detail.unassigned }}</hlm-select-item>
-                @for (member of memberOptions(); track member.id) {
-                  <hlm-select-item [value]="member.id">{{ member.label }}</hlm-select-item>
-                }
-              </hlm-select-group>
-            </hlm-select-content>
-          </hlm-select>
-        </div>
-      </div>
-
-      <div hlmField>
-        <label hlmFieldLabel for="task-description">{{ messages.create.descriptionLabel }}</label>
-        <textarea
-          id="task-description"
-          hlmTextarea
-          rows="2"
-          [formField]="createForm.description"
-          [placeholder]="messages.create.descriptionPlaceholder"
-        ></textarea>
-      </div>
-
-      <div class="flex justify-end gap-2">
-        <button hlmBtn type="button" variant="outline" (click)="closeCreate()">
-          {{ messages.create.cancel }}
-        </button>
-        <button hlmBtn type="submit" [disabled]="createSubmitting()">
-          {{ createSubmitting() ? messages.create.submitting : messages.create.submit }}
-        </button>
-      </div>
-    </form>
-  </div>
-</ng-template>

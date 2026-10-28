@@ -5,7 +5,7 @@ export const TASKS_MESSAGES = {
   retry: 'Try again',
   emptyColumn: 'No tasks',
   emptyColumnCta: '+ Add a task',
-  emptyColumnDrop: 'Drop a task here',
+  emptyColumnDrop: 'No tasks',
   emptyFilteredTitle: 'No matches',
   emptyFiltered: 'Nothing matches these filters. Clear them to see all tasks.',
   emptyListTitle: 'No tasks yet',
