@@ -1,5 +1,5 @@
 [tools]
-node = "22"
+node = "24"
 
 [tasks.docker-dev]
 description = "Start Angular in Docker (dev, detached)"
