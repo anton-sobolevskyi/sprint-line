@@ -22,13 +22,13 @@ import { SHELL_MESSAGES } from './shell.messages';
 
 type CommandGroup = 'nav' | 'tasks' | 'projects' | 'actions';
 
-type CommandItem = {
+interface CommandItem {
   id: string;
   group: CommandGroup;
   label: string;
   keywords: string;
   run: () => void;
-};
+}
 
 const PROJECTS_LIMIT = 50 as const;
 
@@ -290,8 +290,11 @@ export class CommandPaletteComponent {
     this.activeIndex.set(0);
   }
 
-  onBackdropClick(): void {
-    this.palette.hide();
+  /** Closes only when the backdrop itself is clicked, not when the click bubbles from the dialog. */
+  onBackdropClick(event: MouseEvent): void {
+    if (event.target === event.currentTarget) {
+      this.palette.hide();
+    }
   }
 
   runAt(index: number): void {

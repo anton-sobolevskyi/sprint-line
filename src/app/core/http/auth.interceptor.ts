@@ -1,21 +1,13 @@
-import {
-  HttpErrorResponse,
-  HttpInterceptorFn,
-  HttpRequest,
-} from '@angular/common/http';
+import { HttpErrorResponse, HttpInterceptorFn, HttpRequest } from '@angular/common/http';
 import { inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { catchError, switchMap, throwError } from 'rxjs';
 
-import {
-  isApiRequestUrl,
-  isAuthPublicRequestUrl,
-} from '../api/api-endpoints';
+import { isApiRequestUrl, isAuthPublicRequestUrl } from '../api/api-endpoints';
 import { AuthSessionService } from '../auth/auth-session.service';
+import { isGuestUrl, RETURN_URL_PARAM, sanitizeReturnUrl } from '../auth/return-url';
 
-function withAccessToken(
-  req: HttpRequest<unknown>,
-  token: string | null,
-): HttpRequest<unknown> {
+function withAccessToken(req: HttpRequest<unknown>, token: string | null): HttpRequest<unknown> {
   let next = req;
 
   if (isApiRequestUrl(req.url) && !req.withCredentials) {
@@ -34,10 +26,12 @@ function withAccessToken(
 /**
  * Attaches Bearer access token from the global NgRx auth store,
  * enables credentials for API calls, and on 401 performs a single
- * serialized refresh then retries once.
+ * serialized refresh then retries once. When the refresh fails the user is sent
+ * to the login page (with a `returnUrl`).
  */
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authSession = inject(AuthSessionService);
+  const router = inject(Router);
   const token = authSession.getAccessTokenSnapshot();
   const authorizedReq = withAccessToken(req, token);
 
@@ -56,8 +50,18 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
           const retryReq = withAccessToken(req, response.accessToken);
           return next(retryReq);
         }),
-        catchError((refreshError: unknown) => throwError(() => refreshError)),
+        catchError((refreshError: unknown) => {
+          // The session is gone (refresh cookie expired/revoked): leave the protected
+          // page instead of leaving the user stranded with failing requests.
+          if (token && !isGuestUrl(router.url)) {
+            const returnUrl = sanitizeReturnUrl(router.url);
+            void router.navigate(['/login'], {
+              queryParams: returnUrl ? { [RETURN_URL_PARAM]: returnUrl } : undefined,
+            });
+          }
+          return throwError(() => refreshError);
+        })
       );
-    }),
+    })
   );
 };

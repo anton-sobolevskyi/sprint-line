@@ -35,7 +35,11 @@ export interface TaskCreateDialogData {
   /** Persists the task (typically `ProjectTasksStore.create`). */
   create: (
     dto: CreateTaskDto,
-    callbacks: { onSuccess: () => void; onError: (message: string) => void },
+    callbacks: {
+      onSuccess: () => void;
+      onPartialSuccess: (message: string) => void;
+      onError: (message: string) => void;
+    },
     status: TaskStatus
   ) => void;
 }
@@ -155,6 +159,12 @@ export class TaskCreateDialog {
         onSuccess: () => {
           this.submitting.set(false);
           appToast.success(this.messages.create.success);
+          this.dialogRef.close(true);
+        },
+        onPartialSuccess: (message) => {
+          // The task exists but could not be moved to the chosen column.
+          this.submitting.set(false);
+          appToast.info(this.messages.create.partialSuccess, message);
           this.dialogRef.close(true);
         },
         onError: (message) => {

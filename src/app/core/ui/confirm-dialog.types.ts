@@ -1,4 +1,4 @@
-export type ConfirmDialogData = {
+export interface ConfirmDialogData {
   title: string;
   description: string;
   /** Defaults to UI_MESSAGES.dialog.confirm */
@@ -7,4 +7,4 @@ export type ConfirmDialogData = {
   cancelLabel?: string;
   /** Uses destructive button styling when true. */
   destructive?: boolean;
-};
+}

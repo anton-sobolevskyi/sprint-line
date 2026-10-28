@@ -1,4 +1,5 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { form, FormField, validateStandardSchema } from '@angular/forms/signals';
 import { ActivatedRoute, Router, RouterLink, RouterOutlet } from '@angular/router';
 
@@ -91,21 +92,29 @@ export class ProjectDetailPage {
   });
 
   private readonly syncedProjectId = signal<string | null>(null);
-  private readonly loadedProjectId = signal<string | null>(null);
+
+  /** Reactive route state: the component is reused when navigating between projects. */
+  private readonly paramMap = toSignal(this.route.paramMap, { requireSync: true });
+  private readonly queryParamMap = toSignal(this.route.queryParamMap, { requireSync: true });
+  private readonly projectIdParam = computed(() => this.paramMap().get('id'));
+
+  /** Incremented per request so a slow response for a previous project is ignored. */
+  private loadSeq = 0;
 
   constructor() {
     effect(() => {
-      const id = this.route.snapshot.paramMap.get('id');
-      if (!id || this.loadedProjectId() === id) {
+      const id = this.projectIdParam();
+      if (!id) {
         return;
       }
-      this.loadedProjectId.set(id);
-      this.load(id);
+      untracked(() => {
+        this.project.set(null);
+        this.load(id);
+      });
     });
 
     effect(() => {
-      const tab = parseTab(this.route.snapshot.queryParamMap.get('tab'));
-      this.activeTab.set(tab);
+      this.activeTab.set(parseTab(this.queryParamMap().get('tab')));
     });
 
     effect(() => {
@@ -132,15 +141,22 @@ export class ProjectDetailPage {
   }
 
   load(id: string): void {
+    const seq = ++this.loadSeq;
     this.loadStatus.set('loading');
     this.loadError.set(null);
 
     this.projectsApi.findOne(id).subscribe({
       next: (project) => {
+        if (seq !== this.loadSeq) {
+          return;
+        }
         this.project.set(project);
         this.loadStatus.set('success');
       },
       error: (error: unknown) => {
+        if (seq !== this.loadSeq) {
+          return;
+        }
         this.loadStatus.set('error');
         this.loadError.set(getApiErrorMessage(error));
       },
@@ -148,11 +164,9 @@ export class ProjectDetailPage {
   }
 
   reload(): void {
-    const id = this.route.snapshot.paramMap.get('id');
+    const id = this.projectIdParam();
     if (id) {
-      this.loadedProjectId.set(null);
       this.load(id);
-      this.loadedProjectId.set(id);
     }
   }
 

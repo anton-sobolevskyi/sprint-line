@@ -118,5 +118,9 @@ export function isApiRequestUrl(url: string): boolean {
 }
 
 export function isAuthPublicRequestUrl(url: string): boolean {
-  return AUTH_PUBLIC_PATHS.some((path) => url.includes(path));
+  if (!isApiRequestUrl(url)) {
+    return false;
+  }
+  const path = url.slice(API_BASE_URL.length).split(/[?#]/)[0];
+  return (AUTH_PUBLIC_PATHS as readonly string[]).includes(path ?? '');
 }

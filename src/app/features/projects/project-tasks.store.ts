@@ -1,5 +1,6 @@
 import { computed, inject } from '@angular/core';
 import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
+import type { Subscription } from 'rxjs';
 
 import { getApiErrorMessage } from '../../core/api/api-error';
 import {
@@ -15,7 +16,7 @@ const DEFAULT_LIMIT = 100 as const;
 
 type LoadStatus = 'idle' | 'loading' | 'success' | 'error';
 
-type ProjectTasksState = {
+interface ProjectTasksState {
   projectId: string | null;
   tasks: TaskResponseDto[];
   loadStatus: LoadStatus;
@@ -26,7 +27,7 @@ type ProjectTasksState = {
   currentUserId: string | null;
   actionTaskId: string | null;
   actionError: string | null;
-};
+}
 
 const initialState: ProjectTasksState = {
   projectId: null,
@@ -59,14 +60,31 @@ export const ProjectTasksStore = signalStore(
     }),
   })),
   withMethods((store, tasksApi = inject(TasksApiService)) => {
-    const reload = (projectId: string): void => {
-      const query = buildListQuery(store);
-      tasksApi.findAll(projectId, query).subscribe({
+    /** In-flight list request; replaced (and cancelled) by the next one. */
+    let listSub: Subscription | null = null;
+
+    /**
+     * Fetches the task list for the current filters. A newer call cancels the previous
+     * request so a slow, outdated response can never overwrite fresher data.
+     * `silent` refreshes keep the board visible and report failures via `actionError`.
+     */
+    const fetchTasks = (projectId: string, silent: boolean): void => {
+      listSub?.unsubscribe();
+
+      if (!silent) {
+        patchState(store, { loadStatus: 'loading', loadError: null });
+      }
+
+      listSub = tasksApi.findAll(projectId, buildListQuery(store)).subscribe({
         next: (response) => {
-          patchState(store, {
-            tasks: response.data,
-            loadStatus: 'success',
-          });
+          patchState(store, { tasks: response.data, loadStatus: 'success', loadError: null });
+        },
+        error: (error: unknown) => {
+          const message = getApiErrorMessage(error);
+          patchState(
+            store,
+            silent ? { actionError: message } : { loadStatus: 'error', loadError: message }
+          );
         },
       });
     };
@@ -76,6 +94,7 @@ export const ProjectTasksStore = signalStore(
         if (store.projectId() === projectId) {
           return;
         }
+        listSub?.unsubscribe();
         patchState(store, {
           projectId,
           tasks: [],
@@ -108,32 +127,24 @@ export const ProjectTasksStore = signalStore(
 
       load(): void {
         const projectId = store.projectId();
-        if (!projectId) {
-          return;
+        if (projectId) {
+          fetchTasks(projectId, false);
         }
-
-        patchState(store, { loadStatus: 'loading', loadError: null });
-
-        const query = buildListQuery(store);
-        tasksApi.findAll(projectId, query).subscribe({
-          next: (response) => {
-            patchState(store, {
-              tasks: response.data,
-              loadStatus: 'success',
-            });
-          },
-          error: (error: unknown) => {
-            patchState(store, {
-              loadStatus: 'error',
-              loadError: getApiErrorMessage(error),
-            });
-          },
-        });
       },
 
+      /**
+       * Creates a task. The create endpoint has no status field, so a non-default status
+       * needs a second request. If that second request fails the task still exists (in
+       * the default column): `onPartialSuccess` is called with the reason, falling back
+       * to `onSuccess` when the caller doesn't care to distinguish.
+       */
       create(
         dto: CreateTaskDto,
-        callbacks?: { onSuccess?: () => void; onError?: (message: string) => void },
+        callbacks?: {
+          onSuccess?: () => void;
+          onPartialSuccess?: (message: string) => void;
+          onError?: (message: string) => void;
+        },
         status?: TaskStatus
       ): void {
         const projectId = store.projectId();
@@ -143,55 +154,25 @@ export const ProjectTasksStore = signalStore(
 
         tasksApi.create(projectId, dto).subscribe({
           next: (created) => {
-            // The create endpoint has no status field: move the task afterwards.
-            if (status && status !== created.status) {
-              tasksApi.update(created.id, { status }).subscribe({
-                next: () => {
-                  callbacks?.onSuccess?.();
-                  reload(projectId);
-                },
-                error: () => {
-                  callbacks?.onSuccess?.();
-                  reload(projectId);
-                },
-              });
-              return;
-            }
-            callbacks?.onSuccess?.();
-            reload(projectId);
-          },
-          error: (error: unknown) => {
-            callbacks?.onError?.(getApiErrorMessage(error));
-          },
-        });
-      },
-
-      createInColumn(
-        title: string,
-        status: TaskStatus,
-        callbacks?: { onSuccess?: () => void; onError?: (message: string) => void }
-      ): void {
-        const projectId = store.projectId();
-        if (!projectId) {
-          return;
-        }
-
-        tasksApi.create(projectId, { title, priority: 'MEDIUM' }).subscribe({
-          next: (created) => {
-            if (created.status === status) {
+            if (!status || status === created.status) {
               callbacks?.onSuccess?.();
-              reload(projectId);
+              fetchTasks(projectId, true);
               return;
             }
 
             tasksApi.update(created.id, { status }).subscribe({
               next: () => {
                 callbacks?.onSuccess?.();
-                reload(projectId);
+                fetchTasks(projectId, true);
               },
-              error: () => {
-                callbacks?.onSuccess?.();
-                reload(projectId);
+              error: (error: unknown) => {
+                const message = getApiErrorMessage(error);
+                if (callbacks?.onPartialSuccess) {
+                  callbacks.onPartialSuccess(message);
+                } else {
+                  callbacks?.onSuccess?.();
+                }
+                fetchTasks(projectId, true);
               },
             });
           },

@@ -31,6 +31,23 @@ describe('auth guards', () => {
     expect(result).toEqual(router.createUrlTree(['/login']));
   });
 
+  it('authGuard keeps the requested URL as returnUrl', async () => {
+    TestBed.configureTestingModule({
+      providers: [provideRouter([]), provideStore({ [authFeature.name]: authFeature.reducer })],
+    });
+
+    const result = await resolveGuardResult(
+      TestBed.runInInjectionContext(() =>
+        authGuard({} as never, { url: '/projects/42?tab=members' } as never)
+      )
+    );
+
+    const router = TestBed.inject(Router);
+    expect(result).toEqual(
+      router.createUrlTree(['/login'], { queryParams: { returnUrl: '/projects/42?tab=members' } })
+    );
+  });
+
   it('guestGuard redirects authenticated users home', async () => {
     TestBed.configureTestingModule({
       providers: [provideRouter([]), provideStore({ [authFeature.name]: authFeature.reducer })],

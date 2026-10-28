@@ -4,20 +4,27 @@ import { Store } from '@ngrx/store';
 import { map, take } from 'rxjs';
 
 import { selectIsAuthenticated } from './auth.selectors';
+import { RETURN_URL_PARAM, sanitizeReturnUrl } from './return-url';
 
 const LOGIN_PATH = '/login' as const;
 const HOME_PATH = '/' as const;
 
 /** Allows the route only when an access token is present in the global auth store. */
-export const authGuard: CanActivateFn = () => {
+export const authGuard: CanActivateFn = (_route, state) => {
   const store = inject(Store);
   const router = inject(Router);
+  const returnUrl = sanitizeReturnUrl(state?.url);
 
   return store.select(selectIsAuthenticated).pipe(
     take(1),
     map((isAuthenticated) =>
-      isAuthenticated ? true : router.createUrlTree([LOGIN_PATH]),
-    ),
+      isAuthenticated
+        ? true
+        : router.createUrlTree(
+            [LOGIN_PATH],
+            returnUrl ? { queryParams: { [RETURN_URL_PARAM]: returnUrl } } : undefined
+          )
+    )
   );
 };
 
@@ -28,8 +35,6 @@ export const guestGuard: CanActivateFn = () => {
 
   return store.select(selectIsAuthenticated).pipe(
     take(1),
-    map((isAuthenticated) =>
-      isAuthenticated ? router.createUrlTree([HOME_PATH]) : true,
-    ),
+    map((isAuthenticated) => (isAuthenticated ? router.createUrlTree([HOME_PATH]) : true))
   );
 };

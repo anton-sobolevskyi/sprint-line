@@ -45,6 +45,7 @@ export const TASKS_MESSAGES = {
     submit: 'Add task',
     submitting: 'Adding…',
     success: 'Task created.',
+    partialSuccess: 'Task created, but it could not be moved to the selected status.',
     open: 'New task',
     cancel: 'Cancel',
     quickAdd: 'Add task',

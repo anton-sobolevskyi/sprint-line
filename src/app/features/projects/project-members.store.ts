@@ -13,14 +13,14 @@ const DEFAULT_LIMIT = 50 as const;
 
 type LoadStatus = 'idle' | 'loading' | 'success' | 'error';
 
-type ProjectMembersState = {
+interface ProjectMembersState {
   projectId: string | null;
   members: ProjectMemberResponseDto[];
   loadStatus: LoadStatus;
   loadError: string | null;
   actionUserId: string | null;
   actionError: string | null;
-};
+}
 
 const initialState: ProjectMembersState = {
   projectId: null,

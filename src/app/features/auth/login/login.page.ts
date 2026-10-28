@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { form, FormField, validateStandardSchema } from '@angular/forms/signals';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmCardImports } from '@spartan-ng/helm/card';
@@ -9,6 +9,7 @@ import { HlmInputImports } from '@spartan-ng/helm/input';
 
 import { getApiErrorMessage } from '../../../core/api/api-error';
 import { AuthApiService } from '../../../core/auth/auth-api.service';
+import { RETURN_URL_PARAM, sanitizeReturnUrl } from '../../../core/auth/return-url';
 import { AuthThemeToggle } from '../auth-theme-toggle.component';
 import { firstFieldErrorMessage } from '../auth.form-utils';
 import { AUTH_MESSAGES } from '../auth.messages';
@@ -30,6 +31,7 @@ import { loginFormSchema, type LoginFormModel } from '../auth.schemas';
 export class LoginPage {
   private readonly authApi = inject(AuthApiService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   readonly messages = AUTH_MESSAGES;
   readonly isSubmitting = signal(false);
@@ -75,7 +77,10 @@ export class LoginPage {
     this.authApi.login({ email, password }).subscribe({
       next: () => {
         this.isSubmitting.set(false);
-        void this.router.navigateByUrl('/');
+        const returnUrl = sanitizeReturnUrl(
+          this.route.snapshot.queryParamMap.get(RETURN_URL_PARAM)
+        );
+        void this.router.navigateByUrl(returnUrl ?? '/');
       },
       error: (error: unknown) => {
         this.isSubmitting.set(false);

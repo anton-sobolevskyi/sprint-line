@@ -1,6 +1,16 @@
-import { Component, HostListener, computed, effect, inject, signal } from '@angular/core';
+import {
+  Component,
+  HostListener,
+  type Signal,
+  computed,
+  effect,
+  inject,
+  signal,
+  untracked,
+} from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { form, FormField, validateStandardSchema } from '@angular/forms/signals';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, type ParamMap, Router } from '@angular/router';
 
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmCardImports } from '@spartan-ng/helm/card';
@@ -126,19 +136,29 @@ export class TaskDetailPage {
     }
     return labels.saved;
   });
-  private readonly loadedKey = signal<string | null>(null);
+
+  /** Reactive route state: the drawer is reused when switching between tasks. */
+  private readonly ownParams = toSignal(this.route.paramMap, { requireSync: true });
+  private readonly parentParams: Signal<ParamMap | null> = this.route.parent
+    ? toSignal(this.route.parent.paramMap, { requireSync: true })
+    : signal(null);
+
+  /** Incremented per request so a slow response for a previous task is ignored. */
+  private loadSeq = 0;
 
   constructor() {
     effect(() => {
       const { projectId, taskId } = this.resolveIds();
       this.projectId.set(projectId);
       this.taskId.set(taskId);
-      const key = projectId && taskId ? `${projectId}:${taskId}` : null;
-      if (!key || this.loadedKey() === key) {
+      if (!projectId || !taskId) {
         return;
       }
-      this.loadedKey.set(key);
-      this.load(projectId!, taskId!);
+      untracked(() => {
+        this.task.set(null);
+        this.syncedTaskId.set(null);
+        this.load(projectId, taskId);
+      });
     });
 
     // Autosave: debounce edits, skip while the form is invalid.
@@ -170,11 +190,9 @@ export class TaskDetailPage {
 
   /** Nested: parent has :id, child has :taskId. Flat fallback: :projectId. */
   private resolveIds(): { projectId: string | null; taskId: string | null } {
-    const taskId = this.route.snapshot.paramMap.get('taskId');
-    const projectId =
-      this.route.snapshot.paramMap.get('projectId') ??
-      this.route.parent?.snapshot.paramMap.get('id') ??
-      null;
+    const own = this.ownParams();
+    const taskId = own.get('taskId');
+    const projectId = own.get('projectId') ?? this.parentParams()?.get('id') ?? null;
     return { projectId, taskId };
   }
 
@@ -197,15 +215,22 @@ export class TaskDetailPage {
   }
 
   load(projectId: string, taskId: string): void {
+    const seq = ++this.loadSeq;
     this.loadStatus.set('loading');
     this.loadError.set(null);
 
     this.tasksApi.findOne(taskId).subscribe({
       next: (task) => {
+        if (seq !== this.loadSeq) {
+          return;
+        }
         this.task.set(task);
         this.loadStatus.set('success');
       },
       error: (error: unknown) => {
+        if (seq !== this.loadSeq) {
+          return;
+        }
         this.loadStatus.set('error');
         this.loadError.set(getApiErrorMessage(error));
       },
@@ -213,10 +238,14 @@ export class TaskDetailPage {
 
     this.membersApi.findAll(projectId, { page: 1, limit: MEMBERS_LIMIT }).subscribe({
       next: (response) => {
-        this.members.set(response.data);
+        if (seq === this.loadSeq) {
+          this.members.set(response.data);
+        }
       },
       error: () => {
-        this.members.set([]);
+        if (seq === this.loadSeq) {
+          this.members.set([]);
+        }
       },
     });
   }
@@ -225,9 +254,7 @@ export class TaskDetailPage {
     const projectId = this.projectId();
     const taskId = this.taskId();
     if (projectId && taskId) {
-      this.loadedKey.set(null);
       this.load(projectId, taskId);
-      this.loadedKey.set(`${projectId}:${taskId}`);
     }
   }
 
