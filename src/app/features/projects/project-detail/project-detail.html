@@ -94,93 +94,97 @@
     }
 
     @if (activeTab() === 'settings') {
-      <div
-        role="tabpanel"
-        class="flex max-w-xl flex-col gap-4"
-        [attr.aria-label]="messages.detail.sections.settings"
-      >
-        <section class="border-border bg-card rounded-xl border p-5">
-          <h2 class="text-lg font-semibold">{{ messages.detail.settingsTitle }}</h2>
-          <p class="text-muted-foreground mt-0.5 text-sm">
-            {{ messages.detail.settingsDescription }}
-          </p>
+      <div class="flex flex-col items-center gap-4">
+        <div
+          role="tabpanel"
+          class="flex max-w-2xl flex-col gap-4"
+          [attr.aria-label]="messages.detail.sections.settings"
+        >
+          <section class="border-border bg-card rounded-xl border p-5">
+            <h2 class="text-lg font-semibold">{{ messages.detail.settingsTitle }}</h2>
+            <p class="text-muted-foreground mt-0.5 text-sm">
+              {{ messages.detail.settingsDescription }}
+            </p>
 
-          <form class="mt-3 flex flex-col gap-3" (submit)="onSaveSettings($event)">
-            @if (settingsServerError(); as error) {
-              <div class="sl-notice sl-notice-danger" role="alert">
-                {{ error }}
-              </div>
-            }
-            @if (settingsSuccess(); as success) {
-              <div class="sl-notice sl-notice-success" role="status">
-                {{ success }}
-              </div>
-            }
+            <form class="mt-3 flex flex-col gap-3" (submit)="onSaveSettings($event)">
+              @if (settingsServerError(); as error) {
+                <div class="sl-notice sl-notice-danger" role="alert">
+                  {{ error }}
+                </div>
+              }
+              @if (settingsSuccess(); as success) {
+                <div class="sl-notice sl-notice-success" role="status">
+                  {{ success }}
+                </div>
+              }
 
-            <div hlmField>
-              <label hlmFieldLabel for="settings-name">{{ messages.detail.nameLabel }}</label>
+              <div hlmField>
+                <label hlmFieldLabel for="settings-name">{{ messages.detail.nameLabel }}</label>
+                <input
+                  id="settings-name"
+                  type="text"
+                  hlmInput
+                  [formField]="settingsForm.name"
+                  [attr.aria-invalid]="settingsFieldError('name') ? true : null"
+                />
+                @if (settingsFieldError('name'); as message) {
+                  <hlm-field-error forceShow>{{ message }}</hlm-field-error>
+                }
+              </div>
+
+              <div hlmField>
+                <label hlmFieldLabel for="settings-description">
+                  {{ messages.detail.descriptionLabel }}
+                </label>
+                <textarea
+                  id="settings-description"
+                  hlmTextarea
+                  rows="2"
+                  [formField]="settingsForm.description"
+                  [placeholder]="messages.detail.descriptionPlaceholder"
+                ></textarea>
+              </div>
+
+              <button hlmBtn type="submit" class="w-fit" [disabled]="settingsSubmitting()">
+                {{ settingsSubmitting() ? messages.detail.saving : messages.detail.save }}
+              </button>
+            </form>
+          </section>
+
+          <section class="border-destructive/30 bg-card rounded-xl border p-5">
+            <h2 class="text-destructive text-lg font-semibold">
+              {{ messages.detail.dangerTitle }}
+            </h2>
+            <p class="text-muted-foreground mt-0.5 text-sm">{{ messages.detail.dangerBody }}</p>
+            @if (deleteError(); as error) {
+              <p class="sl-notice sl-notice-danger mt-3" role="alert">{{ error }}</p>
+            }
+            <div hlmField class="mt-3">
+              <label hlmFieldLabel for="delete-confirm">{{
+                messages.detail.deleteConfirmLabel
+              }}</label>
               <input
-                id="settings-name"
+                id="delete-confirm"
                 type="text"
                 hlmInput
-                [formField]="settingsForm.name"
-                [attr.aria-invalid]="settingsFieldError('name') ? true : null"
+                autocomplete="off"
+                [placeholder]="current.name"
+                [value]="deleteConfirmText()"
+                (input)="onDeleteConfirmInput($event)"
               />
-              @if (settingsFieldError('name'); as message) {
-                <hlm-field-error forceShow>{{ message }}</hlm-field-error>
-              }
             </div>
-
-            <div hlmField>
-              <label hlmFieldLabel for="settings-description">
-                {{ messages.detail.descriptionLabel }}
-              </label>
-              <textarea
-                id="settings-description"
-                hlmTextarea
-                rows="2"
-                [formField]="settingsForm.description"
-                [placeholder]="messages.detail.descriptionPlaceholder"
-              ></textarea>
-            </div>
-
-            <button hlmBtn type="submit" class="w-fit" [disabled]="settingsSubmitting()">
-              {{ settingsSubmitting() ? messages.detail.saving : messages.detail.save }}
+            <button
+              hlmBtn
+              type="button"
+              variant="destructive"
+              class="mt-3 w-fit"
+              [disabled]="deleteSubmitting() || !canDelete()"
+              (click)="onDelete()"
+            >
+              {{ deleteSubmitting() ? messages.detail.deleting : messages.detail.delete }}
             </button>
-          </form>
-        </section>
-
-        <section class="border-destructive/30 bg-card rounded-xl border p-5">
-          <h2 class="text-destructive text-lg font-semibold">{{ messages.detail.dangerTitle }}</h2>
-          <p class="text-muted-foreground mt-0.5 text-sm">{{ messages.detail.dangerBody }}</p>
-          @if (deleteError(); as error) {
-            <p class="sl-notice sl-notice-danger mt-3" role="alert">{{ error }}</p>
-          }
-          <div hlmField class="mt-3">
-            <label hlmFieldLabel for="delete-confirm">{{
-              messages.detail.deleteConfirmLabel
-            }}</label>
-            <input
-              id="delete-confirm"
-              type="text"
-              hlmInput
-              autocomplete="off"
-              [placeholder]="current.name"
-              [value]="deleteConfirmText()"
-              (input)="onDeleteConfirmInput($event)"
-            />
-          </div>
-          <button
-            hlmBtn
-            type="button"
-            variant="destructive"
-            class="mt-3 w-fit"
-            [disabled]="deleteSubmitting() || !canDelete()"
-            (click)="onDelete()"
-          >
-            {{ deleteSubmitting() ? messages.detail.deleting : messages.detail.delete }}
-          </button>
-        </section>
+          </section>
+        </div>
       </div>
     }
   }

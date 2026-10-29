@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmInput } from '@spartan-ng/helm/input';
+import { HlmSelectImports } from '@spartan-ng/helm/select';
 import { HlmSkeleton } from '@spartan-ng/helm/skeleton';
 
 import { ProjectTasksStore } from './project-tasks.store';
@@ -33,13 +34,15 @@ import { ProjectMemberResponseDto, TaskResponseDto, TaskStatus, TaskPriority } f
 import { TASKS_MESSAGES } from '@constants/messages';
 import { MEMBERS_LIMIT, PRIORITY_RANK, TASK_STATUS_ORDER } from '@constants/config';
 import { Dialog } from '@core/services/dialog';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideTrash } from '@ng-icons/lucide';
 
 @Component({
-  imports: [HlmButton, HlmInput, HlmSkeleton, RouterLink],
+  imports: [HlmButton, HlmInput, HlmSelectImports, HlmSkeleton, RouterLink, NgIcon],
   selector: 'sl-project-tasks',
   styleUrl: './project-tasks.scss',
   templateUrl: './project-tasks.html',
-  providers: [ProjectTasksStore],
+  providers: [ProjectTasksStore, provideIcons({ lucideTrash })],
 })
 export class ProjectTasks {
   readonly projectId = input.required<string>();
@@ -252,7 +255,7 @@ export class ProjectTasks {
     };
 
     const ref = this.hlmDialog.open<boolean, TaskCreateDialogData>(TaskCreateDialog, {
-      contentClass: 'sm:max-w-lg',
+      contentClass: 'sm:max-w-lg w-[420px]',
       showCloseButton: true,
       closeLabel: this.messages.create.cancel,
       context: data,
@@ -317,6 +320,13 @@ export class ProjectTasks {
     return name.slice(0, 2).toUpperCase();
   }
 
+  readonly statusToString = (value: unknown): string => {
+    if (value === 'TODO' || value === 'IN_PROGRESS' || value === 'IN_REVIEW' || value === 'DONE') {
+      return this.statusLabel(value);
+    }
+    return '';
+  };
+
   statusLabel(status: TaskStatus): string {
     switch (status) {
       case 'TODO':
@@ -359,18 +369,16 @@ export class ProjectTasks {
     }))
   );
 
-  onStatusChange(task: TaskResponseDto, event: Event): void {
-    const select = event.target as HTMLSelectElement;
-    const status = select.value as TaskStatus;
-    if (status === task.status) {
+  onStatusChange(task: TaskResponseDto, value: unknown): void {
+    if (value !== 'TODO' && value !== 'IN_PROGRESS' && value !== 'IN_REVIEW' && value !== 'DONE') {
       return;
     }
 
-    this.tasksStore.updateStatus(task, status, {
-      onError: () => {
-        select.value = task.status;
-      },
-    });
+    if (value === task.status) {
+      return;
+    }
+
+    this.tasksStore.updateStatus(task, value);
   }
 
   async onDelete(task: TaskResponseDto): Promise<void> {

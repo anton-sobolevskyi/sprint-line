@@ -1,308 +1,316 @@
-<main class="mx-auto flex w-full max-w-2xl flex-col gap-5 p-4 py-6 md:p-8">
-  <header class="flex flex-col gap-1">
-    <h1 class="text-3xl font-semibold">{{ messages.title }}</h1>
-    <p class="text-muted-foreground">{{ messages.description }}</p>
-  </header>
+<div class="p-4 py-6 md:p-8">
+  <main class="mx-auto flex w-full max-w-2xl flex-col gap-5">
+    <header class="flex flex-col gap-1">
+      <h1 class="text-3xl font-semibold">{{ messages.title }}</h1>
+      <p class="text-muted-foreground">{{ messages.description }}</p>
+    </header>
 
-  @if (loadStatus() === 'loading' && !currentUser()) {
-    <div class="flex flex-col gap-3" aria-busy="true" [attr.aria-label]="messages.loading">
-      <div hlmSkeleton class="h-28 w-full rounded-xl"></div>
-      <div hlmSkeleton class="h-24 w-full rounded-xl"></div>
-      <div hlmSkeleton class="h-36 w-full rounded-xl"></div>
-    </div>
-  } @else if (loadStatus() === 'error' && !currentUser()) {
-    <section class="border-border rounded-xl border p-5">
-      <p class="text-destructive text-sm" role="alert">
-        {{ loadError() ?? messages.loadError }}
-      </p>
-      <button hlmBtn type="button" size="sm" class="mt-3" (click)="reload()">
-        {{ messages.retry }}
-      </button>
-    </section>
-  } @else {
-    <!-- Account -->
-    <section class="border-border bg-card rounded-xl border p-4 md:p-5">
-      <div class="mb-4">
-        <h2 class="text-lg font-semibold">{{ messages.profileSection.title }}</h2>
-        <p class="text-muted-foreground text-sm">{{ messages.profileSection.description }}</p>
+    @if (loadStatus() === 'loading' && !currentUser()) {
+      <div class="flex flex-col gap-3" aria-busy="true" [attr.aria-label]="messages.loading">
+        <div hlmSkeleton class="h-28 w-full rounded-xl"></div>
+        <div hlmSkeleton class="h-24 w-full rounded-xl"></div>
+        <div hlmSkeleton class="h-36 w-full rounded-xl"></div>
       </div>
-
-      <form class="flex flex-col gap-3" (submit)="onSaveDetails($event)">
-        @if (detailsServerError(); as error) {
-          <div class="sl-notice sl-notice-danger" role="alert">
-            {{ error }}
-          </div>
-        }
-        @if (detailsSuccess(); as success) {
-          <div class="sl-notice sl-notice-success" role="status">
-            {{ success }}
-          </div>
-        }
-
-        <div hlmField>
-          <label hlmFieldLabel for="profile-name">{{ messages.profileSection.nameLabel }}</label>
-          <input
-            id="profile-name"
-            type="text"
-            hlmInput
-            autocomplete="name"
-            [formField]="detailsForm.name"
-            [attr.aria-invalid]="detailsFieldError('name') ? true : null"
-            [placeholder]="messages.profileSection.namePlaceholder"
-          />
-          @if (detailsFieldError('name'); as message) {
-            <hlm-field-error forceShow>{{ message }}</hlm-field-error>
-          }
+    } @else if (loadStatus() === 'error' && !currentUser()) {
+      <section class="border-border rounded-xl border p-5">
+        <p class="text-destructive text-sm" role="alert">
+          {{ loadError() ?? messages.loadError }}
+        </p>
+        <button hlmBtn type="button" size="sm" class="mt-3" (click)="reload()">
+          {{ messages.retry }}
+        </button>
+      </section>
+    } @else {
+      <!-- Account -->
+      <section class="border-border bg-card rounded-xl border p-4 md:p-5">
+        <div class="mb-4">
+          <h2 class="text-lg font-semibold">{{ messages.profileSection.title }}</h2>
+          <p class="text-muted-foreground text-sm">{{ messages.profileSection.description }}</p>
         </div>
 
-        <div hlmField>
-          <label hlmFieldLabel for="profile-email">{{ messages.profileSection.emailLabel }}</label>
-          <input
-            id="profile-email"
-            type="email"
-            hlmInput
-            autocomplete="email"
-            [formField]="detailsForm.email"
-            [attr.aria-invalid]="detailsFieldError('email') ? true : null"
-            [placeholder]="messages.profileSection.emailPlaceholder"
-          />
-          <p hlmFieldDescription>{{ messages.profileSection.emailHint }}</p>
-          @if (detailsFieldError('email'); as message) {
-            <hlm-field-error forceShow>{{ message }}</hlm-field-error>
+        <form class="flex flex-col gap-3" (submit)="onSaveDetails($event)">
+          @if (detailsServerError(); as error) {
+            <div class="sl-notice sl-notice-danger" role="alert">
+              {{ error }}
+            </div>
           }
-        </div>
+          @if (detailsSuccess(); as success) {
+            <div class="sl-notice sl-notice-success" role="status">
+              {{ success }}
+            </div>
+          }
 
-        @if (emailChanged()) {
           <div hlmField>
-            <label hlmFieldLabel for="profile-current-password">
-              {{ messages.profileSection.currentPasswordLabel }}
-            </label>
+            <label hlmFieldLabel for="profile-name">{{ messages.profileSection.nameLabel }}</label>
             <input
-              id="profile-current-password"
-              type="password"
+              id="profile-name"
+              type="text"
               hlmInput
-              autocomplete="current-password"
-              [formField]="detailsForm.currentPassword"
-              [attr.aria-invalid]="detailsFieldError('currentPassword') ? true : null"
+              autocomplete="name"
+              [formField]="detailsForm.name"
+              [attr.aria-invalid]="detailsFieldError('name') ? true : null"
+              [placeholder]="messages.profileSection.namePlaceholder"
             />
-            <p hlmFieldDescription>{{ messages.profileSection.currentPasswordHint }}</p>
-            @if (detailsFieldError('currentPassword'); as message) {
+            @if (detailsFieldError('name'); as message) {
               <hlm-field-error forceShow>{{ message }}</hlm-field-error>
             }
           </div>
-        }
 
-        <div class="flex flex-col gap-2">
-          @if (isEmailVerified()) {
-            <p class="sl-status sl-status-DONE w-fit">
-              {{ messages.profileSection.emailVerified }}
-            </p>
-          } @else {
-            <p class="sl-notice w-fit">{{ messages.profileSection.emailUnverified }}</p>
-            @if (resendError(); as error) {
-              <p class="text-destructive text-sm" role="alert">{{ error }}</p>
-            }
-            @if (resendSuccess(); as success) {
-              <p class="text-sm" role="status">{{ success }}</p>
-            }
-            <button
-              hlmBtn
-              type="button"
-              variant="outline"
-              size="sm"
-              class="w-fit"
-              [disabled]="resendSubmitting()"
-              (click)="onResendVerification()"
-            >
-              {{
-                resendSubmitting()
-                  ? messages.profileSection.resending
-                  : messages.profileSection.resendVerification
-              }}
-            </button>
-          }
-        </div>
-
-        <button hlmBtn type="submit" class="mt-1 w-fit" [disabled]="detailsSubmitting()">
-          {{ detailsSubmitting() ? messages.profileSection.saving : messages.profileSection.save }}
-        </button>
-      </form>
-    </section>
-
-    <!-- Photo -->
-    <section class="border-border bg-card rounded-xl border p-4 md:p-5">
-      <div class="mb-4">
-        <h2 class="text-lg font-semibold">{{ messages.avatarSection.title }}</h2>
-        <p class="text-muted-foreground text-sm">{{ messages.avatarSection.description }}</p>
-      </div>
-
-      <div class="flex flex-col gap-3">
-        @if (avatarError(); as error) {
-          <div class="sl-notice sl-notice-danger" role="alert">
-            {{ error }}
-          </div>
-        }
-        @if (avatarSuccess(); as success) {
-          <div class="sl-notice sl-notice-success" role="status">
-            {{ success }}
-          </div>
-        }
-
-        <div class="flex items-center gap-4">
-          @if (avatarUrl(); as url) {
-            <img
-              [src]="url"
-              [alt]="messages.avatarSection.previewAlt"
-              class="border-border size-16 rounded-full border object-cover"
+          <div hlmField>
+            <label hlmFieldLabel for="profile-email">{{
+              messages.profileSection.emailLabel
+            }}</label>
+            <input
+              id="profile-email"
+              type="email"
+              hlmInput
+              autocomplete="email"
+              [formField]="detailsForm.email"
+              [attr.aria-invalid]="detailsFieldError('email') ? true : null"
+              [placeholder]="messages.profileSection.emailPlaceholder"
             />
-          } @else {
-            <span
-              class="bg-accent text-accent-foreground flex size-16 shrink-0 items-center justify-center rounded-full text-lg font-semibold"
-              aria-hidden="true"
-            >
-              {{ userInitials() }}
-            </span>
-          }
-          <div class="min-w-0 flex-1">
-            <label
-              class="border-input bg-card hover:bg-muted focus-within:outline-ring inline-flex h-10 cursor-pointer items-center rounded-lg border px-4 text-sm font-semibold focus-within:outline-2 focus-within:outline-offset-2"
-              [class.opacity-60]="avatarUploading()"
-            >
-              {{ messages.avatarSection.choose }}
-              <input
-                type="file"
-                accept="image/*"
-                class="sr-only"
-                [disabled]="avatarUploading()"
-                (change)="onAvatarSelected($event)"
-              />
-            </label>
-            <p class="text-muted-foreground mt-1 text-xs">{{ messages.avatarSection.hint }}</p>
-            @if (avatarUploading()) {
-              <p class="text-muted-foreground mt-1 text-xs">
-                {{ messages.avatarSection.uploading }}
-              </p>
+            <p hlmFieldDescription>{{ messages.profileSection.emailHint }}</p>
+            @if (detailsFieldError('email'); as message) {
+              <hlm-field-error forceShow>{{ message }}</hlm-field-error>
             }
           </div>
-        </div>
-      </div>
-    </section>
 
-    <!-- Security -->
-    <section class="border-border bg-card rounded-xl border p-4 md:p-5">
-      <div class="mb-4">
-        <h2 class="text-lg font-semibold">{{ messages.passwordSection.title }}</h2>
-        <p class="text-muted-foreground text-sm">{{ messages.passwordSection.description }}</p>
-      </div>
+          @if (emailChanged()) {
+            <div hlmField>
+              <label hlmFieldLabel for="profile-current-password">
+                {{ messages.profileSection.currentPasswordLabel }}
+              </label>
+              <input
+                id="profile-current-password"
+                type="password"
+                hlmInput
+                autocomplete="current-password"
+                [formField]="detailsForm.currentPassword"
+                [attr.aria-invalid]="detailsFieldError('currentPassword') ? true : null"
+              />
+              <p hlmFieldDescription>{{ messages.profileSection.currentPasswordHint }}</p>
+              @if (detailsFieldError('currentPassword'); as message) {
+                <hlm-field-error forceShow>{{ message }}</hlm-field-error>
+              }
+            </div>
+          }
 
-      <form class="flex flex-col gap-3" (submit)="onChangePassword($event)">
-        @if (passwordServerError(); as error) {
-          <div class="sl-notice sl-notice-danger" role="alert">
-            {{ error }}
+          <div class="flex flex-col gap-2">
+            @if (isEmailVerified()) {
+              <p class="sl-status sl-status-DONE w-fit">
+                {{ messages.profileSection.emailVerified }}
+              </p>
+            } @else {
+              <p class="sl-notice w-fit">{{ messages.profileSection.emailUnverified }}</p>
+              @if (resendError(); as error) {
+                <p class="text-destructive text-sm" role="alert">{{ error }}</p>
+              }
+              @if (resendSuccess(); as success) {
+                <p class="text-sm" role="status">{{ success }}</p>
+              }
+              <button
+                hlmBtn
+                type="button"
+                variant="outline"
+                size="sm"
+                class="w-fit"
+                [disabled]="resendSubmitting()"
+                (click)="onResendVerification()"
+              >
+                {{
+                  resendSubmitting()
+                    ? messages.profileSection.resending
+                    : messages.profileSection.resendVerification
+                }}
+              </button>
+            }
           </div>
-        }
 
-        <div hlmField>
-          <label hlmFieldLabel for="current-password">{{
-            messages.passwordSection.currentLabel
-          }}</label>
-          <input
-            id="current-password"
-            type="password"
-            hlmInput
-            autocomplete="current-password"
-            [formField]="passwordForm.currentPassword"
-            [attr.aria-invalid]="passwordFieldError('currentPassword') ? true : null"
-          />
-          @if (passwordFieldError('currentPassword'); as message) {
-            <hlm-field-error forceShow>{{ message }}</hlm-field-error>
-          }
+          <button hlmBtn type="submit" class="mt-1 w-fit" [disabled]="detailsSubmitting()">
+            {{
+              detailsSubmitting() ? messages.profileSection.saving : messages.profileSection.save
+            }}
+          </button>
+        </form>
+      </section>
+
+      <!-- Photo -->
+      <section class="border-border bg-card rounded-xl border p-4 md:p-5">
+        <div class="mb-4">
+          <h2 class="text-lg font-semibold">{{ messages.avatarSection.title }}</h2>
+          <p class="text-muted-foreground text-sm">{{ messages.avatarSection.description }}</p>
         </div>
 
-        <div hlmField>
-          <label hlmFieldLabel for="new-password">{{ messages.passwordSection.newLabel }}</label>
-          <input
-            id="new-password"
-            type="password"
-            hlmInput
-            autocomplete="new-password"
-            [formField]="passwordForm.newPassword"
-            [attr.aria-invalid]="passwordFieldError('newPassword') ? true : null"
-          />
-          @if (passwordFieldError('newPassword'); as message) {
-            <hlm-field-error forceShow>{{ message }}</hlm-field-error>
+        <div class="flex flex-col gap-3">
+          @if (avatarError(); as error) {
+            <div class="sl-notice sl-notice-danger" role="alert">
+              {{ error }}
+            </div>
           }
-        </div>
-
-        <div hlmField>
-          <label hlmFieldLabel for="confirm-password">{{
-            messages.passwordSection.confirmLabel
-          }}</label>
-          <input
-            id="confirm-password"
-            type="password"
-            hlmInput
-            autocomplete="new-password"
-            [formField]="passwordForm.confirmPassword"
-            [attr.aria-invalid]="passwordFieldError('confirmPassword') ? true : null"
-          />
-          @if (passwordFieldError('confirmPassword'); as message) {
-            <hlm-field-error forceShow>{{ message }}</hlm-field-error>
+          @if (avatarSuccess(); as success) {
+            <div class="sl-notice sl-notice-success" role="status">
+              {{ success }}
+            </div>
           }
-        </div>
 
-        <button hlmBtn type="submit" class="w-fit" [disabled]="passwordSubmitting()">
-          {{
-            passwordSubmitting()
-              ? messages.passwordSection.submitting
-              : messages.passwordSection.submit
-          }}
-        </button>
-      </form>
-    </section>
-
-    <!-- Danger zone -->
-    <section class="border-destructive/30 bg-card rounded-xl border p-4 md:p-5">
-      <div class="mb-4">
-        <h2 class="text-destructive text-lg font-semibold">{{ messages.deleteSection.title }}</h2>
-        <p class="text-muted-foreground mt-0.5 text-sm">{{ messages.deleteSection.body }}</p>
-      </div>
-
-      <div class="flex flex-col gap-3">
-        @if (deleteError(); as error) {
-          <div class="sl-notice sl-notice-danger" role="alert">
-            {{ error }}
+          <div class="flex items-center gap-4">
+            @if (avatarUrl(); as url) {
+              <img
+                [src]="url"
+                [alt]="messages.avatarSection.previewAlt"
+                class="border-border size-16 rounded-full border object-cover"
+              />
+            } @else {
+              <span
+                class="bg-accent text-accent-foreground flex size-16 shrink-0 items-center justify-center rounded-full text-lg font-semibold"
+                aria-hidden="true"
+              >
+                {{ userInitials() }}
+              </span>
+            }
+            <div class="min-w-0 flex-1">
+              <label
+                class="border-input bg-card hover:bg-muted focus-within:outline-ring inline-flex h-10 cursor-pointer items-center rounded-lg border px-4 text-sm font-semibold focus-within:outline-2 focus-within:outline-offset-2"
+                [class.opacity-60]="avatarUploading()"
+              >
+                {{ messages.avatarSection.choose }}
+                <input
+                  type="file"
+                  accept="image/*"
+                  class="sr-only"
+                  [disabled]="avatarUploading()"
+                  (change)="onAvatarSelected($event)"
+                />
+              </label>
+              <p class="text-muted-foreground mt-1 text-xs">{{ messages.avatarSection.hint }}</p>
+              @if (avatarUploading()) {
+                <p class="text-muted-foreground mt-1 text-xs">
+                  {{ messages.avatarSection.uploading }}
+                </p>
+              }
+            </div>
           </div>
-        }
+        </div>
+      </section>
 
-        <div hlmField>
-          <label hlmFieldLabel for="delete-password">{{
-            messages.deleteSection.passwordLabel
-          }}</label>
-          <input
-            id="delete-password"
-            type="password"
-            hlmInput
-            autocomplete="current-password"
-            [value]="deletePassword()"
-            (input)="onDeletePasswordInput($event)"
-          />
-          <p hlmFieldDescription>{{ messages.deleteSection.passwordHint }}</p>
+      <!-- Security -->
+      <section class="border-border bg-card rounded-xl border p-4 md:p-5">
+        <div class="mb-4">
+          <h2 class="text-lg font-semibold">{{ messages.passwordSection.title }}</h2>
+          <p class="text-muted-foreground text-sm">{{ messages.passwordSection.description }}</p>
         </div>
 
-        <button
-          hlmBtn
-          variant="destructive"
-          type="button"
-          class="w-fit"
-          [disabled]="deleteSubmitting() || !deletePassword().trim()"
-          (click)="onDeleteAccount()"
-        >
-          {{
-            deleteSubmitting() ? messages.deleteSection.confirming : messages.deleteSection.confirm
-          }}
-        </button>
-      </div>
-    </section>
-  }
-</main>
+        <form class="flex flex-col gap-3" (submit)="onChangePassword($event)">
+          @if (passwordServerError(); as error) {
+            <div class="sl-notice sl-notice-danger" role="alert">
+              {{ error }}
+            </div>
+          }
+
+          <div hlmField>
+            <label hlmFieldLabel for="current-password">{{
+              messages.passwordSection.currentLabel
+            }}</label>
+            <input
+              id="current-password"
+              type="password"
+              hlmInput
+              autocomplete="current-password"
+              [formField]="passwordForm.currentPassword"
+              [attr.aria-invalid]="passwordFieldError('currentPassword') ? true : null"
+            />
+            @if (passwordFieldError('currentPassword'); as message) {
+              <hlm-field-error forceShow>{{ message }}</hlm-field-error>
+            }
+          </div>
+
+          <div hlmField>
+            <label hlmFieldLabel for="new-password">{{ messages.passwordSection.newLabel }}</label>
+            <input
+              id="new-password"
+              type="password"
+              hlmInput
+              autocomplete="new-password"
+              [formField]="passwordForm.newPassword"
+              [attr.aria-invalid]="passwordFieldError('newPassword') ? true : null"
+            />
+            @if (passwordFieldError('newPassword'); as message) {
+              <hlm-field-error forceShow>{{ message }}</hlm-field-error>
+            }
+          </div>
+
+          <div hlmField>
+            <label hlmFieldLabel for="confirm-password">{{
+              messages.passwordSection.confirmLabel
+            }}</label>
+            <input
+              id="confirm-password"
+              type="password"
+              hlmInput
+              autocomplete="new-password"
+              [formField]="passwordForm.confirmPassword"
+              [attr.aria-invalid]="passwordFieldError('confirmPassword') ? true : null"
+            />
+            @if (passwordFieldError('confirmPassword'); as message) {
+              <hlm-field-error forceShow>{{ message }}</hlm-field-error>
+            }
+          </div>
+
+          <button hlmBtn type="submit" class="w-fit" [disabled]="passwordSubmitting()">
+            {{
+              passwordSubmitting()
+                ? messages.passwordSection.submitting
+                : messages.passwordSection.submit
+            }}
+          </button>
+        </form>
+      </section>
+
+      <!-- Danger zone -->
+      <section class="border-destructive/30 bg-card rounded-xl border p-4 md:p-5">
+        <div class="mb-4">
+          <h2 class="text-destructive text-lg font-semibold">{{ messages.deleteSection.title }}</h2>
+          <p class="text-muted-foreground mt-0.5 text-sm">{{ messages.deleteSection.body }}</p>
+        </div>
+
+        <div class="flex flex-col gap-3">
+          @if (deleteError(); as error) {
+            <div class="sl-notice sl-notice-danger" role="alert">
+              {{ error }}
+            </div>
+          }
+
+          <div hlmField>
+            <label hlmFieldLabel for="delete-password">{{
+              messages.deleteSection.passwordLabel
+            }}</label>
+            <input
+              id="delete-password"
+              type="password"
+              hlmInput
+              autocomplete="current-password"
+              [value]="deletePassword()"
+              (input)="onDeletePasswordInput($event)"
+            />
+            <p hlmFieldDescription>{{ messages.deleteSection.passwordHint }}</p>
+          </div>
+
+          <button
+            hlmBtn
+            variant="destructive"
+            type="button"
+            class="w-fit"
+            [disabled]="deleteSubmitting() || !deletePassword().trim()"
+            (click)="onDeleteAccount()"
+          >
+            {{
+              deleteSubmitting()
+                ? messages.deleteSection.confirming
+                : messages.deleteSection.confirm
+            }}
+          </button>
+        </div>
+      </section>
+    }
+  </main>
+</div>

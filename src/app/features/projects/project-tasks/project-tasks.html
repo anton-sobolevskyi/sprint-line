@@ -182,19 +182,31 @@
                     <label class="sr-only" [attr.for]="'list-status-' + task.id">
                       {{ messages.actions.changeStatus }}
                     </label>
-                    <select
-                      class="border-input bg-card text-foreground h-8 max-w-[9rem] rounded-lg border px-2 text-xs"
-                      [id]="'list-status-' + task.id"
+                    <hlm-select
                       [value]="task.status"
                       [disabled]="actionTaskId() === task.id"
-                      (change)="onStatusChange(task, $event)"
+                      [itemToString]="statusToString"
+                      (valueChange)="onStatusChange(task, $event)"
                     >
-                      @for (status of statusOrder; track status) {
-                        <option [value]="status" [selected]="status === task.status">
-                          {{ messages.status[status] }}
-                        </option>
-                      }
-                    </select>
+                      <hlm-select-trigger
+                        size="sm"
+                        class="max-w-[9rem] text-xs"
+                        [buttonId]="'list-status-' + task.id"
+                      >
+                        <hlm-select-value />
+                      </hlm-select-trigger>
+                      <hlm-select-content *hlmSelectPortal>
+                        <hlm-select-group>
+                          @for (status of statusOrder; track status) {
+                            <hlm-select-item [value]="status">
+                              <span class="sl-status" [class]="'sl-status sl-status-' + status">{{
+                                messages.status[status]
+                              }}</span>
+                            </hlm-select-item>
+                          }
+                        </hlm-select-group>
+                      </hlm-select-content>
+                    </hlm-select>
                   </td>
                   <td class="px-4 py-3">
                     <span class="sl-priority-chip" [class]="'sl-priority-chip-' + task.priority">
@@ -238,7 +250,7 @@
                       [attr.aria-label]="messages.actions.delete"
                       (click)="onDelete(task)"
                     >
-                      ×
+                      <ng-icon name="lucideTrash" />
                     </button>
                   </td>
                 </tr>

@@ -1,5 +1,5 @@
-<div class="border-border mt-3 flex flex-col gap-3 border-t pt-3">
-  <p class="text-xs font-medium tracking-wide uppercase">{{ messages.title }}</p>
+<div class="flex flex-col gap-3">
+  <h3 class="text-sm font-semibold">{{ messages.title }}</h3>
 
   @if (uploadError(); as error) {
     <p class="text-destructive text-xs" role="alert">{{ error }}</p>
