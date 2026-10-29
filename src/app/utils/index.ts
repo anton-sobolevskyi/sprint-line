@@ -5,3 +5,4 @@ export * from './format.utils';
 export * from './task.utils';
 export * from './api.utils';
 export * from './route.utils';
+export * from './boot-loader';

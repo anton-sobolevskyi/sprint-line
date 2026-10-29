@@ -18,14 +18,19 @@ import { authInterceptor } from './core/interceptors/auth-interceptor';
 import { Session } from '@core/services/session';
 import { firstValueFrom } from 'rxjs';
 import { Theme } from '@core/services/theme';
+import { hideBootLoader } from '@utils';
 
 export function restoreAuthSession(): Promise<void> {
   const authSession = inject(Session);
 
-  return firstValueFrom(authSession.refresh()).then(
-    () => undefined,
-    () => undefined
-  );
+  return firstValueFrom(authSession.refresh())
+    .then(
+      () => undefined,
+      () => undefined
+    )
+    .finally(() => {
+      hideBootLoader();
+    });
 }
 
 export const appConfig: ApplicationConfig = {
