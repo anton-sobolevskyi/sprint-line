@@ -68,19 +68,25 @@
         height: 3rem;
         border-radius: 0.75rem;
         background: #b8420f;
+        color: #fff;
         display: grid;
         place-items: center;
+        font-family:
+          Inter,
+          system-ui,
+          -apple-system,
+          'Segoe UI',
+          sans-serif;
+        font-size: 0.95rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
         box-shadow: 0 8px 24px color-mix(in srgb, #b8420f 35%, transparent);
       }
 
       html.dark #sl-boot-loader .sl-boot-mark {
         background: #f08a5d;
+        color: #2a1208;
         box-shadow: 0 8px 24px color-mix(in srgb, #f08a5d 30%, transparent);
-      }
-
-      #sl-boot-loader .sl-boot-mark svg {
-        width: 1.5rem;
-        height: 1.5rem;
       }
 
       #sl-boot-loader .sl-boot-spinner {
@@ -144,24 +150,7 @@
   <body>
     <!-- Shown until APP_INITIALIZER finishes (session restore / API wake-up). -->
     <div id="sl-boot-loader" role="status" aria-live="polite" aria-busy="true">
-      <div class="sl-boot-mark" aria-hidden="true">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
-          <path
-            d="M5 12.5L9.5 17L19 7"
-            stroke="white"
-            stroke-width="2.25"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-          <path
-            d="M5 8h14"
-            stroke="white"
-            stroke-width="1.75"
-            stroke-linecap="round"
-            opacity="0.5"
-          />
-        </svg>
-      </div>
+      <div class="sl-boot-mark" aria-hidden="true">SL</div>
       <div class="sl-boot-spinner" aria-hidden="true"></div>
       <div class="sl-boot-copy">
         <div class="sl-boot-title">SprintLine</div>
