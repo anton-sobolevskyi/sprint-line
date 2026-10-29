@@ -5,7 +5,7 @@ import { AuthLayout } from '../../../layout/auth-layout/auth-layout';
 import { HlmInputImports } from '@spartan-ng/helm/input';
 import { HlmFieldImports } from '@spartan-ng/helm/field';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
-import { firstFieldErrorMessage, getApiErrorMessage, passwordRuleChecks } from '../../../utils';
+import { firstFieldErrorMessage, getApiErrorMessage, passwordRuleChecks } from '@utils';
 import { RegisterFormModel, registerFormSchema } from './register.schema';
 import { Auth } from '@core/services/auth';
 import { AUTH_MESSAGES } from '@constants/messages';
