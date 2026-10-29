@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideCheck } from '@ng-icons/lucide';
 import { ThemeToggle } from '../../components/theme-toggle/theme-toggle';
-import { AUTH_MESSAGES } from '../../constants';
+import { AUTH_MESSAGES } from '@constants/messages';
 
 @Component({
   imports: [ThemeToggle, NgIcon],

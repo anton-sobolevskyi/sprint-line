@@ -1,16 +1,14 @@
+import { inject, Service } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-
-import type { components } from '../../../types/api.schema';
-import { API_ENDPOINTS } from '../api/api-endpoints';
-
-export type TaskResponseDto = components['schemas']['TaskResponseDto'];
-export type CreateTaskDto = components['schemas']['CreateTaskDto'];
-export type UpdateTaskDto = components['schemas']['UpdateTaskDto'];
-export type PaginatedTaskResponseDto = components['schemas']['PaginatedTaskResponseDto'];
-export type TaskStatus = TaskResponseDto['status'];
-export type TaskPriority = TaskResponseDto['priority'];
+import {
+  CreateTaskDto,
+  PaginatedTaskResponseDto,
+  TaskResponseDto,
+  TaskStatus,
+  UpdateTaskDto,
+} from '../../../types/api';
+import { API_ENDPOINTS } from '@constants/api';
 
 export interface TasksListQuery {
   page?: number;
@@ -22,8 +20,8 @@ export interface TasksListQuery {
   dueAfter?: string;
 }
 
-@Injectable({ providedIn: 'root' })
-export class TasksApiService {
+@Service()
+export class Tasks {
   private readonly http = inject(HttpClient);
 
   findAll(projectId: string, query: TasksListQuery = {}): Observable<PaginatedTaskResponseDto> {
@@ -55,7 +53,6 @@ export class TasksApiService {
     return this.http.get<PaginatedTaskResponseDto>(url, { params });
   }
 
-  /** Tasks assigned to the signed-in user across projects (open ones unless includeDone). */
   findMine(
     query: { page?: number; limit?: number; includeDone?: boolean } = {}
   ): Observable<PaginatedTaskResponseDto> {

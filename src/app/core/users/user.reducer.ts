@@ -2,7 +2,7 @@ import { createFeature, createReducer, on } from '@ngrx/store';
 
 import { AuthActions } from '../auth/auth.actions';
 import { UserActions } from './user.actions';
-import type { UserResponseDto } from './users-api.service';
+import { UserResponseDto } from '@types';
 
 export interface UserState {
   currentUser: UserResponseDto | null;
@@ -42,11 +42,7 @@ export const userFeature = createFeature({
       loadStatus: 'success',
       loadError: null,
     })),
-    on(
-      UserActions.clearCurrentUser,
-      AuthActions.clearSession,
-      (): UserState => initialUserState,
-    ),
+    on(UserActions.clearCurrentUser, AuthActions.clearSession, (): UserState => initialUserState)
   ),
 });
 

@@ -1,21 +1,14 @@
+import { inject, Service } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Injectable, inject } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { Observable, firstValueFrom, shareReplay } from 'rxjs';
+import { firstValueFrom, Observable, shareReplay } from 'rxjs';
+import { selectAccessToken } from '@core/auth/auth.reducer';
+import { AuthActions } from '@core/auth/auth.actions';
+import { API_ENDPOINTS } from '@constants/api';
+import { AuthResponseDto } from '@types';
 
-import { API_ENDPOINTS } from '../api/api-endpoints';
-import type { components } from '../../../types/api.schema';
-import { AuthActions } from './auth.actions';
-import { selectAccessToken } from './auth.selectors';
-
-export type AuthResponseDto = components['schemas']['AuthResponseDto'];
-
-/**
- * Serializes refresh calls so concurrent 401s share one in-flight refresh.
- * Global session state lives in the NgRx auth feature store.
- */
-@Injectable({ providedIn: 'root' })
-export class AuthSessionService {
+@Service()
+export class Session {
   private readonly http = inject(HttpClient);
   private readonly store = inject(Store);
 
@@ -24,9 +17,7 @@ export class AuthSessionService {
   readonly accessToken = this.store.selectSignal(selectAccessToken);
 
   applyAuthResponse(response: AuthResponseDto): void {
-    this.store.dispatch(
-      AuthActions.setAccessToken({ accessToken: response.accessToken }),
-    );
+    this.store.dispatch(AuthActions.setAccessToken({ accessToken: response.accessToken }));
   }
 
   clearSession(): void {
@@ -38,10 +29,6 @@ export class AuthSessionService {
     return this.accessToken();
   }
 
-  /**
-   * POST /auth/refresh with credentials (HttpOnly cookie).
-   * Concurrent callers await the same request.
-   */
   refresh(): Observable<AuthResponseDto> {
     if (!this.refreshInFlight) {
       const refreshUrl = API_ENDPOINTS.auth.refresh;
@@ -52,7 +39,7 @@ export class AuthSessionService {
           shareReplay({
             bufferSize: 1,
             refCount: false,
-          }),
+          })
         );
 
       void firstValueFrom(this.refreshInFlight).then(
@@ -62,7 +49,7 @@ export class AuthSessionService {
         },
         () => {
           this.clearSession();
-        },
+        }
       );
     }
 

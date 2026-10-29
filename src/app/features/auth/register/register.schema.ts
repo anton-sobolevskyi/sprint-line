@@ -1,6 +1,6 @@
 import { z } from 'zod';
-
-import { AUTH_MESSAGES, PASSWORD_LETTER_AND_NUMBER } from '../../../constants';
+import { AUTH_MESSAGES } from '@constants/messages';
+import { PASSWORD_LETTER_AND_NUMBER } from '@constants/config';
 
 export const registerFormSchema = z.object({
   name: z

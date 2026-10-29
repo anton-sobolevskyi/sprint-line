@@ -1,12 +1,8 @@
 import { inject } from '@angular/core';
 import { patchState, signalStore, withMethods, withState } from '@ngrx/signals';
-
-import { getApiErrorMessage } from '../../../core/api/api-error';
-import {
-  type ProjectMemberResponseDto,
-  type ProjectMemberRole,
-  ProjectMembersApiService,
-} from '../../../core/projects/project-members-api.service';
+import { ProjectMemberResponseDto, ProjectMemberRole } from '@types';
+import { ProjectMembers } from '@core/services/project-members';
+import { getApiErrorMessage } from '@utils';
 
 const DEFAULT_PAGE = 1 as const;
 const DEFAULT_LIMIT = 50 as const;
@@ -34,7 +30,7 @@ const initialState: ProjectMembersState = {
 /** Feature-local store for project members (provided on the members panel). */
 export const ProjectMembersStore = signalStore(
   withState(initialState),
-  withMethods((store, membersApi = inject(ProjectMembersApiService)) => ({
+  withMethods((store, membersApi = inject(ProjectMembers)) => ({
     setProjectId(projectId: string): void {
       if (store.projectId() === projectId) {
         return;

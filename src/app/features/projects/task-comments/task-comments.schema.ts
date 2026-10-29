@@ -1,6 +1,5 @@
 import { z } from 'zod';
-
-import { COMMENTS_MESSAGES } from '../../../constants';
+import { COMMENTS_MESSAGES } from '@constants/messages';
 
 export const commentContentSchema = z.object({
   content: z

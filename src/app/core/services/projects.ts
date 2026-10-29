@@ -1,31 +1,24 @@
+import { inject, Service } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
+import {
+  CreateProjectDto,
+  PaginatedProjectResponseDto,
+  ProjectResponseDto,
+  UpdateProjectDto,
+} from '../../../types/api';
+import { API_ENDPOINTS } from '@constants/api';
 
-import type { components } from '../../../types/api.schema';
-import { API_ENDPOINTS } from '../api/api-endpoints';
-
-export type ProjectResponseDto = components['schemas']['ProjectResponseDto'];
-export type CreateProjectDto = components['schemas']['CreateProjectDto'];
-export type UpdateProjectDto = components['schemas']['UpdateProjectDto'];
-export type PaginatedProjectResponseDto =
-  components['schemas']['PaginatedProjectResponseDto'];
-export type PaginationMetaDto = components['schemas']['PaginationMetaDto'];
-
-export interface ProjectsListQuery {
-  page?: number;
-  limit?: number;
-}
-
-@Injectable({ providedIn: 'root' })
-export class ProjectsApiService {
+@Service()
+export class Projects {
   private readonly http = inject(HttpClient);
 
-  /**
-   * GET /projects — paginated list (`PaginatedProjectResponseDto`).
-   * Each item may include up to 20 members plus `memberCount`.
-   */
-  findAll(query: ProjectsListQuery = {}): Observable<PaginatedProjectResponseDto> {
+  findAll(
+    query: {
+      page?: number;
+      limit?: number;
+    } = {}
+  ): Observable<PaginatedProjectResponseDto> {
     const url = API_ENDPOINTS.projects.list;
     let params = new HttpParams();
 

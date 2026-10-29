@@ -1,18 +1,15 @@
 import { Component, effect, inject, input, signal } from '@angular/core';
 import { HlmButton } from '@spartan-ng/helm/button';
-import {
-  type AttachmentResponseDto,
-  AttachmentsApiService,
-} from '../../../core/attachments/attachments-api.service';
 import { Store } from '@ngrx/store';
-import { ConfirmDialogService } from '../../../core/ui/confirm-dialog.service';
-import { ATTACHMENTS_MESSAGES } from '../../../constants';
-import { selectCurrentUser } from '../../../core/users/user.reducer';
-import { UserActions } from '../../../core/users/user.actions';
-import { getApiErrorMessage } from '../../../core/api/api-error';
-import { formatFileSize } from '../../../utils';
-import { appToast } from '../../../core/ui/toast';
-import { UI_MESSAGES } from '../../../core/ui/ui.messages';
+import { ConfirmDialogService } from '@core/ui/confirm-dialog.service';
+import { selectCurrentUser } from '@core/users/user.reducer';
+import { UserActions } from '@core/users/user.actions';
+import { formatFileSize, getApiErrorMessage } from '@utils';
+import { appToast } from '@core/ui/toast';
+import { UI_MESSAGES } from '@core/ui/ui.messages';
+import { Attachments } from '@core/services/attachments';
+import { AttachmentResponseDto } from '@types';
+import { ATTACHMENTS_MESSAGES } from '@constants/messages';
 
 @Component({
   imports: [HlmButton],
@@ -23,7 +20,7 @@ import { UI_MESSAGES } from '../../../core/ui/ui.messages';
 export class TaskAttachments {
   readonly taskId = input.required<string>();
 
-  private readonly attachmentsApi = inject(AttachmentsApiService);
+  private readonly attachmentsApi = inject(Attachments);
   private readonly store = inject(Store);
   private readonly confirmDialog = inject(ConfirmDialogService);
 

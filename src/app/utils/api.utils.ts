@@ -1,12 +1,11 @@
 import { HttpErrorResponse } from '@angular/common/http';
+import { API_BASE_URL, AUTH_PUBLIC_PATHS } from '@constants/api';
 
-import { API_ERROR_MESSAGES } from '../messages/api-error.messages';
+export const API_ERROR_MESSAGES = {
+  generic: 'Something went wrong. Please try again.',
+  network: 'Unable to reach the server. Check your connection.',
+} as const;
 
-/**
- * Backend error body shape (see management_app_backend README):
- * `{ statusCode, code, message, timestamp, path, requestId }`
- * `message` is a string or string[] for validation errors.
- */
 export interface ApiErrorBody {
   statusCode?: number;
   code?: string;
@@ -22,7 +21,7 @@ export function isApiErrorBody(value: unknown): value is ApiErrorBody {
 
 export function getApiErrorMessage(
   error: unknown,
-  fallback: string = API_ERROR_MESSAGES.generic,
+  fallback: string = API_ERROR_MESSAGES.generic
 ): string {
   if (!(error instanceof HttpErrorResponse)) {
     return fallback;
@@ -45,4 +44,20 @@ export function getApiErrorCode(error: unknown): string | undefined {
   }
   const body = error.error;
   return isApiErrorBody(body) ? body.code : undefined;
+}
+
+export function apiUrl(path: string): string {
+  return `${API_BASE_URL}${path}`;
+}
+
+export function isApiRequestUrl(url: string): boolean {
+  return url.startsWith(API_BASE_URL);
+}
+
+export function isAuthPublicRequestUrl(url: string): boolean {
+  if (!isApiRequestUrl(url)) {
+    return false;
+  }
+  const path = url.slice(API_BASE_URL.length).split(/[?#]/)[0];
+  return (AUTH_PUBLIC_PATHS as readonly string[]).includes(path ?? '');
 }

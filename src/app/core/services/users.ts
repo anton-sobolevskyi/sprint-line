@@ -1,19 +1,19 @@
+import { inject, Service } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import type { components } from '../../../types/api.schema';
-import { API_ENDPOINTS } from '../api/api-endpoints';
+import { API_ENDPOINTS } from '@constants/api';
+import {
+  AttachmentResponseDto,
+  ChangePasswordDto,
+  DeleteAccountDto,
+  DownloadUrlResponseDto,
+  UpdateUserDto,
+  UserResponseDto,
+} from '@types';
 
-export type UserResponseDto = components['schemas']['UserResponseDto'];
-export type UpdateUserDto = components['schemas']['UpdateUserDto'];
-export type ChangePasswordDto = components['schemas']['ChangePasswordDto'];
-export type DeleteAccountDto = components['schemas']['DeleteAccountDto'];
-export type AttachmentResponseDto = components['schemas']['AttachmentResponseDto'];
-export type DownloadUrlResponseDto = components['schemas']['DownloadUrlResponseDto'];
-
-@Injectable({ providedIn: 'root' })
-export class UsersApiService {
+@Service()
+export class Users {
   private readonly http = inject(HttpClient);
 
   getMe(): Observable<UserResponseDto> {

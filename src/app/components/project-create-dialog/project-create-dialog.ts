@@ -5,12 +5,12 @@ import { HlmField, HlmFieldError, HlmFieldLabel } from '@spartan-ng/helm/field';
 import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmTextarea } from '@spartan-ng/helm/textarea';
 import { BrnDialogRef } from '@spartan-ng/brain/dialog';
-import { ProjectResponseDto, ProjectsApiService } from '../../core/projects/projects-api.service';
 import { form, FormField, validateStandardSchema } from '@angular/forms/signals';
-import { firstFieldErrorMessage } from '../../utils';
-import { getApiErrorMessage } from '../../core/api/api-error';
-import { PROJECTS_MESSAGES } from '../../constants';
+import { firstFieldErrorMessage, getApiErrorMessage } from '@utils';
 import { CreateProjectModel, createProjectSchema } from './project-create-dialog.schema';
+import { Projects } from '@core/services/projects';
+import { ProjectResponseDto } from '@types';
+import { PROJECTS_MESSAGES } from '@constants/messages';
 
 @Component({
   imports: [
@@ -30,7 +30,7 @@ import { CreateProjectModel, createProjectSchema } from './project-create-dialog
 })
 export class ProjectCreateDialog {
   private readonly dialogRef = inject<BrnDialogRef<ProjectResponseDto | undefined>>(BrnDialogRef);
-  private readonly projectsApi = inject(ProjectsApiService);
+  private readonly projectsApi = inject(Projects);
 
   readonly messages = PROJECTS_MESSAGES;
 

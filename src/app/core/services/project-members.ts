@@ -1,31 +1,24 @@
+import { inject, Service } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
+import {
+  AddProjectMemberDto,
+  PaginatedProjectMemberResponseDto,
+  ProjectMemberResponseDto,
+  UpdateProjectMemberDto,
+} from '@types';
+import { API_ENDPOINTS } from '@constants/api';
 
-import type { components } from '../../../types/api.schema';
-import { API_ENDPOINTS } from '../api/api-endpoints';
-
-export type ProjectMemberResponseDto =
-  components['schemas']['ProjectMemberResponseDto'];
-export type PaginatedProjectMemberResponseDto =
-  components['schemas']['PaginatedProjectMemberResponseDto'];
-export type AddProjectMemberDto = components['schemas']['AddProjectMemberDto'];
-export type UpdateProjectMemberDto =
-  components['schemas']['UpdateProjectMemberDto'];
-export type ProjectMemberRole = ProjectMemberResponseDto['role'];
-
-export interface ProjectMembersListQuery {
-  page?: number;
-  limit?: number;
-}
-
-@Injectable({ providedIn: 'root' })
-export class ProjectMembersApiService {
+@Service()
+export class ProjectMembers {
   private readonly http = inject(HttpClient);
 
   findAll(
     projectId: string,
-    query: ProjectMembersListQuery = {},
+    query: {
+      page?: number;
+      limit?: number;
+    } = {}
   ): Observable<PaginatedProjectMemberResponseDto> {
     const url = API_ENDPOINTS.projects.members(projectId);
     let params = new HttpParams();
@@ -40,10 +33,7 @@ export class ProjectMembersApiService {
     return this.http.get<PaginatedProjectMemberResponseDto>(url, { params });
   }
 
-  add(
-    projectId: string,
-    dto: AddProjectMemberDto,
-  ): Observable<ProjectMemberResponseDto> {
+  add(projectId: string, dto: AddProjectMemberDto): Observable<ProjectMemberResponseDto> {
     const url = API_ENDPOINTS.projects.members(projectId);
     return this.http.post<ProjectMemberResponseDto>(url, dto);
   }
@@ -51,24 +41,18 @@ export class ProjectMembersApiService {
   updateRole(
     projectId: string,
     userId: string,
-    dto: UpdateProjectMemberDto,
+    dto: UpdateProjectMemberDto
   ): Observable<ProjectMemberResponseDto> {
     const url = API_ENDPOINTS.projects.member(projectId, userId);
     return this.http.patch<ProjectMemberResponseDto>(url, dto);
   }
 
-  remove(
-    projectId: string,
-    userId: string,
-  ): Observable<ProjectMemberResponseDto> {
+  remove(projectId: string, userId: string): Observable<ProjectMemberResponseDto> {
     const url = API_ENDPOINTS.projects.member(projectId, userId);
     return this.http.delete<ProjectMemberResponseDto>(url);
   }
 
-  transferOwnership(
-    projectId: string,
-    userId: string,
-  ): Observable<ProjectMemberResponseDto> {
+  transferOwnership(projectId: string, userId: string): Observable<ProjectMemberResponseDto> {
     const url = API_ENDPOINTS.projects.transferOwnership(projectId, userId);
     return this.http.post<ProjectMemberResponseDto>(url, null);
   }

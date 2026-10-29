@@ -11,12 +11,22 @@ import { provideRouterStore } from '@ngrx/router-store';
 import { provideStore } from '@ngrx/store';
 
 import { routes } from './app.routes';
-import { restoreAuthSession } from './core/auth/auth-initializer';
 import { authFeature } from './core/auth/auth.reducer';
-import { authInterceptor } from './core/http/auth.interceptor';
 import { ThemeService } from './core/ui/theme.service';
 import { UserEffects } from './core/users/user.effects';
 import { userFeature } from './core/users/user.reducer';
+import { authInterceptor } from './core/interceptors/auth-interceptor';
+import { Session } from '@core/services/session';
+import { firstValueFrom } from 'rxjs';
+
+export function restoreAuthSession(): Promise<void> {
+  const authSession = inject(Session);
+
+  return firstValueFrom(authSession.refresh()).then(
+    () => undefined,
+    () => undefined
+  );
+}
 
 export const appConfig: ApplicationConfig = {
   providers: [

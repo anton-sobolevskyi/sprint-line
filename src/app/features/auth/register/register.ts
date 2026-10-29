@@ -1,15 +1,14 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { AuthApiService } from '../../../core/auth/auth-api.service';
 import { Router, RouterLink } from '@angular/router';
 import { form, FormField, validateStandardSchema } from '@angular/forms/signals';
-import { getApiErrorMessage } from '../../../core/api/api-error';
 import { AuthLayout } from '../../../layout/auth-layout/auth-layout';
 import { HlmInputImports } from '@spartan-ng/helm/input';
 import { HlmFieldImports } from '@spartan-ng/helm/field';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
-import { AUTH_MESSAGES } from '../../../constants';
-import { firstFieldErrorMessage, passwordRuleChecks } from '../../../utils';
+import { firstFieldErrorMessage, getApiErrorMessage, passwordRuleChecks } from '../../../utils';
 import { RegisterFormModel, registerFormSchema } from './register.schema';
+import { Auth } from '@core/services/auth';
+import { AUTH_MESSAGES } from '@constants/messages';
 
 @Component({
   imports: [AuthLayout, HlmInputImports, HlmFieldImports, FormField, HlmButtonImports, RouterLink],
@@ -18,7 +17,7 @@ import { RegisterFormModel, registerFormSchema } from './register.schema';
   templateUrl: './register.html',
 })
 export class Register {
-  private readonly authApi = inject(AuthApiService);
+  private readonly authApi = inject(Auth);
   private readonly router = inject(Router);
 
   readonly messages = AUTH_MESSAGES;

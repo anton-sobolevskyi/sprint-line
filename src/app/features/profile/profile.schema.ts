@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import { PASSWORD_LETTER_AND_NUMBER, PROFILE_MESSAGES } from '../../constants';
+import { PROFILE_MESSAGES } from '@constants/messages';
+import { PASSWORD_LETTER_AND_NUMBER } from '@constants/config';
 
 export const profileDetailsSchema = z.object({
   name: z

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { AUTH_MESSAGES } from '../../../constants';
+import { AUTH_MESSAGES } from '@constants/messages';
 
 export const loginFormSchema = z.object({
   email: z

@@ -1,4 +1,4 @@
-import type { TaskPriority } from '../core/tasks/tasks-api.service';
+import type { TaskPriority } from '@types';
 
 export const RECENT_LIMIT = 6 as const;
 export const MY_WORK_LIMIT = 20 as const;
@@ -35,3 +35,14 @@ export const PRIORITY_RANK: Record<TaskPriority, number> = {
   MEDIUM: 2,
   LOW: 3,
 };
+
+export const RETURN_URL_PARAM = 'returnUrl' as const;
+
+export const GUEST_PREFIXES = [
+  '/login',
+  '/register',
+  '/forgot-password',
+  '/reset-password',
+  '/verify-email',
+  '/not-found',
+];

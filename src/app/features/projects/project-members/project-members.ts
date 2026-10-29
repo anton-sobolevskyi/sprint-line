@@ -6,18 +6,15 @@ import { ProjectMembersStore } from './project-members.store';
 import { Store } from '@ngrx/store';
 import { Router } from '@angular/router';
 import { ConfirmDialogService } from '../../../core/ui/confirm-dialog.service';
-import { MEMBERS_MESSAGES } from '../../../constants';
 import { selectCurrentUser } from '../../../core/users/user.reducer';
 import { form, FormField, validateStandardSchema } from '@angular/forms/signals';
 import { UserActions } from '../../../core/users/user.actions';
-import type {
-  ProjectMemberResponseDto,
-  ProjectMemberRole,
-} from '../../../core/projects/project-members-api.service';
 import { firstFieldErrorMessage } from '../../../utils';
 import { appToast } from '../../../core/ui/toast';
 import { UI_MESSAGES } from '../../../core/ui/ui.messages';
 import { InviteMemberModel, inviteMemberSchema } from './project-members.schema';
+import { ProjectMemberResponseDto, ProjectMemberRole } from '@types';
+import { MEMBERS_MESSAGES } from '@constants/messages';
 
 @Component({
   imports: [HlmButton, HlmField, HlmFieldError, HlmFieldLabel, HlmInput, FormField],

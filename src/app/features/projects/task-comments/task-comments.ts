@@ -1,25 +1,10 @@
 import { Component, effect, inject, input, signal } from '@angular/core';
-import {
-  ATTACHMENT_ACCEPT,
-  ATTACHMENT_LIMITS,
-  COMMENTS_DEFAULT_LIMIT,
-  COMMENTS_MESSAGES,
-} from '../../../constants';
-import {
-  type CommentResponseDto,
-  CommentsApiService,
-} from '../../../core/comments/comments-api.service';
-import {
-  type AttachmentResponseDto,
-  AttachmentsApiService,
-} from '../../../core/attachments/attachments-api.service';
 import { Store } from '@ngrx/store';
 import { ConfirmDialogService } from '../../../core/ui/confirm-dialog.service';
 import { selectCurrentUser } from '../../../core/users/user.reducer';
 import { form, FormField, validateStandardSchema } from '@angular/forms/signals';
 import { UserActions } from '../../../core/users/user.actions';
-import { getApiErrorMessage } from '../../../core/api/api-error';
-import { firstFieldErrorMessage, formatFileSize } from '../../../utils';
+import { firstFieldErrorMessage, formatFileSize, getApiErrorMessage } from '../../../utils';
 import { forkJoin } from 'rxjs';
 import { appToast } from '../../../core/ui/toast';
 import { UI_MESSAGES } from '../../../core/ui/ui.messages';
@@ -27,6 +12,11 @@ import { HlmFieldImports } from '@spartan-ng/helm/field';
 import { HlmTextareaImports } from '@spartan-ng/helm/textarea';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { CommentContentModel, commentContentSchema } from './task-comments.schema';
+import { AttachmentResponseDto, CommentResponseDto } from '@types';
+import { Comments } from '@core/services/comments';
+import { Attachments } from '@core/services/attachments';
+import { COMMENTS_MESSAGES } from '@constants/messages';
+import { ATTACHMENT_ACCEPT, ATTACHMENT_LIMITS, COMMENTS_DEFAULT_LIMIT } from '@constants/config';
 
 @Component({
   imports: [HlmFieldImports, HlmTextareaImports, FormField, HlmButtonImports],
@@ -37,8 +27,8 @@ import { CommentContentModel, commentContentSchema } from './task-comments.schem
 export class TaskComments {
   readonly taskId = input.required<string>();
 
-  private readonly commentsApi = inject(CommentsApiService);
-  private readonly attachmentsApi = inject(AttachmentsApiService);
+  private readonly commentsApi = inject(Comments);
+  private readonly attachmentsApi = inject(Attachments);
   private readonly store = inject(Store);
   private readonly confirmDialog = inject(ConfirmDialogService);
 

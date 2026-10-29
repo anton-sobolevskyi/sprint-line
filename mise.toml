@@ -19,4 +19,4 @@ run = "rm -rf node_modules .angular dist"
 
 [tasks.fetch-openapi]
 description = "Fetch OpenAPI spec from backend"
-run = "npx openapi-typescript http://localhost:3000/api-docs-yaml -o ./src/types/schema.d.ts"
+run = "npx openapi-typescript http://localhost:3000/api-docs-yaml -o ./src/types/api.schema.d.ts"

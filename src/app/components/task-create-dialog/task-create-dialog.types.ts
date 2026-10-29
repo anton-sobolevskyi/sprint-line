@@ -1,5 +1,5 @@
-import { CreateTaskDto, TaskStatus } from '../../core/tasks/tasks-api.service';
 import { Signal } from '@angular/core';
+import { CreateTaskDto, TaskStatus } from '@types';
 
 export interface TaskCreateMemberOption {
   id: string;

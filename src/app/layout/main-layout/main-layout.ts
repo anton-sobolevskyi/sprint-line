@@ -18,12 +18,6 @@ import {
 } from '@spartan-ng/helm/sidebar';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { AuthApiService } from '../../core/auth/auth-api.service';
-import {
-  type ProjectResponseDto,
-  ProjectsApiService,
-} from '../../core/projects/projects-api.service';
-import { UsersApiService } from '../../core/users/users-api.service';
 import { Store } from '@ngrx/store';
 import { ThemeService } from '../../core/ui/theme.service';
 import { CommandPaletteService } from '../../core/ui/command-palette.service';
@@ -32,8 +26,6 @@ import { UserActions } from '../../core/users/user.actions';
 import { filter } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { appToast } from '../../core/ui/toast';
-import { getApiErrorMessage } from '../../core/api/api-error';
-import { SHELL_MESSAGES } from '../../constants';
 import { Commands } from '../../components/commands/commands';
 import {
   lucideFolderKanban,
@@ -45,6 +37,12 @@ import {
   lucideUserRound,
   lucideX,
 } from '@ng-icons/lucide';
+import { Projects } from '@core/services/projects';
+import { ProjectResponseDto } from '@types';
+import { getApiErrorMessage } from '@utils';
+import { Users } from '@core/services/users';
+import { Auth } from '@core/services/auth';
+import { SHELL_MESSAGES } from '@constants/messages';
 
 @Component({
   imports: [
@@ -86,9 +84,9 @@ import {
   ],
 })
 export class MainLayout {
-  private readonly authApi = inject(AuthApiService);
-  private readonly projectsApi = inject(ProjectsApiService);
-  private readonly usersApi = inject(UsersApiService);
+  private readonly authApi = inject(Auth);
+  private readonly projectsApi = inject(Projects);
+  private readonly usersApi = inject(Users);
   private readonly router = inject(Router);
   private readonly store = inject(Store);
   private readonly destroyRef = inject(DestroyRef);

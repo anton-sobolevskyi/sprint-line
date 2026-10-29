@@ -1,0 +1,35 @@
+import { components } from './api.schema';
+
+export type AttachmentResponseDto = components['schemas']['AttachmentResponseDto'];
+export type DownloadUrlResponseDto = components['schemas']['DownloadUrlResponseDto'];
+export type CommentResponseDto = components['schemas']['CommentResponseDto'];
+export type CreateCommentDto = components['schemas']['CreateCommentDto'];
+export type UpdateCommentDto = components['schemas']['UpdateCommentDto'];
+export type PaginatedCommentResponseDto = components['schemas']['PaginatedCommentResponseDto'];
+export type ProjectResponseDto = components['schemas']['ProjectResponseDto'];
+export type CreateProjectDto = components['schemas']['CreateProjectDto'];
+export type UpdateProjectDto = components['schemas']['UpdateProjectDto'];
+export type PaginatedProjectResponseDto = components['schemas']['PaginatedProjectResponseDto'];
+export type PaginationMetaDto = components['schemas']['PaginationMetaDto'];
+export type ProjectMemberResponseDto = components['schemas']['ProjectMemberResponseDto'];
+export type PaginatedProjectMemberResponseDto =
+  components['schemas']['PaginatedProjectMemberResponseDto'];
+export type AddProjectMemberDto = components['schemas']['AddProjectMemberDto'];
+export type UpdateProjectMemberDto = components['schemas']['UpdateProjectMemberDto'];
+export type ProjectMemberRole = ProjectMemberResponseDto['role'];
+export type TaskResponseDto = components['schemas']['TaskResponseDto'];
+export type CreateTaskDto = components['schemas']['CreateTaskDto'];
+export type UpdateTaskDto = components['schemas']['UpdateTaskDto'];
+export type PaginatedTaskResponseDto = components['schemas']['PaginatedTaskResponseDto'];
+export type TaskStatus = TaskResponseDto['status'];
+export type TaskPriority = TaskResponseDto['priority'];
+export type UserResponseDto = components['schemas']['UserResponseDto'];
+export type UpdateUserDto = components['schemas']['UpdateUserDto'];
+export type ChangePasswordDto = components['schemas']['ChangePasswordDto'];
+export type DeleteAccountDto = components['schemas']['DeleteAccountDto'];
+export type RegisterDto = components['schemas']['RegisterDto'];
+export type LoginDto = components['schemas']['LoginDto'];
+export type AuthResponseDto = components['schemas']['AuthResponseDto'];
+export type ForgotPasswordDto = components['schemas']['ForgotPasswordDto'];
+export type ResetPasswordDto = components['schemas']['ResetPasswordDto'];
+export type TokenDto = components['schemas']['TokenDto'];

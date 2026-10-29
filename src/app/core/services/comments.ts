@@ -1,28 +1,21 @@
+import { inject, Service } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
+import {
+  CommentResponseDto,
+  CreateCommentDto,
+  PaginatedCommentResponseDto,
+  UpdateCommentDto,
+} from '../../../types/api';
+import { API_ENDPOINTS } from '@constants/api';
 
-import type { components } from '../../../types/api.schema';
-import { API_ENDPOINTS } from '../api/api-endpoints';
-
-export type CommentResponseDto = components['schemas']['CommentResponseDto'];
-export type CreateCommentDto = components['schemas']['CreateCommentDto'];
-export type UpdateCommentDto = components['schemas']['UpdateCommentDto'];
-export type PaginatedCommentResponseDto =
-  components['schemas']['PaginatedCommentResponseDto'];
-
-export interface CommentsListQuery {
-  page?: number;
-  limit?: number;
-}
-
-@Injectable({ providedIn: 'root' })
-export class CommentsApiService {
+@Service()
+export class Comments {
   private readonly http = inject(HttpClient);
 
   findAll(
     taskId: string,
-    query: CommentsListQuery = {},
+    query: { page?: number; limit?: number } = {}
   ): Observable<PaginatedCommentResponseDto> {
     const url = API_ENDPOINTS.tasks.comments(taskId);
     let params = new HttpParams();

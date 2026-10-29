@@ -13,14 +13,15 @@ import {
   HlmSelectValue,
 } from '@spartan-ng/helm/select';
 import { HlmTextarea } from '@spartan-ng/helm/textarea';
-import { TASK_STATUS_ORDER, TASKS_MESSAGES } from '../../constants';
 import { form, FormField, validateStandardSchema } from '@angular/forms/signals';
-import { CreateTaskDto, TaskStatus } from '../../core/tasks/tasks-api.service';
 import { BrnDialogRef, injectBrnDialogContext } from '@spartan-ng/brain/dialog';
 import { firstFieldErrorMessage } from '../../utils';
 import { appToast } from '../../core/ui/toast';
 import { TaskCreateDialogData } from './task-create-dialog.types';
 import { CreateTaskModel, createTaskSchema } from './task-create-dialog.schema';
+import { CreateTaskDto, TaskStatus } from '@types';
+import { TASKS_MESSAGES } from '@constants/messages';
+import { TASK_STATUS_ORDER } from '@constants/config';
 
 @Component({
   imports: [

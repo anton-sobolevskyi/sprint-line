@@ -5,22 +5,19 @@ import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmSkeleton } from '@spartan-ng/helm/skeleton';
 import { HlmTextarea } from '@spartan-ng/helm/textarea';
 import { ActivatedRoute, Router, RouterLink, RouterOutlet } from '@angular/router';
-import { PROJECTS_MESSAGES } from '../../../constants';
-import {
-  type ProjectResponseDto,
-  ProjectsApiService,
-} from '../../../core/projects/projects-api.service';
 import { ConfirmDialogService } from '../../../core/ui/confirm-dialog.service';
 import { form, FormField, validateStandardSchema } from '@angular/forms/signals';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { getApiErrorMessage } from '../../../core/api/api-error';
-import { firstFieldErrorMessage } from '../../../utils';
+import { firstFieldErrorMessage, getApiErrorMessage } from '../../../utils';
 import { appToast } from '../../../core/ui/toast';
 import { UI_MESSAGES } from '../../../core/ui/ui.messages';
 import { ProjectMembers } from '../project-members/project-members';
 import { ProjectTasks } from '../project-tasks/project-tasks';
 import { ProjectDetailTab } from './project-detail.types';
 import { UpdateProjectModel, updateProjectSchema } from './project-detail.schema';
+import { ProjectResponseDto } from '@types';
+import { Projects } from '@core/services/projects';
+import { PROJECTS_MESSAGES } from '@constants/messages';
 
 @Component({
   imports: [
@@ -44,7 +41,7 @@ import { UpdateProjectModel, updateProjectSchema } from './project-detail.schema
 export class ProjectDetail {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly projectsApi = inject(ProjectsApiService);
+  private readonly projectsApi = inject(Projects);
   private readonly confirmDialog = inject(ConfirmDialogService);
 
   readonly messages = PROJECTS_MESSAGES;

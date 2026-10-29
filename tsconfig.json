@@ -79,7 +79,11 @@
       "@spartan-ng/helm/tooltip": ["./libs/ui/tooltip/src/index.ts"],
       "@spartan-ng/helm/trace": ["./libs/ui/trace/src/index.ts"],
       "@spartan-ng/helm/typography": ["./libs/ui/typography/src/index.ts"],
-      "@spartan-ng/helm/utils": ["./libs/ui/utils/src/index.ts"]
+      "@spartan-ng/helm/utils": ["./libs/ui/utils/src/index.ts"],
+      "@core/*": ["./src/app/core/*"],
+      "@constants/*": ["./src/app/constants/*"],
+      "@utils": ["./src/app/utils/index.ts"],
+      "@types": ["./src/types/index.ts"]
     }
   },
   "angularCompilerOptions": {

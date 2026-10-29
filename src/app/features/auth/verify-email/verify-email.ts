@@ -1,13 +1,13 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { AuthApiService } from '../../../core/auth/auth-api.service';
 import { Store } from '@ngrx/store';
 import { selectIsAuthenticated } from '../../../core/auth/auth.selectors';
 import { UserActions } from '../../../core/users/user.actions';
-import { getApiErrorMessage } from '../../../core/api/api-error';
 import { AuthLayout } from '../../../layout/auth-layout/auth-layout';
-import { AUTH_MESSAGES } from '../../../constants';
+import { getApiErrorMessage } from '@utils';
+import { Auth } from '@core/services/auth';
+import { AUTH_MESSAGES } from '@constants/messages';
 
 @Component({
   imports: [HlmButton, RouterLink, AuthLayout],
@@ -16,7 +16,7 @@ import { AUTH_MESSAGES } from '../../../constants';
   templateUrl: './verify-email.html',
 })
 export class VerifyEmail implements OnInit {
-  private readonly authApi = inject(AuthApiService);
+  private readonly authApi = inject(Auth);
   private readonly route = inject(ActivatedRoute);
   private readonly store = inject(Store);
 

@@ -1,6 +1,5 @@
 import { z } from 'zod';
-
-import { MEMBERS_MESSAGES } from '../../../constants';
+import { MEMBERS_MESSAGES } from '@constants/messages';
 
 export const inviteMemberSchema = z.object({
   email: z

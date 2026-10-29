@@ -3,13 +3,12 @@ import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmField, HlmFieldError, HlmFieldLabel } from '@spartan-ng/helm/field';
 import { HlmInput } from '@spartan-ng/helm/input';
 import { RouterLink } from '@angular/router';
-import { AuthApiService } from '../../../core/auth/auth-api.service';
 import { validateStandardSchema, form, FormField } from '@angular/forms/signals';
-import { getApiErrorMessage } from '../../../core/api/api-error';
 import { AuthLayout } from '../../../layout/auth-layout/auth-layout';
-import { AUTH_MESSAGES } from '../../../constants';
-import { firstFieldErrorMessage } from '../../../utils';
+import { firstFieldErrorMessage, getApiErrorMessage } from '../../../utils';
 import { ForgotPasswordModel, forgotPasswordSchema } from './forgot-password.schema';
+import { Auth } from '@core/services/auth';
+import { AUTH_MESSAGES } from '@constants/messages';
 
 @Component({
   imports: [
@@ -27,7 +26,7 @@ import { ForgotPasswordModel, forgotPasswordSchema } from './forgot-password.sch
   templateUrl: './forgot-password.html',
 })
 export class ForgotPassword {
-  private readonly authApi = inject(AuthApiService);
+  private readonly authApi = inject(Auth);
 
   readonly messages = AUTH_MESSAGES;
   readonly isSubmitting = signal(false);

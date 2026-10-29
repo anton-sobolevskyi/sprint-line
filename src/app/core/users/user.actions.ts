@@ -1,6 +1,5 @@
 import { createActionGroup, emptyProps, props } from '@ngrx/store';
-
-import type { UserResponseDto } from './users-api.service';
+import { UserResponseDto } from '@types';
 
 export const UserActions = createActionGroup({
   source: 'User',

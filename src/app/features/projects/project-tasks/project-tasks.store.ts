@@ -2,15 +2,11 @@ import { computed, inject } from '@angular/core';
 import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
 import type { Subscription } from 'rxjs';
 
-import { getApiErrorMessage } from '../../../core/api/api-error';
-import {
-  type CreateTaskDto,
-  type TaskResponseDto,
-  type TaskStatus,
-  type TasksListQuery,
-  TasksApiService,
-} from '../../../core/tasks/tasks-api.service';
-import { TASK_STATUS_ORDER, TASKS_MESSAGES } from '../../../constants';
+import { CreateTaskDto, TaskResponseDto, TaskStatus } from '@types';
+import { Tasks, TasksListQuery } from '@core/services/tasks';
+import { getApiErrorMessage } from '@utils';
+import { TASK_STATUS_ORDER } from '@constants/config';
+import { TASKS_MESSAGES } from '@constants/messages';
 
 const DEFAULT_LIMIT = 100 as const;
 
@@ -59,7 +55,7 @@ export const ProjectTasksStore = signalStore(
       }));
     }),
   })),
-  withMethods((store, tasksApi = inject(TasksApiService)) => {
+  withMethods((store, tasksApi = inject(Tasks)) => {
     /** In-flight list request; replaced (and cancelled) by the next one. */
     let listSub: Subscription | null = null;
 

@@ -1,18 +1,16 @@
 import { Component, computed, inject, signal, OnInit, AfterViewInit } from '@angular/core';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmSkeleton } from '@spartan-ng/helm/skeleton';
-import {
-  type PaginationMetaDto,
-  type ProjectResponseDto,
-  ProjectsApiService,
-} from '../../../core/projects/projects-api.service';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { DEFAULT_PAGE, PROJECTS_LIMIT, PROJECTS_MESSAGES } from '../../../constants';
 import { HlmDialogService } from '@spartan-ng/helm/dialog';
 import { BrnDialogRef } from '@spartan-ng/brain/dialog';
-import { getApiErrorMessage } from '../../../core/api/api-error';
 import { ProjectCreateDialog } from '../../../components/project-create-dialog/project-create-dialog';
 import { HlmInputImports } from '@spartan-ng/helm/input';
+import { Projects } from '@core/services/projects';
+import { PaginationMetaDto, ProjectResponseDto } from '@types';
+import { getApiErrorMessage } from '@utils';
+import { PROJECTS_MESSAGES } from '@constants/messages';
+import { DEFAULT_PAGE, PROJECTS_LIMIT } from '@constants/config';
 
 @Component({
   imports: [HlmButton, HlmSkeleton, RouterLink, HlmInputImports],
@@ -21,7 +19,7 @@ import { HlmInputImports } from '@spartan-ng/helm/input';
   templateUrl: './projects-list.html',
 })
 export class ProjectsList implements OnInit, AfterViewInit {
-  private readonly projectsApi = inject(ProjectsApiService);
+  private readonly projectsApi = inject(Projects);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 

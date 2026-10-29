@@ -1,12 +1,8 @@
-import { environment } from '../../../environments/environment';
+import { environment } from '../../environments/environment';
+import { apiUrl } from '@utils';
 
-/** Backend origin from environment (no trailing slash). */
 export const API_BASE_URL = environment.apiUrl;
 
-/**
- * Path segments relative to API_BASE_URL.
- * Use with `apiUrl()` or the prebuilt `API_ENDPOINTS` map.
- */
 export const API_PATHS = {
   auth: {
     register: '/auth/register',
@@ -49,9 +45,6 @@ export const API_PATHS = {
   },
 } as const;
 
-export type ApiAuthPath = (typeof API_PATHS.auth)[keyof typeof API_PATHS.auth];
-
-/** Absolute URLs for HTTP calls. */
 export const API_ENDPOINTS = {
   auth: {
     register: apiUrl(API_PATHS.auth.register),
@@ -95,10 +88,6 @@ export const API_ENDPOINTS = {
   },
 } as const;
 
-/**
- * Auth routes that must not trigger the 401 refresh-retry loop.
- * `resend-verification` requires a Bearer token and is intentionally omitted.
- */
 export const AUTH_PUBLIC_PATHS = [
   API_PATHS.auth.register,
   API_PATHS.auth.login,
@@ -108,19 +97,3 @@ export const AUTH_PUBLIC_PATHS = [
   API_PATHS.auth.resetPassword,
   API_PATHS.auth.verifyEmail,
 ] as const;
-
-export function apiUrl(path: string): string {
-  return `${API_BASE_URL}${path}`;
-}
-
-export function isApiRequestUrl(url: string): boolean {
-  return url.startsWith(API_BASE_URL);
-}
-
-export function isAuthPublicRequestUrl(url: string): boolean {
-  if (!isApiRequestUrl(url)) {
-    return false;
-  }
-  const path = url.slice(API_BASE_URL.length).split(/[?#]/)[0];
-  return (AUTH_PUBLIC_PATHS as readonly string[]).includes(path ?? '');
-}

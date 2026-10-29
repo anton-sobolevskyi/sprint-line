@@ -8,9 +8,6 @@ import {
 } from '@spartan-ng/helm/field';
 import { HlmInput } from '@spartan-ng/helm/input';
 import { Store } from '@ngrx/store';
-import { UsersApiService } from '../../core/users/users-api.service';
-import { AuthApiService } from '../../core/auth/auth-api.service';
-import { AuthSessionService } from '../../core/auth/auth-session.service';
 import { Router } from '@angular/router';
 import { ConfirmDialogService } from '../../core/ui/confirm-dialog.service';
 import {
@@ -20,18 +17,20 @@ import {
 } from '../../core/users/user.reducer';
 import { form, FormField, validateStandardSchema } from '@angular/forms/signals';
 import { UserActions } from '../../core/users/user.actions';
-import { appToast } from '../../core/ui/toast';
-import { getApiErrorMessage } from '../../core/api/api-error';
-import { UI_MESSAGES } from '../../core/ui/ui.messages';
-import { PROFILE_MESSAGES } from '../../constants';
+import { appToast } from '@core/ui/toast';
+import { UI_MESSAGES } from '@core/ui/ui.messages';
 import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
-import { firstFieldErrorMessage } from '../../utils';
+import { firstFieldErrorMessage, getApiErrorMessage } from '@utils';
 import {
   ChangePasswordModel,
   changePasswordSchema,
   ProfileDetailsModel,
   profileDetailsSchema,
 } from './profile.schema';
+import { Users } from '@core/services/users';
+import { Auth } from '@core/services/auth';
+import { Session } from '@core/services/session';
+import { PROFILE_MESSAGES } from '@constants/messages';
 
 @Component({
   imports: [
@@ -50,9 +49,9 @@ import {
 })
 export class Profile {
   private readonly store = inject(Store);
-  private readonly usersApi = inject(UsersApiService);
-  private readonly authApi = inject(AuthApiService);
-  private readonly authSession = inject(AuthSessionService);
+  private readonly usersApi = inject(Users);
+  private readonly authApi = inject(Auth);
+  private readonly authSession = inject(Session);
   private readonly router = inject(Router);
   private readonly confirmDialog = inject(ConfirmDialogService);
 

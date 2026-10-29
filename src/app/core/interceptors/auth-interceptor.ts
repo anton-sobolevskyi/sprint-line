@@ -2,35 +2,12 @@ import { HttpErrorResponse, HttpInterceptorFn, HttpRequest } from '@angular/comm
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, switchMap, throwError } from 'rxjs';
-
-import { isApiRequestUrl, isAuthPublicRequestUrl } from '../api/api-endpoints';
-import { AuthSessionService } from '../auth/auth-session.service';
 import { isGuestUrl, RETURN_URL_PARAM, sanitizeReturnUrl } from '../auth/return-url';
+import { Session } from '@core/services/session';
+import { isApiRequestUrl, isAuthPublicRequestUrl } from '@utils';
 
-function withAccessToken(req: HttpRequest<unknown>, token: string | null): HttpRequest<unknown> {
-  let next = req;
-
-  if (isApiRequestUrl(req.url) && !req.withCredentials) {
-    next = next.clone({ withCredentials: true });
-  }
-
-  if (token && isApiRequestUrl(req.url) && !isAuthPublicRequestUrl(req.url)) {
-    next = next.clone({
-      setHeaders: { Authorization: `Bearer ${token}` },
-    });
-  }
-
-  return next;
-}
-
-/**
- * Attaches Bearer access token from the global NgRx auth store,
- * enables credentials for API calls, and on 401 performs a single
- * serialized refresh then retries once. When the refresh fails the user is sent
- * to the login page (with a `returnUrl`).
- */
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  const authSession = inject(AuthSessionService);
+  const authSession = inject(Session);
   const router = inject(Router);
   const token = authSession.getAccessTokenSnapshot();
   const authorizedReq = withAccessToken(req, token);
@@ -51,8 +28,6 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
           return next(retryReq);
         }),
         catchError((refreshError: unknown) => {
-          // The session is gone (refresh cookie expired/revoked): leave the protected
-          // page instead of leaving the user stranded with failing requests.
           if (token && !isGuestUrl(router.url)) {
             const returnUrl = sanitizeReturnUrl(router.url);
             void router.navigate(['/login'], {
@@ -65,3 +40,19 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     })
   );
 };
+
+function withAccessToken(req: HttpRequest<unknown>, token: string | null): HttpRequest<unknown> {
+  let next = req;
+
+  if (isApiRequestUrl(req.url) && !req.withCredentials) {
+    next = next.clone({ withCredentials: true });
+  }
+
+  if (token && isApiRequestUrl(req.url) && !isAuthPublicRequestUrl(req.url)) {
+    next = next.clone({
+      setHeaders: { Authorization: `Bearer ${token}` },
+    });
+  }
+
+  return next;
+}

@@ -1,6 +1,5 @@
 import { z } from 'zod';
-
-import { PROJECTS_MESSAGES } from '../../constants';
+import { PROJECTS_MESSAGES } from '@constants/messages';
 
 export const createProjectSchema = z.object({
   name: z

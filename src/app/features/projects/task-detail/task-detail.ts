@@ -24,33 +24,21 @@ import { HlmSkeleton } from '@spartan-ng/helm/skeleton';
 import { HlmTextarea } from '@spartan-ng/helm/textarea';
 
 import { ActivatedRoute, type ParamMap, Router } from '@angular/router';
-import {
-  type TaskPriority,
-  type TaskResponseDto,
-  TasksApiService,
-  type TaskStatus,
-} from '../../../core/tasks/tasks-api.service';
-import {
-  type ProjectMemberResponseDto,
-  ProjectMembersApiService,
-} from '../../../core/projects/project-members-api.service';
-import { ConfirmDialogService } from '../../../core/ui/confirm-dialog.service';
+import { ConfirmDialogService } from '@core/ui/confirm-dialog.service';
 import { form, FormField, validateStandardSchema } from '@angular/forms/signals';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { getApiErrorMessage } from '../../../core/api/api-error';
-import { appToast } from '../../../core/ui/toast';
-import { firstFieldErrorMessage, toDateInputValue } from '../../../utils';
-import { UI_MESSAGES } from '../../../core/ui/ui.messages';
-import { toIsoDueDate } from '../../../utils';
-import {
-  MEMBERS_LIMIT,
-  PRIORITY_OPTIONS,
-  TASK_STATUS_ORDER,
-  TASKS_MESSAGES,
-} from '../../../constants';
+import { appToast } from '@core/ui/toast';
+import { firstFieldErrorMessage, getApiErrorMessage, toDateInputValue } from '@utils';
+import { UI_MESSAGES } from '@core/ui/ui.messages';
+import { toIsoDueDate } from '@utils';
 import { TaskComments } from '../task-comments/task-comments';
 import { TaskAttachments } from '../task-attachments/task-attachments';
 import { UpdateTaskModel, updateTaskSchema } from './task-detail.schema';
+import { Tasks } from '@core/services/tasks';
+import { ProjectMemberResponseDto, TaskResponseDto, TaskStatus, TaskPriority } from '@types';
+import { ProjectMembers } from '@core/services/project-members';
+import { TASKS_MESSAGES } from '@constants/messages';
+import { MEMBERS_LIMIT, PRIORITY_OPTIONS, TASK_STATUS_ORDER } from '@constants/config';
 
 @Component({
   imports: [
@@ -79,8 +67,8 @@ import { UpdateTaskModel, updateTaskSchema } from './task-detail.schema';
 export class TaskDetail {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly tasksApi = inject(TasksApiService);
-  private readonly membersApi = inject(ProjectMembersApiService);
+  private readonly tasksApi = inject(Tasks);
+  private readonly membersApi = inject(ProjectMembers);
   private readonly confirmDialog = inject(ConfirmDialogService);
 
   readonly messages = TASKS_MESSAGES;

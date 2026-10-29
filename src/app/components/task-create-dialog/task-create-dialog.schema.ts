@@ -1,6 +1,5 @@
 import { z } from 'zod';
-
-import { TASKS_MESSAGES } from '../../constants';
+import { TASKS_MESSAGES } from '@constants/messages';
 
 export const createTaskSchema = z.object({
   title: z

@@ -11,24 +11,11 @@ import {
 import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmSkeleton } from '@spartan-ng/helm/skeleton';
-import type {
-  TaskPriority,
-  TaskResponseDto,
-  TaskStatus,
-} from '../../../core/tasks/tasks-api.service';
+
 import { ProjectTasksStore } from './project-tasks.store';
-import {
-  type ProjectMemberResponseDto,
-  ProjectMembersApiService,
-} from '../../../core/projects/project-members-api.service';
+
 import { ConfirmDialogService } from '../../../core/ui/confirm-dialog.service';
 import { Store } from '@ngrx/store';
-import {
-  MEMBERS_LIMIT,
-  PRIORITY_RANK,
-  TASK_STATUS_ORDER,
-  TASKS_MESSAGES,
-} from '../../../constants';
 import { selectCurrentUser } from '../../../core/users/user.reducer';
 import { HlmDialogService } from '@spartan-ng/helm/dialog';
 import { BrnDialogRef } from '@spartan-ng/brain/dialog';
@@ -42,6 +29,10 @@ import { RouterLink } from '@angular/router';
 import { TasksViewMode } from './project-tasks.types';
 import { isEditableTarget } from '../../../utils';
 import { TaskCreateDialogData } from '../../../components/task-create-dialog/task-create-dialog.types';
+import { ProjectMembers } from '@core/services/project-members';
+import { ProjectMemberResponseDto, TaskResponseDto, TaskStatus, TaskPriority } from '@types';
+import { TASKS_MESSAGES } from '@constants/messages';
+import { MEMBERS_LIMIT, PRIORITY_RANK, TASK_STATUS_ORDER } from '@constants/config';
 
 @Component({
   imports: [HlmButton, HlmInput, HlmSkeleton, RouterLink],
@@ -54,7 +45,7 @@ export class ProjectTasks {
   readonly projectId = input.required<string>();
 
   private readonly tasksStore = inject(ProjectTasksStore);
-  private readonly membersApi = inject(ProjectMembersApiService);
+  private readonly membersApi = inject(ProjectMembers);
   private readonly confirmDialog = inject(ConfirmDialogService);
   private readonly ngrxStore = inject(Store);
   private readonly destroyRef = inject(DestroyRef);

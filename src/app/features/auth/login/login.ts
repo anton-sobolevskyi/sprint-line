@@ -4,13 +4,12 @@ import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmField, HlmFieldError, HlmFieldLabel } from '@spartan-ng/helm/field';
 import { HlmInput } from '@spartan-ng/helm/input';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { AuthApiService } from '../../../core/auth/auth-api.service';
 import { form, FormField, validateStandardSchema } from '@angular/forms/signals';
 import { RETURN_URL_PARAM, sanitizeReturnUrl } from '../../../core/auth/return-url';
-import { getApiErrorMessage } from '../../../core/api/api-error';
-import { AUTH_MESSAGES } from '../../../constants';
-import { firstFieldErrorMessage } from '../../../utils';
+import { firstFieldErrorMessage, getApiErrorMessage } from '../../../utils';
 import { LoginFormModel, loginFormSchema } from './login.schema';
+import { Auth } from '@core/services/auth';
+import { AUTH_MESSAGES } from '@constants/messages';
 
 @Component({
   imports: [
@@ -28,7 +27,7 @@ import { LoginFormModel, loginFormSchema } from './login.schema';
   templateUrl: './login.html',
 })
 export class Login {
-  private readonly authApi = inject(AuthApiService);
+  private readonly authApi = inject(Auth);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 

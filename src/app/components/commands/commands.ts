@@ -10,13 +10,15 @@ import {
   viewChild,
 } from '@angular/core';
 import { HlmInput } from '@spartan-ng/helm/input';
-import { ProjectResponseDto, ProjectsApiService } from '../../core/projects/projects-api.service';
 import { CommandPaletteService } from '../../core/ui/command-palette.service';
 import { Router } from '@angular/router';
 import { ThemeService } from '../../core/ui/theme.service';
-import { TaskResponseDto, TasksApiService } from '../../core/tasks/tasks-api.service';
-import { PROJECTS_LIMIT, SHELL_MESSAGES } from '../../constants';
 import { CommandGroup, CommandItem } from './commands.types';
+import { Tasks } from '@core/services/tasks';
+import { Projects } from '@core/services/projects';
+import { ProjectResponseDto, TaskResponseDto } from '@types';
+import { SHELL_MESSAGES } from '@constants/messages';
+import { PROJECTS_LIMIT } from '@constants/config';
 
 @Component({
   imports: [HlmInput],
@@ -34,8 +36,8 @@ export class Commands {
   private readonly palette = inject(CommandPaletteService);
   private readonly router = inject(Router);
   private readonly theme = inject(ThemeService);
-  private readonly projectsApi = inject(ProjectsApiService);
-  private readonly tasksApi = inject(TasksApiService);
+  private readonly projectsApi = inject(Projects);
+  private readonly tasksApi = inject(Tasks);
 
   readonly messages = SHELL_MESSAGES.commandPalette;
 

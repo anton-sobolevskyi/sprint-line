@@ -3,13 +3,12 @@ import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmField, HlmFieldError, HlmFieldLabel } from '@spartan-ng/helm/field';
 import { HlmInput } from '@spartan-ng/helm/input';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { AuthApiService } from '../../../core/auth/auth-api.service';
 import { FormField, validateStandardSchema, form } from '@angular/forms/signals';
-import { getApiErrorMessage } from '../../../core/api/api-error';
 import { AuthLayout } from '../../../layout/auth-layout/auth-layout';
-import { AUTH_MESSAGES } from '../../../constants';
-import { firstFieldErrorMessage, passwordRuleChecks } from '../../../utils';
+import { firstFieldErrorMessage, getApiErrorMessage, passwordRuleChecks } from '../../../utils';
 import { ResetPasswordModel, resetPasswordSchema } from './reset-password.schema';
+import { Auth } from '@core/services/auth';
+import { AUTH_MESSAGES } from '@constants/messages';
 
 @Component({
   imports: [
@@ -27,7 +26,7 @@ import { ResetPasswordModel, resetPasswordSchema } from './reset-password.schema
   templateUrl: './reset-password.html',
 })
 export class ResetPassword {
-  private readonly authApi = inject(AuthApiService);
+  private readonly authApi = inject(Auth);
   private readonly route = inject(ActivatedRoute);
 
   readonly messages = AUTH_MESSAGES;

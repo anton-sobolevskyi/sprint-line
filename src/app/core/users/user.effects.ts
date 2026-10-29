@@ -2,14 +2,14 @@ import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { catchError, map, of, switchMap } from 'rxjs';
 
-import { getApiErrorMessage } from '../api/api-error';
 import { UserActions } from './user.actions';
-import { UsersApiService } from './users-api.service';
+import { getApiErrorMessage } from '@utils';
+import { Users } from '@core/services/users';
 
 @Injectable()
 export class UserEffects {
   private readonly actions$ = inject(Actions);
-  private readonly usersApi = inject(UsersApiService);
+  private readonly usersApi = inject(Users);
 
   readonly loadMe$ = createEffect(() =>
     this.actions$.pipe(
@@ -21,11 +21,11 @@ export class UserEffects {
             of(
               UserActions.loadMeFailure({
                 errorMessage: getApiErrorMessage(error),
-              }),
-            ),
-          ),
-        ),
-      ),
-    ),
+              })
+            )
+          )
+        )
+      )
+    )
   );
 }

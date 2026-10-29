@@ -1,17 +1,16 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import {
-  type ProjectResponseDto,
-  ProjectsApiService,
-} from '../../core/projects/projects-api.service';
-import { type TaskResponseDto, TasksApiService } from '../../core/tasks/tasks-api.service';
 import { Store } from '@ngrx/store';
 import { selectCurrentUser } from '../../core/users/user.reducer';
 import { UserActions } from '../../core/users/user.actions';
-import { getApiErrorMessage } from '../../core/api/api-error';
-import { DASHBOARD_MESSAGES, MY_WORK_LIMIT, RECENT_LIMIT, TASKS_MESSAGES } from '../../constants';
 import { RouterLink } from '@angular/router';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
+import { Projects } from '@core/services/projects';
+import { Tasks } from '@core/services/tasks';
+import { ProjectResponseDto, TaskResponseDto } from '@types';
+import { getApiErrorMessage } from '@utils';
+import { DASHBOARD_MESSAGES, TASKS_MESSAGES } from '@constants/messages';
+import { MY_WORK_LIMIT, RECENT_LIMIT } from '@constants/config';
 
 @Component({
   imports: [RouterLink, HlmButtonImports, HlmSkeletonImports],
@@ -20,8 +19,8 @@ import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
   templateUrl: './home.html',
 })
 export class Home implements OnInit {
-  private readonly projectsApi = inject(ProjectsApiService);
-  private readonly tasksApi = inject(TasksApiService);
+  private readonly projectsApi = inject(Projects);
+  private readonly tasksApi = inject(Tasks);
   private readonly store = inject(Store);
 
   readonly messages = DASHBOARD_MESSAGES;
