@@ -3,8 +3,7 @@ import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, switchMap, throwError } from 'rxjs';
 import { Session } from '@core/services/session';
-import { isApiRequestUrl, isAuthPublicRequestUrl } from '@utils';
-import { isGuestUrl, sanitizeReturnUrl } from '../../utils/route.utils';
+import { isApiRequestUrl, isAuthPublicRequestUrl, isGuestUrl, sanitizeReturnUrl } from '@utils';
 import { RETURN_URL_PARAM } from '@constants/config';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
