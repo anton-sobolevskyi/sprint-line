@@ -50,17 +50,17 @@ export const routes: Routes = [
       {
         path: 'projects',
         loadComponent: () =>
-          import('./features/projects/projects-list.page').then((m) => m.ProjectsListPage),
+          import('./features/projects/projects-list/projects-list').then((m) => m.ProjectsList),
       },
       {
         path: 'projects/:id',
         loadComponent: () =>
-          import('./features/projects/project-detail.page').then((m) => m.ProjectDetailPage),
+          import('./features/projects/project-detail/project-detail').then((m) => m.ProjectDetail),
         children: [
           {
             path: 'tasks/:taskId',
             loadComponent: () =>
-              import('./features/projects/task-detail.page').then((m) => m.TaskDetailPage),
+              import('./features/projects/task-detail/task-detail').then((m) => m.TaskDetail),
           },
         ],
       },
