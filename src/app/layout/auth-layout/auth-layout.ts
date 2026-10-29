@@ -3,9 +3,10 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideCheck } from '@ng-icons/lucide';
 import { ThemeToggle } from '../../components/theme-toggle/theme-toggle';
 import { AUTH_MESSAGES } from '@constants/messages';
+import { BrandMark } from '../../components/brand-mark/brand-mark';
 
 @Component({
-  imports: [ThemeToggle, NgIcon],
+  imports: [BrandMark, ThemeToggle, NgIcon],
   selector: 'sl-auth-layout',
   styleUrl: './auth-layout.scss',
   templateUrl: './auth-layout.html',
