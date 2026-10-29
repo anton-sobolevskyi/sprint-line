@@ -5,7 +5,7 @@ import { HlmInput } from '@spartan-ng/helm/input';
 import { RouterLink } from '@angular/router';
 import { validateStandardSchema, form, FormField } from '@angular/forms/signals';
 import { AuthLayout } from '../../../layout/auth-layout/auth-layout';
-import { firstFieldErrorMessage, getApiErrorMessage } from '../../../utils';
+import { firstFieldErrorMessage, getApiErrorMessage } from '@utils';
 import { ForgotPasswordModel, forgotPasswordSchema } from './forgot-password.schema';
 import { Auth } from '@core/services/auth';
 import { AUTH_MESSAGES } from '@constants/messages';

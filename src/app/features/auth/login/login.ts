@@ -5,11 +5,10 @@ import { HlmField, HlmFieldError, HlmFieldLabel } from '@spartan-ng/helm/field';
 import { HlmInput } from '@spartan-ng/helm/input';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { form, FormField, validateStandardSchema } from '@angular/forms/signals';
-import { firstFieldErrorMessage, getApiErrorMessage } from '../../../utils';
 import { LoginFormModel, loginFormSchema } from './login.schema';
 import { Auth } from '@core/services/auth';
 import { AUTH_MESSAGES } from '@constants/messages';
-import { sanitizeReturnUrl } from '../../../utils/route.utils';
+import { firstFieldErrorMessage, getApiErrorMessage, sanitizeReturnUrl } from '@utils';
 import { RETURN_URL_PARAM } from '@constants/config';
 
 @Component({
