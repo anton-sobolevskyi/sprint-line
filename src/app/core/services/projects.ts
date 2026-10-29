@@ -6,7 +6,7 @@ import {
   PaginatedProjectResponseDto,
   ProjectResponseDto,
   UpdateProjectDto,
-} from '../../../types/api';
+} from '@types';
 import { API_ENDPOINTS } from '@constants/api';
 
 @Service()

@@ -1,7 +1,7 @@
 import { inject, Service } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { AttachmentResponseDto, DownloadUrlResponseDto } from '../../../types/api';
+import { AttachmentResponseDto, DownloadUrlResponseDto } from '@types';
 import { API_ENDPOINTS } from '@constants/api';
 
 @Service()
