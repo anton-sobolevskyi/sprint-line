@@ -18,10 +18,10 @@
         type="button"
         variant="ghost"
         size="sm"
-        class="text-muted-foreground -ms-2"
+        class="text-muted-foreground -ms-2 gap-2"
         (click)="close()"
       >
-        ← {{ messages.detail.back }}
+        <ng-icon name="lucideArrowLeft" /> {{ messages.detail.back }}
       </button>
       <div class="flex items-center gap-1">
         <button
@@ -33,17 +33,6 @@
           (click)="copyLink()"
         >
           {{ messages.detail.copyLink }}
-        </button>
-        <button
-          hlmBtn
-          type="button"
-          variant="ghost"
-          size="sm"
-          class="h-8 w-8 p-0 text-base"
-          [attr.aria-label]="messages.detail.close"
-          (click)="close()"
-        >
-          ×
         </button>
       </div>
     </header>

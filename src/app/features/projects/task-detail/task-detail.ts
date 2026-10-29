@@ -39,6 +39,8 @@ import { ProjectMembers } from '@core/services/project-members';
 import { TASKS_MESSAGES } from '@constants/messages';
 import { MEMBERS_LIMIT, PRIORITY_OPTIONS, TASK_STATUS_ORDER } from '@constants/config';
 import { Dialog } from '@core/services/dialog';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideArrowLeft } from '@ng-icons/lucide';
 
 @Component({
   imports: [
@@ -59,10 +61,12 @@ import { Dialog } from '@core/services/dialog';
     TaskComments,
     FormField,
     HlmSelectImports,
+    NgIcon,
   ],
   selector: 'sl-task-detail',
   styleUrl: './task-detail.scss',
   templateUrl: './task-detail.html',
+  providers: [provideIcons({ lucideArrowLeft })],
 })
 export class TaskDetail {
   private readonly route = inject(ActivatedRoute);
