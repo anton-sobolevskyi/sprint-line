@@ -1,47 +1,87 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
-import { form, FormField, validateStandardSchema } from '@angular/forms/signals';
-import { Router } from '@angular/router';
+import { HlmButton } from '@spartan-ng/helm/button';
+import {
+  HlmField,
+  HlmFieldDescription,
+  HlmFieldError,
+  HlmFieldLabel,
+} from '@spartan-ng/helm/field';
+import { HlmInput } from '@spartan-ng/helm/input';
+import { z } from 'zod';
+
 import { Store } from '@ngrx/store';
-
-import { HlmButtonImports } from '@spartan-ng/helm/button';
-import { HlmCardImports } from '@spartan-ng/helm/card';
-import { HlmFieldImports } from '@spartan-ng/helm/field';
-import { HlmInputImports } from '@spartan-ng/helm/input';
-
-import { getApiErrorMessage } from '../../core/api/api-error';
-import { ConfirmDialogService } from '../../core/ui/confirm-dialog.service';
-import { appToast } from '../../core/ui/toast';
-import { UI_MESSAGES } from '../../core/ui/ui.messages';
+import { UsersApiService } from '../../core/users/users-api.service';
 import { AuthApiService } from '../../core/auth/auth-api.service';
 import { AuthSessionService } from '../../core/auth/auth-session.service';
-import { UserActions } from '../../core/users/user.actions';
+import { Router } from '@angular/router';
+import { ConfirmDialogService } from '../../core/ui/confirm-dialog.service';
 import {
   selectCurrentUser,
   selectLoadError,
   selectLoadStatus,
 } from '../../core/users/user.reducer';
-import { UsersApiService } from '../../core/users/users-api.service';
+import { form, FormField, validateStandardSchema } from '@angular/forms/signals';
+import { UserActions } from '../../core/users/user.actions';
 import { firstFieldErrorMessage } from '../auth/auth.form-utils';
-import { PROFILE_MESSAGES } from './profile.messages';
-import {
-  changePasswordSchema,
-  type ChangePasswordModel,
-  profileDetailsSchema,
-  type ProfileDetailsModel,
-} from './profile.schemas';
+import { appToast } from '../../core/ui/toast';
+import { getApiErrorMessage } from '../../core/api/api-error';
+import { UI_MESSAGES } from '../../core/ui/ui.messages';
+import { PROFILE_MESSAGES } from '../../constants';
+import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
+
+const messages = PROFILE_MESSAGES.validation;
+const PASSWORD_LETTER_AND_NUMBER = /^(?=.*[A-Za-z])(?=.*\d).*$/;
+
+export const profileDetailsSchema = z.object({
+  name: z
+    .string()
+    .min(1, { message: messages.nameRequired })
+    .min(2, { message: messages.nameMinLength }),
+  email: z
+    .string()
+    .min(1, { message: messages.emailRequired })
+    .email({ message: messages.emailInvalid }),
+  /** Required by API when email changes; optional otherwise. */
+  currentPassword: z.string(),
+});
+
+export type ProfileDetailsModel = z.infer<typeof profileDetailsSchema>;
+
+export const changePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1, { message: messages.currentPasswordRequired }),
+    newPassword: z
+      .string()
+      .min(1, { message: messages.newPasswordRequired })
+      .min(8, { message: messages.newPasswordMinLength })
+      .regex(PASSWORD_LETTER_AND_NUMBER, {
+        message: messages.newPasswordPattern,
+      }),
+    confirmPassword: z.string().min(1, { message: messages.confirmRequired }),
+  })
+  .refine((value) => value.newPassword === value.confirmPassword, {
+    message: PROFILE_MESSAGES.passwordSection.mismatch,
+    path: ['confirmPassword'],
+  });
+
+export type ChangePasswordModel = z.infer<typeof changePasswordSchema>;
 
 @Component({
-  selector: 'sl-profile-page',
   imports: [
+    HlmButton,
+    HlmField,
+    HlmFieldDescription,
+    HlmFieldError,
+    HlmFieldLabel,
+    HlmInput,
     FormField,
-    ...HlmButtonImports,
-    ...HlmCardImports,
-    ...HlmFieldImports,
-    ...HlmInputImports,
+    HlmSkeletonImports,
   ],
-  templateUrl: './profile.page.html',
+  selector: 'sl-profile',
+  styleUrl: './profile.scss',
+  templateUrl: './profile.html',
 })
-export class ProfilePage {
+export class Profile {
   private readonly store = inject(Store);
   private readonly usersApi = inject(UsersApiService);
   private readonly authApi = inject(AuthApiService);
@@ -182,9 +222,7 @@ export class ProfilePage {
     return firstFieldErrorMessage(state.errors());
   }
 
-  passwordFieldError(
-    field: 'currentPassword' | 'newPassword' | 'confirmPassword',
-  ): string | null {
+  passwordFieldError(field: 'currentPassword' | 'newPassword' | 'confirmPassword'): string | null {
     const state = this.passwordForm[field]();
     if (!this.passwordShowErrors() && !state.touched()) {
       return null;
@@ -204,8 +242,7 @@ export class ProfilePage {
 
     const user = this.currentUser();
     const { name, email, currentPassword } = this.detailsModel();
-    const emailChanged =
-      !!user && email.trim().toLowerCase() !== user.email.trim().toLowerCase();
+    const emailChanged = !!user && email.trim().toLowerCase() !== user.email.trim().toLowerCase();
 
     if (emailChanged && !(currentPassword ?? '').trim()) {
       this.detailsServerError.set(this.messages.validation.currentPasswordRequiredForEmail);

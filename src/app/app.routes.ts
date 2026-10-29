@@ -32,7 +32,7 @@ export const routes: Routes = [
   },
   {
     path: 'not-found',
-    loadComponent: () => import('./features/not-found/not-found.page').then((m) => m.NotFoundPage),
+    loadComponent: () => import('./features/not-found/not-found').then((m) => m.NotFound),
   },
   {
     path: '',
@@ -45,7 +45,7 @@ export const routes: Routes = [
       },
       {
         path: 'profile',
-        loadComponent: () => import('./features/profile/profile.page').then((m) => m.ProfilePage),
+        loadComponent: () => import('./features/profile/profile').then((m) => m.Profile),
       },
       {
         path: 'projects',
