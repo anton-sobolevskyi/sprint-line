@@ -1,0 +1,42 @@
+<sl-auth-layout>
+  <section class="flex items-center justify-center p-6 md:p-12">
+    <div class="w-full max-w-sm">
+      <header class="mb-6 flex flex-col">
+        <div class="mb-4 flex items-center gap-2.5 md:hidden">
+          <span class="text-sm font-semibold">{{ messages.brand }}</span>
+        </div>
+        <h1 class="text-3xl font-semibold">{{ messages.verifyEmail.title }}</h1>
+        <p class="text-muted-foreground mt-1 text-sm">{{ messages.verifyEmail.description }}</p>
+      </header>
+
+      <div class="flex flex-col gap-4">
+        @if (status() === 'loading') {
+          <p class="text-muted-foreground text-center text-sm">
+            {{ messages.verifyEmail.description }}
+          </p>
+        } @else if (status() === 'success') {
+          <div
+            class="sl-notice-success mx-auto flex size-12 items-center justify-center rounded-full text-2xl"
+            aria-hidden="true"
+          >
+            ✓
+          </div>
+          <p class="text-center text-sm font-medium" role="status">
+            {{ messages.verifyEmail.success }}
+          </p>
+        } @else if (status() === 'error') {
+          <p class="sl-notice sl-notice-danger text-center" role="alert">{{ errorMessage() }}</p>
+        }
+
+        <div class="flex flex-wrap justify-center gap-2">
+          @if (isAuthenticated()) {
+            <a hlmBtn routerLink="/">{{ messages.verifyEmail.goHome }}</a>
+            <a hlmBtn variant="outline" routerLink="/profile">Profile</a>
+          } @else {
+            <a hlmBtn routerLink="/login">{{ messages.verifyEmail.goToLogin }}</a>
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+</sl-auth-layout>

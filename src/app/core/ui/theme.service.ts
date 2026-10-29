@@ -1,10 +1,10 @@
-import { Injectable, signal } from '@angular/core';
+import { Service, signal } from '@angular/core';
 
 export type ThemeMode = 'light' | 'dark' | 'system';
 
 const STORAGE_KEY = 'sprintline-theme';
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class ThemeService {
   private readonly mediaQuery =
     typeof window !== 'undefined' ? window.matchMedia?.('(prefers-color-scheme: dark)') : null;
@@ -34,15 +34,6 @@ export class ThemeService {
     }
     this.apply(mode);
   }
-
-  /** Cycle light → dark → system → light */
-  cycle(): void {
-    const order: ThemeMode[] = ['light', 'dark', 'system'];
-    const current = this.mode();
-    const next = order[(order.indexOf(current) + 1) % order.length]!;
-    this.setMode(next);
-  }
-
   /** Simple light/dark flip (ignores system for one-click toggle). */
   toggleLightDark(): void {
     const next = this.resolved() === 'dark' ? 'light' : 'dark';

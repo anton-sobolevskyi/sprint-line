@@ -1,23 +1,21 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
+import { HlmButton } from '@spartan-ng/helm/button';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { Store } from '@ngrx/store';
-
-import { HlmButtonImports } from '@spartan-ng/helm/button';
-import { HlmCardImports } from '@spartan-ng/helm/card';
-
-import { getApiErrorMessage } from '../../../core/api/api-error';
 import { AuthApiService } from '../../../core/auth/auth-api.service';
+import { Store } from '@ngrx/store';
+import { AUTH_MESSAGES } from '../auth.messages';
 import { selectIsAuthenticated } from '../../../core/auth/auth.selectors';
 import { UserActions } from '../../../core/users/user.actions';
-import { AuthThemeToggle } from '../auth-theme-toggle.component';
-import { AUTH_MESSAGES } from '../auth.messages';
+import { getApiErrorMessage } from '../../../core/api/api-error';
+import { AuthLayout } from '../../../layout/auth-layout/auth-layout';
 
 @Component({
-  selector: 'sl-verify-email-page',
-  imports: [RouterLink, AuthThemeToggle, ...HlmButtonImports, ...HlmCardImports],
-  templateUrl: './verify-email.page.html',
+  imports: [HlmButton, RouterLink, AuthLayout],
+  selector: 'sl-verify-email',
+  styleUrl: './verify-email.scss',
+  templateUrl: './verify-email.html',
 })
-export class VerifyEmailPage implements OnInit {
+export class VerifyEmail implements OnInit {
   private readonly authApi = inject(AuthApiService);
   private readonly route = inject(ActivatedRoute);
   private readonly store = inject(Store);

@@ -1,34 +1,33 @@
 import { Component, inject, signal } from '@angular/core';
-import { form, FormField, validateStandardSchema } from '@angular/forms/signals';
+import { AuthLayout } from '../../../layout/auth-layout/auth-layout';
+import { HlmButton } from '@spartan-ng/helm/button';
+import { HlmField, HlmFieldError, HlmFieldLabel } from '@spartan-ng/helm/field';
+import { HlmInput } from '@spartan-ng/helm/input';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-
-import { HlmButtonImports } from '@spartan-ng/helm/button';
-import { HlmCardImports } from '@spartan-ng/helm/card';
-import { HlmFieldImports } from '@spartan-ng/helm/field';
-import { HlmInputImports } from '@spartan-ng/helm/input';
-
-import { getApiErrorMessage } from '../../../core/api/api-error';
 import { AuthApiService } from '../../../core/auth/auth-api.service';
-import { RETURN_URL_PARAM, sanitizeReturnUrl } from '../../../core/auth/return-url';
-import { AuthThemeToggle } from '../auth-theme-toggle.component';
-import { firstFieldErrorMessage } from '../auth.form-utils';
 import { AUTH_MESSAGES } from '../auth.messages';
-import { loginFormSchema, type LoginFormModel } from '../auth.schemas';
+import { LoginFormModel, loginFormSchema } from '../auth.schemas';
+import { form, FormField, validateStandardSchema } from '@angular/forms/signals';
+import { firstFieldErrorMessage } from '../auth.form-utils';
+import { RETURN_URL_PARAM, sanitizeReturnUrl } from '../../../core/auth/return-url';
+import { getApiErrorMessage } from '../../../core/api/api-error';
 
 @Component({
-  selector: 'sl-login-page',
   imports: [
-    FormField,
+    AuthLayout,
+    HlmButton,
+    HlmField,
+    HlmFieldError,
+    HlmFieldLabel,
+    HlmInput,
     RouterLink,
-    AuthThemeToggle,
-    ...HlmButtonImports,
-    ...HlmCardImports,
-    ...HlmFieldImports,
-    ...HlmInputImports,
+    FormField,
   ],
-  templateUrl: './login.page.html',
+  selector: 'sl-login',
+  styleUrl: './login.scss',
+  templateUrl: './login.html',
 })
-export class LoginPage {
+export class Login {
   private readonly authApi = inject(AuthApiService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);

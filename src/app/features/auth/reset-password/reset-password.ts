@@ -1,33 +1,32 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { form, FormField, validateStandardSchema } from '@angular/forms/signals';
+import { HlmButton } from '@spartan-ng/helm/button';
+import { HlmField, HlmFieldError, HlmFieldLabel } from '@spartan-ng/helm/field';
+import { HlmInput } from '@spartan-ng/helm/input';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-
-import { HlmButtonImports } from '@spartan-ng/helm/button';
-import { HlmCardImports } from '@spartan-ng/helm/card';
-import { HlmFieldImports } from '@spartan-ng/helm/field';
-import { HlmInputImports } from '@spartan-ng/helm/input';
-
-import { getApiErrorMessage } from '../../../core/api/api-error';
 import { AuthApiService } from '../../../core/auth/auth-api.service';
-import { AuthThemeToggle } from '../auth-theme-toggle.component';
-import { firstFieldErrorMessage, passwordRuleChecks } from '../auth.form-utils';
 import { AUTH_MESSAGES } from '../auth.messages';
-import { resetPasswordSchema, type ResetPasswordModel } from '../auth.schemas';
+import { ResetPasswordModel, resetPasswordSchema } from '../auth.schemas';
+import { firstFieldErrorMessage, passwordRuleChecks } from '../auth.form-utils';
+import { FormField, validateStandardSchema, form } from '@angular/forms/signals';
+import { getApiErrorMessage } from '../../../core/api/api-error';
+import { AuthLayout } from '../../../layout/auth-layout/auth-layout';
 
 @Component({
-  selector: 'sl-reset-password-page',
   imports: [
-    FormField,
+    HlmButton,
+    HlmField,
+    HlmFieldError,
+    HlmFieldLabel,
+    HlmInput,
     RouterLink,
-    AuthThemeToggle,
-    ...HlmButtonImports,
-    ...HlmCardImports,
-    ...HlmFieldImports,
-    ...HlmInputImports,
+    AuthLayout,
+    FormField,
   ],
-  templateUrl: './reset-password.page.html',
+  selector: 'sl-reset-password',
+  styleUrl: './reset-password.scss',
+  templateUrl: './reset-password.html',
 })
-export class ResetPasswordPage {
+export class ResetPassword {
   private readonly authApi = inject(AuthApiService);
   private readonly route = inject(ActivatedRoute);
 

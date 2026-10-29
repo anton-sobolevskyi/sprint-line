@@ -1,31 +1,26 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import { Store } from '@ngrx/store';
-
-import { HlmButtonImports } from '@spartan-ng/helm/button';
-import { HlmCardImports } from '@spartan-ng/helm/card';
-import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
-
-import { getApiErrorMessage } from '../../core/api/api-error';
-import { type TaskResponseDto, TasksApiService } from '../../core/tasks/tasks-api.service';
-import { TASKS_MESSAGES } from '../projects/tasks.messages';
 import {
   type ProjectResponseDto,
   ProjectsApiService,
 } from '../../core/projects/projects-api.service';
-import { UserActions } from '../../core/users/user.actions';
+import { type TaskResponseDto, TasksApiService } from '../../core/tasks/tasks-api.service';
+import { Store } from '@ngrx/store';
 import { selectCurrentUser } from '../../core/users/user.reducer';
-import { DASHBOARD_MESSAGES } from './dashboard.messages';
-
-const RECENT_LIMIT = 6 as const;
-const MY_WORK_LIMIT = 20 as const;
+import { UserActions } from '../../core/users/user.actions';
+import { getApiErrorMessage } from '../../core/api/api-error';
+import { TASKS_MESSAGES } from '../projects/tasks.messages';
+import { DASHBOARD_MESSAGES, MY_WORK_LIMIT, RECENT_LIMIT } from '../../constants';
+import { RouterLink } from '@angular/router';
+import { HlmButtonImports } from '@spartan-ng/helm/button';
+import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
 
 @Component({
-  selector: 'sl-home-page',
-  imports: [RouterLink, ...HlmButtonImports, ...HlmCardImports, ...HlmSkeletonImports],
-  templateUrl: './home.page.html',
+  imports: [RouterLink, HlmButtonImports, HlmSkeletonImports],
+  selector: 'sl-home',
+  styleUrl: './home.scss',
+  templateUrl: './home.html',
 })
-export class HomePage implements OnInit {
+export class Home implements OnInit {
   private readonly projectsApi = inject(ProjectsApiService);
   private readonly tasksApi = inject(TasksApiService);
   private readonly store = inject(Store);

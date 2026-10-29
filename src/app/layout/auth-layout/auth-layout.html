@@ -1,0 +1,39 @@
+<sl-auth-theme-toggle />
+
+<main class="bg-background grid min-h-svh md:grid-cols-2">
+  <aside
+    class="bg-secondary hidden flex-col items-center justify-center gap-8 p-12 md:flex lg:p-20"
+  >
+    <div class="flex-col gap-8 p-12 md:flex lg:p-20">
+      <div class="font-display flex items-center gap-2.5 text-lg font-semibold">
+        {{ messages.brand }}
+      </div>
+      <div class="max-w-md">
+        <h2 class="font-display text-4xl leading-tight font-semibold">
+          {{ messages.benefits.title }}
+        </h2>
+        <p class="text-muted-foreground mt-3 text-base">{{ messages.tagline }}</p>
+      </div>
+      <ul class="flex max-w-md flex-col gap-3 text-sm">
+        @for (item of messages.benefits.items; track item) {
+          <li class="flex items-center gap-2.5">
+            <span
+              class="bg-accent text-accent-foreground mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold"
+              aria-hidden="true"
+            >
+              <ng-icon name="lucideCheck"></ng-icon>
+            </span>
+
+            <span>{{ item }}</span>
+          </li>
+        }
+      </ul>
+      <div class="sl-surface grid max-w-xs gap-2 p-4" aria-hidden="true">
+        <p class="text-sm font-semibold">{{ messages.preview.title }}</p>
+        <span class="sl-status sl-status-IN_PROGRESS">{{ messages.preview.status }}</span>
+      </div>
+    </div>
+  </aside>
+
+  <ng-content />
+</main>

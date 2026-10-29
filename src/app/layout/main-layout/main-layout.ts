@@ -1,63 +1,91 @@
 import { Component, computed, DestroyRef, effect, inject, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { HlmButton } from '@spartan-ng/helm/button';
+import {
+  HlmSidebar,
+  HlmSidebarContent,
+  HlmSidebarFooter,
+  HlmSidebarGroup,
+  HlmSidebarGroupContent,
+  HlmSidebarGroupLabel,
+  HlmSidebarHeader,
+  HlmSidebarInset,
+  HlmSidebarMenu,
+  HlmSidebarMenuButton,
+  HlmSidebarMenuItem,
+  HlmSidebarRail,
+  HlmSidebarTrigger,
+  HlmSidebarWrapper,
+} from '@spartan-ng/helm/sidebar';
 import { NgIcon, provideIcons } from '@ng-icons/core';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { AuthApiService } from '../../core/auth/auth-api.service';
+import {
+  type ProjectResponseDto,
+  ProjectsApiService,
+} from '../../core/projects/projects-api.service';
+import { UsersApiService } from '../../core/users/users-api.service';
+import { Store } from '@ngrx/store';
+import { ThemeService } from '../../core/ui/theme.service';
+import { CommandPaletteService } from '../../core/ui/command-palette.service';
+import { selectCurrentUser } from '../../core/users/user.reducer';
+import { UserActions } from '../../core/users/user.actions';
+import { filter } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { appToast } from '../../core/ui/toast';
+import { getApiErrorMessage } from '../../core/api/api-error';
+import { SHELL_MESSAGES } from '../../constants';
+import { Commands } from '../../components/commands/commands';
 import {
   lucideFolderKanban,
   lucideHouse,
   lucideLogOut,
   lucideMoon,
-  lucidePanelLeft,
   lucideSearch,
   lucideSun,
-  lucideX,
   lucideUserRound,
+  lucideX,
 } from '@ng-icons/lucide';
-import { Store } from '@ngrx/store';
-import { filter } from 'rxjs';
-
-import { HlmButtonImports } from '@spartan-ng/helm/button';
-import { HlmSidebarImports } from '@spartan-ng/helm/sidebar';
-
-import { getApiErrorMessage } from '../core/api/api-error';
-import { AuthApiService } from '../core/auth/auth-api.service';
-import { type ProjectResponseDto, ProjectsApiService } from '../core/projects/projects-api.service';
-import { CommandPaletteService } from '../core/ui/command-palette.service';
-import { ThemeService } from '../core/ui/theme.service';
-import { appToast } from '../core/ui/toast';
-import { UserActions } from '../core/users/user.actions';
-import { selectCurrentUser } from '../core/users/user.reducer';
-import { UsersApiService } from '../core/users/users-api.service';
-import { CommandPaletteComponent } from './command-palette.component';
-import { SHELL_MESSAGES } from './shell.messages';
 
 @Component({
-  selector: 'sl-app-shell',
+  imports: [
+    HlmButton,
+    HlmSidebar,
+    HlmSidebarContent,
+    HlmSidebarFooter,
+    HlmSidebarGroup,
+    HlmSidebarGroupContent,
+    HlmSidebarGroupLabel,
+    HlmSidebarHeader,
+    HlmSidebarInset,
+    HlmSidebarMenu,
+    HlmSidebarMenuButton,
+    HlmSidebarMenuItem,
+    HlmSidebarRail,
+    HlmSidebarTrigger,
+    HlmSidebarWrapper,
+    NgIcon,
+    RouterLink,
+    RouterLinkActive,
+    RouterOutlet,
+    Commands,
+  ],
+  selector: 'sl-main-layout',
+  styleUrl: './main-layout.scss',
+  templateUrl: './main-layout.html',
   providers: [
     provideIcons({
       lucideHouse,
       lucideFolderKanban,
-      lucideUserRound,
-      lucideX,
-      lucideLogOut,
-      lucidePanelLeft,
       lucideSun,
       lucideMoon,
+      lucideLogOut,
       lucideSearch,
+      lucideX,
+      lucideUserRound,
     }),
   ],
-  imports: [
-    RouterOutlet,
-    RouterLink,
-    RouterLinkActive,
-    NgIcon,
-    CommandPaletteComponent,
-    ...HlmButtonImports,
-    ...HlmSidebarImports,
-  ],
-  templateUrl: './app-shell.layout.html',
 })
-export class AppShellLayout {
+export class MainLayout {
   private readonly authApi = inject(AuthApiService);
   private readonly projectsApi = inject(ProjectsApiService);
   private readonly usersApi = inject(UsersApiService);

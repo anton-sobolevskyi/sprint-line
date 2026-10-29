@@ -9,16 +9,13 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import { HlmInput } from '@spartan-ng/helm/input';
+import { ProjectResponseDto, ProjectsApiService } from '../../core/projects/projects-api.service';
+import { CommandPaletteService } from '../../core/ui/command-palette.service';
 import { Router } from '@angular/router';
-
-import { HlmButtonImports } from '@spartan-ng/helm/button';
-import { HlmInputImports } from '@spartan-ng/helm/input';
-
-import { type ProjectResponseDto, ProjectsApiService } from '../core/projects/projects-api.service';
-import { CommandPaletteService } from '../core/ui/command-palette.service';
-import { ThemeService } from '../core/ui/theme.service';
-import { type TaskResponseDto, TasksApiService } from '../core/tasks/tasks-api.service';
-import { SHELL_MESSAGES } from './shell.messages';
+import { ThemeService } from '../../core/ui/theme.service';
+import { TaskResponseDto, TasksApiService } from '../../core/tasks/tasks-api.service';
+import { SHELL_MESSAGES } from '../../constants/messages';
 
 type CommandGroup = 'nav' | 'tasks' | 'projects' | 'actions';
 
@@ -33,11 +30,12 @@ interface CommandItem {
 const PROJECTS_LIMIT = 50 as const;
 
 @Component({
-  selector: 'sl-command-palette',
-  imports: [...HlmButtonImports, ...HlmInputImports],
-  templateUrl: './command-palette.component.html',
+  imports: [HlmInput],
+  selector: 'sl-commands',
+  styleUrl: './commands.scss',
+  templateUrl: './commands.html',
 })
-export class CommandPaletteComponent {
+export class Commands {
   /** Recent projects from the shell (fallback while full list loads). */
   readonly recentProjects = input<ProjectResponseDto[]>([]);
 

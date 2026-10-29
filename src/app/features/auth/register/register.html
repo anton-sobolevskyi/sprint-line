@@ -1,40 +1,8 @@
-<sl-auth-theme-toggle />
-<main class="bg-background grid min-h-svh md:grid-cols-2">
-  <!-- Product pitch (desktop) -->
-  <aside class="bg-secondary hidden flex-col justify-center gap-8 p-12 md:flex lg:p-20">
-    <div class="font-display flex items-center gap-2.5 text-lg font-semibold">
-      {{ messages.brand }}
-    </div>
-    <div class="max-w-md">
-      <h2 class="font-display text-4xl leading-tight font-semibold">
-        {{ messages.benefits.title }}
-      </h2>
-      <p class="text-muted-foreground mt-3 text-base">{{ messages.tagline }}</p>
-    </div>
-    <ul class="flex max-w-md flex-col gap-3 text-sm">
-      @for (item of messages.benefits.items; track item) {
-        <li class="flex gap-2.5">
-          <span
-            class="bg-accent text-accent-foreground mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold"
-            aria-hidden="true"
-            >✓</span
-          >
-          <span>{{ item }}</span>
-        </li>
-      }
-    </ul>
-    <div class="sl-surface grid max-w-xs gap-2 p-4" aria-hidden="true">
-      <p class="text-sm font-semibold">{{ messages.preview.title }}</p>
-      <span class="sl-status sl-status-IN_PROGRESS">{{ messages.preview.status }}</span>
-    </div>
-  </aside>
-
-  <!-- Form -->
+<sl-auth-layout>
   <section class="flex items-center justify-center p-6 md:p-12">
     <div class="w-full max-w-sm">
       <header class="mb-6 flex flex-col">
         <div class="mb-4 flex items-center gap-2.5 md:hidden">
-          <img src="favicon.svg" alt="" width="36" height="36" class="size-9 rounded-lg" />
           <span class="text-sm font-semibold">{{ messages.brand }}</span>
         </div>
         <h1 class="text-3xl font-semibold">{{ messages.register.title }}</h1>
@@ -140,4 +108,4 @@
       </p>
     </div>
   </section>
-</main>
+</sl-auth-layout>

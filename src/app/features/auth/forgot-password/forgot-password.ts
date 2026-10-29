@@ -1,36 +1,32 @@
 import { Component, inject, signal } from '@angular/core';
-import { form, FormField, validateStandardSchema } from '@angular/forms/signals';
+import { HlmButton } from '@spartan-ng/helm/button';
+import { HlmField, HlmFieldError, HlmFieldLabel } from '@spartan-ng/helm/field';
+import { HlmInput } from '@spartan-ng/helm/input';
 import { RouterLink } from '@angular/router';
-
-import { HlmButtonImports } from '@spartan-ng/helm/button';
-import { HlmCardImports } from '@spartan-ng/helm/card';
-import { HlmFieldImports } from '@spartan-ng/helm/field';
-import { HlmInputImports } from '@spartan-ng/helm/input';
-
-import { getApiErrorMessage } from '../../../core/api/api-error';
 import { AuthApiService } from '../../../core/auth/auth-api.service';
-import { AuthThemeToggle } from '../auth-theme-toggle.component';
-import { firstFieldErrorMessage } from '../auth.form-utils';
 import { AUTH_MESSAGES } from '../auth.messages';
-import {
-  forgotPasswordSchema,
-  type ForgotPasswordModel,
-} from '../auth.schemas';
+import { ForgotPasswordModel, forgotPasswordSchema } from '../auth.schemas';
+import { validateStandardSchema, form, FormField } from '@angular/forms/signals';
+import { firstFieldErrorMessage } from '../auth.form-utils';
+import { getApiErrorMessage } from '../../../core/api/api-error';
+import { AuthLayout } from '../../../layout/auth-layout/auth-layout';
 
 @Component({
-  selector: 'sl-forgot-password-page',
   imports: [
-    FormField,
+    HlmButton,
+    HlmField,
+    HlmFieldError,
+    HlmFieldLabel,
+    HlmInput,
     RouterLink,
-    AuthThemeToggle,
-    ...HlmButtonImports,
-    ...HlmCardImports,
-    ...HlmFieldImports,
-    ...HlmInputImports,
+    AuthLayout,
+    FormField,
   ],
-  templateUrl: './forgot-password.page.html',
+  selector: 'sl-forgot-password',
+  styleUrl: './forgot-password.scss',
+  templateUrl: './forgot-password.html',
 })
-export class ForgotPasswordPage {
+export class ForgotPassword {
   private readonly authApi = inject(AuthApiService);
 
   readonly messages = AUTH_MESSAGES;

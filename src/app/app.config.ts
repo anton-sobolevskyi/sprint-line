@@ -18,11 +18,6 @@ import { ThemeService } from './core/ui/theme.service';
 import { UserEffects } from './core/users/user.effects';
 import { userFeature } from './core/users/user.reducer';
 
-function initTheme(): void {
-  // Instantiate so preference is applied before first paint of authenticated shell.
-  inject(ThemeService);
-}
-
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
@@ -35,6 +30,8 @@ export const appConfig: ApplicationConfig = {
     provideEffects([UserEffects]),
     provideRouterStore(),
     provideAppInitializer(restoreAuthSession),
-    provideAppInitializer(initTheme),
+    provideAppInitializer(() => {
+      inject(ThemeService);
+    }),
   ],
 };
