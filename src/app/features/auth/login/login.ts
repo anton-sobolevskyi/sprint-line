@@ -9,22 +9,8 @@ import { form, FormField, validateStandardSchema } from '@angular/forms/signals'
 import { RETURN_URL_PARAM, sanitizeReturnUrl } from '../../../core/auth/return-url';
 import { getApiErrorMessage } from '../../../core/api/api-error';
 import { AUTH_MESSAGES } from '../../../constants';
-import { z } from 'zod';
 import { firstFieldErrorMessage } from '../../../utils';
-
-const messages = AUTH_MESSAGES.validation;
-
-const loginFormSchema = z.object({
-  email: z
-    .string()
-    .min(1, { message: messages.emailRequired })
-    .email({ message: messages.emailInvalid }),
-  password: z.string().min(1, { message: messages.passwordRequired }).min(8, {
-    message: messages.passwordMinLength,
-  }),
-});
-
-type LoginFormModel = z.infer<typeof loginFormSchema>;
+import { LoginFormModel, loginFormSchema } from './login.schema';
 
 @Component({
   imports: [

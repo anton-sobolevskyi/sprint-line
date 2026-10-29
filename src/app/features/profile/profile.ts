@@ -7,8 +7,6 @@ import {
   HlmFieldLabel,
 } from '@spartan-ng/helm/field';
 import { HlmInput } from '@spartan-ng/helm/input';
-import { z } from 'zod';
-
 import { Store } from '@ngrx/store';
 import { UsersApiService } from '../../core/users/users-api.service';
 import { AuthApiService } from '../../core/auth/auth-api.service';
@@ -25,45 +23,15 @@ import { UserActions } from '../../core/users/user.actions';
 import { appToast } from '../../core/ui/toast';
 import { getApiErrorMessage } from '../../core/api/api-error';
 import { UI_MESSAGES } from '../../core/ui/ui.messages';
-import { PASSWORD_LETTER_AND_NUMBER, PROFILE_MESSAGES } from '../../constants';
+import { PROFILE_MESSAGES } from '../../constants';
 import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
 import { firstFieldErrorMessage } from '../../utils';
-
-const messages = PROFILE_MESSAGES.validation;
-
-export const profileDetailsSchema = z.object({
-  name: z
-    .string()
-    .min(1, { message: messages.nameRequired })
-    .min(2, { message: messages.nameMinLength }),
-  email: z
-    .string()
-    .min(1, { message: messages.emailRequired })
-    .email({ message: messages.emailInvalid }),
-  /** Required by API when email changes; optional otherwise. */
-  currentPassword: z.string(),
-});
-
-export type ProfileDetailsModel = z.infer<typeof profileDetailsSchema>;
-
-export const changePasswordSchema = z
-  .object({
-    currentPassword: z.string().min(1, { message: messages.currentPasswordRequired }),
-    newPassword: z
-      .string()
-      .min(1, { message: messages.newPasswordRequired })
-      .min(8, { message: messages.newPasswordMinLength })
-      .regex(PASSWORD_LETTER_AND_NUMBER, {
-        message: messages.newPasswordPattern,
-      }),
-    confirmPassword: z.string().min(1, { message: messages.confirmRequired }),
-  })
-  .refine((value) => value.newPassword === value.confirmPassword, {
-    message: PROFILE_MESSAGES.passwordSection.mismatch,
-    path: ['confirmPassword'],
-  });
-
-export type ChangePasswordModel = z.infer<typeof changePasswordSchema>;
+import {
+  ChangePasswordModel,
+  changePasswordSchema,
+  ProfileDetailsModel,
+  profileDetailsSchema,
+} from './profile.schema';
 
 @Component({
   imports: [

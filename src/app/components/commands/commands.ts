@@ -15,19 +15,8 @@ import { CommandPaletteService } from '../../core/ui/command-palette.service';
 import { Router } from '@angular/router';
 import { ThemeService } from '../../core/ui/theme.service';
 import { TaskResponseDto, TasksApiService } from '../../core/tasks/tasks-api.service';
-import { SHELL_MESSAGES } from '../../constants/messages';
-
-type CommandGroup = 'nav' | 'tasks' | 'projects' | 'actions';
-
-interface CommandItem {
-  id: string;
-  group: CommandGroup;
-  label: string;
-  keywords: string;
-  run: () => void;
-}
-
-const PROJECTS_LIMIT = 50 as const;
+import { PROJECTS_LIMIT, SHELL_MESSAGES } from '../../constants';
+import { CommandGroup, CommandItem } from './commands.types';
 
 @Component({
   imports: [HlmInput],

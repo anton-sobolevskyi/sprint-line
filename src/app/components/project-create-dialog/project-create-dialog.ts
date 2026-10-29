@@ -9,20 +9,8 @@ import { ProjectResponseDto, ProjectsApiService } from '../../core/projects/proj
 import { form, FormField, validateStandardSchema } from '@angular/forms/signals';
 import { firstFieldErrorMessage } from '../../utils';
 import { getApiErrorMessage } from '../../core/api/api-error';
-import { z } from 'zod';
 import { PROJECTS_MESSAGES } from '../../constants';
-
-const messages = PROJECTS_MESSAGES.validation;
-
-export const createProjectSchema = z.object({
-  name: z
-    .string()
-    .min(1, { message: messages.nameRequired })
-    .min(2, { message: messages.nameMinLength }),
-  description: z.string(),
-});
-
-export type CreateProjectModel = z.infer<typeof createProjectSchema>;
+import { CreateProjectModel, createProjectSchema } from './project-create-dialog.schema';
 
 @Component({
   imports: [

@@ -7,29 +7,9 @@ import { AuthApiService } from '../../../core/auth/auth-api.service';
 import { FormField, validateStandardSchema, form } from '@angular/forms/signals';
 import { getApiErrorMessage } from '../../../core/api/api-error';
 import { AuthLayout } from '../../../layout/auth-layout/auth-layout';
-import { z } from 'zod';
-import { AUTH_MESSAGES, PASSWORD_LETTER_AND_NUMBER } from '../../../constants';
+import { AUTH_MESSAGES } from '../../../constants';
 import { firstFieldErrorMessage, passwordRuleChecks } from '../../../utils';
-
-const messages = AUTH_MESSAGES.validation;
-
-const resetPasswordSchema = z
-  .object({
-    newPassword: z
-      .string()
-      .min(1, { message: messages.passwordRequired })
-      .min(8, { message: messages.passwordMinLength })
-      .regex(PASSWORD_LETTER_AND_NUMBER, {
-        message: messages.passwordPattern,
-      }),
-    confirmPassword: z.string().min(1, { message: messages.confirmRequired }),
-  })
-  .refine((value) => value.newPassword === value.confirmPassword, {
-    message: messages.passwordMismatch,
-    path: ['confirmPassword'],
-  });
-
-type ResetPasswordModel = z.infer<typeof resetPasswordSchema>;
+import { ResetPasswordModel, resetPasswordSchema } from './reset-password.schema';
 
 @Component({
   imports: [

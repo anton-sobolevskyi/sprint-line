@@ -35,15 +35,13 @@ import { BrnDialogRef } from '@spartan-ng/brain/dialog';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { UserActions } from '../../../core/users/user.actions';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import {
-  TaskCreateDialog,
-  TaskCreateDialogData,
-} from '../../../components/task-create-dialog/task-create-dialog';
+import { TaskCreateDialog } from '../../../components/task-create-dialog/task-create-dialog';
 import { UI_MESSAGES } from '../../../core/ui/ui.messages';
 import { appToast } from '../../../core/ui/toast';
 import { RouterLink } from '@angular/router';
 import { TasksViewMode } from './project-tasks.types';
 import { isEditableTarget } from '../../../utils';
+import { TaskCreateDialogData } from '../../../components/task-create-dialog/task-create-dialog.types';
 
 @Component({
   imports: [HlmButton, HlmInput, HlmSkeleton, RouterLink],

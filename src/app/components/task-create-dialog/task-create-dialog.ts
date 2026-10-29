@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal, Signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmDialogTitle } from '@spartan-ng/helm/dialog';
 import { HlmField, HlmFieldError, HlmFieldLabel } from '@spartan-ng/helm/field';
@@ -13,64 +13,14 @@ import {
   HlmSelectValue,
 } from '@spartan-ng/helm/select';
 import { HlmTextarea } from '@spartan-ng/helm/textarea';
-import { z } from 'zod';
 import { TASK_STATUS_ORDER, TASKS_MESSAGES } from '../../constants';
 import { form, FormField, validateStandardSchema } from '@angular/forms/signals';
 import { CreateTaskDto, TaskStatus } from '../../core/tasks/tasks-api.service';
 import { BrnDialogRef, injectBrnDialogContext } from '@spartan-ng/brain/dialog';
 import { firstFieldErrorMessage } from '../../utils';
 import { appToast } from '../../core/ui/toast';
-
-export interface TaskCreateMemberOption {
-  id: string;
-  label: string;
-}
-
-/** Data handed to the dialog by the board panel (via `HlmDialogService` context). */
-export interface TaskCreateDialogData {
-  /** Column/status the new task should start in. */
-  initialStatus: TaskStatus;
-  memberOptions: Signal<TaskCreateMemberOption[]>;
-  /** Persists the task (typically `ProjectTasksStore.create`). */
-  create: (
-    dto: CreateTaskDto,
-    callbacks: {
-      onSuccess: () => void;
-      onPartialSuccess: (message: string) => void;
-      onError: (message: string) => void;
-    },
-    status: TaskStatus
-  ) => void;
-}
-
-function emptyModel(status: TaskStatus): CreateTaskModel {
-  return {
-    title: '',
-    description: '',
-    status,
-    priority: 'MEDIUM',
-    dueDate: '',
-    assignedToId: '',
-  };
-}
-
-const messages = TASKS_MESSAGES.validation;
-
-export const createTaskSchema = z.object({
-  title: z
-    .string()
-    .min(1, { message: messages.titleRequired })
-    .min(2, { message: messages.titleMinLength }),
-  description: z.string(),
-  status: z.enum(['TODO', 'IN_PROGRESS', 'IN_REVIEW', 'DONE']),
-  priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']),
-  /** yyyy-mm-dd or empty. */
-  dueDate: z.string(),
-  /** Member user id or empty (unassigned). */
-  assignedToId: z.string(),
-});
-
-export type CreateTaskModel = z.infer<typeof createTaskSchema>;
+import { TaskCreateDialogData } from './task-create-dialog.types';
+import { CreateTaskModel, createTaskSchema } from './task-create-dialog.schema';
 
 @Component({
   imports: [
@@ -107,7 +57,7 @@ export class TaskCreateDialog {
   readonly submitting = signal(false);
   readonly serverError = signal<string | null>(null);
 
-  private readonly model = signal<CreateTaskModel>(emptyModel(this.data.initialStatus));
+  private readonly model = signal<CreateTaskModel>(this.emptyModel(this.data.initialStatus));
 
   readonly createForm = form(this.model, (schemaPath) => {
     validateStandardSchema(schemaPath, createTaskSchema);
@@ -199,5 +149,16 @@ export class TaskCreateDialog {
 
   cancel(): void {
     this.dialogRef.close(false);
+  }
+
+  private emptyModel(status: TaskStatus): CreateTaskModel {
+    return {
+      title: '',
+      description: '',
+      status,
+      priority: 'MEDIUM',
+      dueDate: '',
+      assignedToId: '',
+    };
   }
 }

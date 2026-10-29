@@ -9,18 +9,7 @@ import { getApiErrorMessage } from '../../../core/api/api-error';
 import { AuthLayout } from '../../../layout/auth-layout/auth-layout';
 import { AUTH_MESSAGES } from '../../../constants';
 import { firstFieldErrorMessage } from '../../../utils';
-import { z } from 'zod';
-
-const messages = AUTH_MESSAGES.validation;
-
-const forgotPasswordSchema = z.object({
-  email: z
-    .string()
-    .min(1, { message: messages.emailRequired })
-    .email({ message: messages.emailInvalid }),
-});
-
-type ForgotPasswordModel = z.infer<typeof forgotPasswordSchema>;
+import { ForgotPasswordModel, forgotPasswordSchema } from './forgot-password.schema';
 
 @Component({
   imports: [

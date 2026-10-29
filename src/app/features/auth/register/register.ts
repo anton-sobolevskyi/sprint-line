@@ -7,31 +7,9 @@ import { AuthLayout } from '../../../layout/auth-layout/auth-layout';
 import { HlmInputImports } from '@spartan-ng/helm/input';
 import { HlmFieldImports } from '@spartan-ng/helm/field';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
-import { AUTH_MESSAGES, PASSWORD_LETTER_AND_NUMBER } from '../../../constants';
-import { z } from 'zod';
+import { AUTH_MESSAGES } from '../../../constants';
 import { firstFieldErrorMessage, passwordRuleChecks } from '../../../utils';
-
-const messages = AUTH_MESSAGES.validation;
-
-export const registerFormSchema = z.object({
-  name: z
-    .string()
-    .min(1, { message: messages.nameRequired })
-    .min(2, { message: messages.nameMinLength }),
-  email: z
-    .string()
-    .min(1, { message: messages.emailRequired })
-    .email({ message: messages.emailInvalid }),
-  password: z
-    .string()
-    .min(1, { message: messages.passwordRequired })
-    .min(8, { message: messages.passwordMinLength })
-    .regex(PASSWORD_LETTER_AND_NUMBER, {
-      message: messages.passwordPattern,
-    }),
-});
-
-type RegisterFormModel = z.infer<typeof registerFormSchema>;
+import { RegisterFormModel, registerFormSchema } from './register.schema';
 
 @Component({
   imports: [AuthLayout, HlmInputImports, HlmFieldImports, FormField, HlmButtonImports, RouterLink],
