@@ -15,11 +15,11 @@ export class BrandMark {
       'bg-primary text-primary-foreground inline-flex shrink-0 items-center justify-center font-bold tracking-wide select-none';
     switch (this.size()) {
       case 'sm':
-        return `${base} size-6 rounded-md text-[10px]`;
+        return `${base} size-6 rounded-md text-xs`;
       case 'lg':
-        return `${base} size-9 rounded-lg text-sm`;
+        return `${base} size-9 rounded-lg text-base`;
       default:
-        return `${base} size-7 rounded-lg text-[11px]`;
+        return `${base} size-7 rounded-lg text-xs`;
     }
   });
 }

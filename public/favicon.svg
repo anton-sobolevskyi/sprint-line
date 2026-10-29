@@ -2,12 +2,12 @@
   <rect width="32" height="32" rx="8" fill="#B8420F"/>
   <text
     x="16"
-    y="21.5"
+    y="22"
     text-anchor="middle"
     font-family="Inter, system-ui, -apple-system, 'Segoe UI', sans-serif"
-    font-size="13"
+    font-size="17"
     font-weight="700"
-    letter-spacing="0.5"
+    letter-spacing="0.4"
     fill="#FFFFFF"
   >SL</text>
 </svg>
