@@ -43,9 +43,11 @@ import { Auth } from '@core/services/auth';
 import { SHELL_MESSAGES } from '@constants/messages';
 import { CommandPalette } from '@core/services/command-palette';
 import { Theme } from '@core/services/theme';
+import { BrandMark } from '../../components/brand-mark/brand-mark';
 
 @Component({
   imports: [
+    BrandMark,
     HlmButton,
     HlmSidebar,
     HlmSidebarContent,
