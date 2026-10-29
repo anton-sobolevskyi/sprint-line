@@ -9,9 +9,11 @@ import { firstFieldErrorMessage, getApiErrorMessage } from '@utils';
 import { ForgotPasswordModel, forgotPasswordSchema } from './forgot-password.schema';
 import { Auth } from '@core/services/auth';
 import { AUTH_MESSAGES } from '@constants/messages';
+import { BrandMark } from '../../../components/brand-mark/brand-mark';
 
 @Component({
   imports: [
+    BrandMark,
     HlmButton,
     HlmField,
     HlmFieldError,
