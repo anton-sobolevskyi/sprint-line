@@ -18,9 +18,9 @@ import { HlmTextareaImports } from '@spartan-ng/helm/textarea';
 
 import type { CreateTaskDto, TaskStatus } from '../../core/tasks/tasks-api.service';
 import { appToast } from '../../core/ui/toast';
-import { firstFieldErrorMessage } from '../auth/auth.form-utils';
 import { TASK_STATUS_ORDER, TASKS_MESSAGES } from './tasks.messages';
 import { createTaskSchema, type CreateTaskModel } from './tasks.schemas';
+import { firstFieldErrorMessage } from '../../utils';
 
 export interface TaskCreateMemberOption {
   id: string;

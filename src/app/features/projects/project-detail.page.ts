@@ -18,11 +18,11 @@ import {
   type ProjectResponseDto,
   ProjectsApiService,
 } from '../../core/projects/projects-api.service';
-import { firstFieldErrorMessage } from '../auth/auth.form-utils';
 import { ProjectMembersPanel } from './project-members.panel';
 import { ProjectTasksBoardPanel } from './project-tasks-board.panel';
 import { PROJECTS_MESSAGES } from './projects.messages';
 import { type UpdateProjectModel, updateProjectSchema } from './projects.schemas';
+import { firstFieldErrorMessage } from '../../utils';
 
 export type ProjectDetailTab = 'board' | 'members' | 'settings';
 

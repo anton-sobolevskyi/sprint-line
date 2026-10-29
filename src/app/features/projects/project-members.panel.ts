@@ -17,10 +17,10 @@ import {
 } from '../../core/projects/project-members-api.service';
 import { UserActions } from '../../core/users/user.actions';
 import { selectCurrentUser } from '../../core/users/user.reducer';
-import { firstFieldErrorMessage } from '../auth/auth.form-utils';
 import { MEMBERS_MESSAGES } from './members.messages';
 import { inviteMemberSchema, type InviteMemberModel } from './members.schemas';
 import { ProjectMembersStore } from './project-members.store';
+import { firstFieldErrorMessage } from '../../utils';
 
 @Component({
   selector: 'sl-project-members-panel',

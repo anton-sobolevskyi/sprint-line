@@ -13,9 +13,9 @@ import {
   type ProjectResponseDto,
   ProjectsApiService,
 } from '../../core/projects/projects-api.service';
-import { firstFieldErrorMessage } from '../auth/auth.form-utils';
 import { PROJECTS_MESSAGES } from './projects.messages';
 import { createProjectSchema, type CreateProjectModel } from './projects.schemas';
+import { firstFieldErrorMessage } from '../../utils';
 
 /**
  * "Create project" dialog content. Opened via `HlmDialogService.open(ProjectCreateDialog)`

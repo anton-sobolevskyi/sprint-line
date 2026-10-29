@@ -34,11 +34,11 @@ import {
   type TaskStatus,
   TasksApiService,
 } from '../../core/tasks/tasks-api.service';
-import { firstFieldErrorMessage } from '../auth/auth.form-utils';
 import { TaskAttachmentsPanel } from './task-attachments.panel';
 import { TaskCommentsPanel } from './task-comments.panel';
 import { TASK_STATUS_ORDER, TASKS_MESSAGES } from './tasks.messages';
 import { type UpdateTaskModel, updateTaskSchema } from './tasks.schemas';
+import { firstFieldErrorMessage } from '../../utils';
 
 const MEMBERS_LIMIT = 100 as const;
 

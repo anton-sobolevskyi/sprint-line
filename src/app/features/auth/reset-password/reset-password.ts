@@ -4,12 +4,32 @@ import { HlmField, HlmFieldError, HlmFieldLabel } from '@spartan-ng/helm/field';
 import { HlmInput } from '@spartan-ng/helm/input';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthApiService } from '../../../core/auth/auth-api.service';
-import { AUTH_MESSAGES } from '../auth.messages';
-import { ResetPasswordModel, resetPasswordSchema } from '../auth.schemas';
-import { firstFieldErrorMessage, passwordRuleChecks } from '../auth.form-utils';
 import { FormField, validateStandardSchema, form } from '@angular/forms/signals';
 import { getApiErrorMessage } from '../../../core/api/api-error';
 import { AuthLayout } from '../../../layout/auth-layout/auth-layout';
+import { z } from 'zod';
+import { AUTH_MESSAGES, PASSWORD_LETTER_AND_NUMBER } from '../../../constants';
+import { firstFieldErrorMessage, passwordRuleChecks } from '../../../utils';
+
+const messages = AUTH_MESSAGES.validation;
+
+const resetPasswordSchema = z
+  .object({
+    newPassword: z
+      .string()
+      .min(1, { message: messages.passwordRequired })
+      .min(8, { message: messages.passwordMinLength })
+      .regex(PASSWORD_LETTER_AND_NUMBER, {
+        message: messages.passwordPattern,
+      }),
+    confirmPassword: z.string().min(1, { message: messages.confirmRequired }),
+  })
+  .refine((value) => value.newPassword === value.confirmPassword, {
+    message: messages.passwordMismatch,
+    path: ['confirmPassword'],
+  });
+
+type ResetPasswordModel = z.infer<typeof resetPasswordSchema>;
 
 @Component({
   imports: [

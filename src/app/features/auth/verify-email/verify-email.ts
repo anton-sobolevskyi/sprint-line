@@ -3,11 +3,11 @@ import { HlmButton } from '@spartan-ng/helm/button';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthApiService } from '../../../core/auth/auth-api.service';
 import { Store } from '@ngrx/store';
-import { AUTH_MESSAGES } from '../auth.messages';
 import { selectIsAuthenticated } from '../../../core/auth/auth.selectors';
 import { UserActions } from '../../../core/users/user.actions';
 import { getApiErrorMessage } from '../../../core/api/api-error';
 import { AuthLayout } from '../../../layout/auth-layout/auth-layout';
+import { AUTH_MESSAGES } from '../../../constants';
 
 @Component({
   imports: [HlmButton, RouterLink, AuthLayout],

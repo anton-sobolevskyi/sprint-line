@@ -5,12 +5,26 @@ import { HlmField, HlmFieldError, HlmFieldLabel } from '@spartan-ng/helm/field';
 import { HlmInput } from '@spartan-ng/helm/input';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthApiService } from '../../../core/auth/auth-api.service';
-import { AUTH_MESSAGES } from '../auth.messages';
-import { LoginFormModel, loginFormSchema } from '../auth.schemas';
 import { form, FormField, validateStandardSchema } from '@angular/forms/signals';
-import { firstFieldErrorMessage } from '../auth.form-utils';
 import { RETURN_URL_PARAM, sanitizeReturnUrl } from '../../../core/auth/return-url';
 import { getApiErrorMessage } from '../../../core/api/api-error';
+import { AUTH_MESSAGES } from '../../../constants';
+import { z } from 'zod';
+import { firstFieldErrorMessage } from '../../../utils';
+
+const messages = AUTH_MESSAGES.validation;
+
+const loginFormSchema = z.object({
+  email: z
+    .string()
+    .min(1, { message: messages.emailRequired })
+    .email({ message: messages.emailInvalid }),
+  password: z.string().min(1, { message: messages.passwordRequired }).min(8, {
+    message: messages.passwordMinLength,
+  }),
+});
+
+type LoginFormModel = z.infer<typeof loginFormSchema>;
 
 @Component({
   imports: [

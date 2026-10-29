@@ -1,0 +1,15 @@
+<button
+  type="button"
+  hlmBtn
+  variant="ghost"
+  size="icon"
+  class="text-muted-foreground absolute top-4 right-4 z-10 size-9"
+  [attr.aria-label]="theme.resolved() === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'"
+  (click)="theme.toggleLightDark()"
+>
+  @if (theme.resolved() === 'dark') {
+    <ng-icon name="lucideSun" />
+  } @else {
+    <ng-icon name="lucideMoon" />
+  }
+</button>

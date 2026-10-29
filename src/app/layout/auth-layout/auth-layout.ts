@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
-import { AuthThemeToggle } from '../../features/auth/auth-theme-toggle.component';
-import { AUTH_MESSAGES } from '../../constants/messages';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideCheck } from '@ng-icons/lucide';
+import { ThemeToggle } from '../../components/theme-toggle/theme-toggle';
+import { AUTH_MESSAGES } from '../../constants';
 
 @Component({
-  imports: [AuthThemeToggle, NgIcon],
+  imports: [ThemeToggle, NgIcon],
   selector: 'sl-auth-layout',
   styleUrl: './auth-layout.scss',
   templateUrl: './auth-layout.html',

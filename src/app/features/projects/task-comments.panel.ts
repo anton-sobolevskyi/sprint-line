@@ -21,10 +21,10 @@ import {
 } from '../../core/comments/comments-api.service';
 import { UserActions } from '../../core/users/user.actions';
 import { selectCurrentUser } from '../../core/users/user.reducer';
-import { firstFieldErrorMessage } from '../auth/auth.form-utils';
 import { ATTACHMENT_ACCEPT, ATTACHMENT_LIMITS, formatFileSize } from './attachments.messages';
 import { COMMENTS_MESSAGES } from './comments.messages';
 import { commentContentSchema, type CommentContentModel } from './comments.schemas';
+import { firstFieldErrorMessage } from '../../utils';
 
 const DEFAULT_LIMIT = 50 as const;
 

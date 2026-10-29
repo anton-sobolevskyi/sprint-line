@@ -22,15 +22,14 @@ import {
 } from '../../core/users/user.reducer';
 import { form, FormField, validateStandardSchema } from '@angular/forms/signals';
 import { UserActions } from '../../core/users/user.actions';
-import { firstFieldErrorMessage } from '../auth/auth.form-utils';
 import { appToast } from '../../core/ui/toast';
 import { getApiErrorMessage } from '../../core/api/api-error';
 import { UI_MESSAGES } from '../../core/ui/ui.messages';
-import { PROFILE_MESSAGES } from '../../constants';
+import { PASSWORD_LETTER_AND_NUMBER, PROFILE_MESSAGES } from '../../constants';
 import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
+import { firstFieldErrorMessage } from '../../utils';
 
 const messages = PROFILE_MESSAGES.validation;
-const PASSWORD_LETTER_AND_NUMBER = /^(?=.*[A-Za-z])(?=.*\d).*$/;
 
 export const profileDetailsSchema = z.object({
   name: z

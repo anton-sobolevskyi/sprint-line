@@ -4,12 +4,23 @@ import { HlmField, HlmFieldError, HlmFieldLabel } from '@spartan-ng/helm/field';
 import { HlmInput } from '@spartan-ng/helm/input';
 import { RouterLink } from '@angular/router';
 import { AuthApiService } from '../../../core/auth/auth-api.service';
-import { AUTH_MESSAGES } from '../auth.messages';
-import { ForgotPasswordModel, forgotPasswordSchema } from '../auth.schemas';
 import { validateStandardSchema, form, FormField } from '@angular/forms/signals';
-import { firstFieldErrorMessage } from '../auth.form-utils';
 import { getApiErrorMessage } from '../../../core/api/api-error';
 import { AuthLayout } from '../../../layout/auth-layout/auth-layout';
+import { AUTH_MESSAGES } from '../../../constants';
+import { firstFieldErrorMessage } from '../../../utils';
+import { z } from 'zod';
+
+const messages = AUTH_MESSAGES.validation;
+
+const forgotPasswordSchema = z.object({
+  email: z
+    .string()
+    .min(1, { message: messages.emailRequired })
+    .email({ message: messages.emailInvalid }),
+});
+
+type ForgotPasswordModel = z.infer<typeof forgotPasswordSchema>;
 
 @Component({
   imports: [
