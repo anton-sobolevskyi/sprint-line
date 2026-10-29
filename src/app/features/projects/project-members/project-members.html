@@ -43,14 +43,22 @@
             <label hlmFieldLabel for="invite-role" class="text-xs">{{
               messages.invite.roleLabel
             }}</label>
-            <select
-              id="invite-role"
-              class="border-input bg-card h-10 rounded-lg border px-2 text-sm"
-              [formField]="inviteForm.role"
+            <hlm-select
+              [value]="inviteRole()"
+              [itemToString]="roleToString"
+              (valueChange)="setInviteRole($event)"
             >
-              <option value="MEMBER">{{ messages.roles.MEMBER }}</option>
-              <option value="ADMIN">{{ messages.roles.ADMIN }}</option>
-            </select>
+              <hlm-select-trigger buttonId="invite-role" class="w-full sm:w-36">
+                <hlm-select-value />
+              </hlm-select-trigger>
+              <hlm-select-content *hlmSelectPortal>
+                <hlm-select-group>
+                  @for (role of assignableRoles; track role) {
+                    <hlm-select-item [value]="role">{{ messages.roles[role] }}</hlm-select-item>
+                  }
+                </hlm-select-group>
+              </hlm-select-content>
+            </hlm-select>
           </div>
 
           <button hlmBtn type="submit" [disabled]="inviteSubmitting()">
@@ -112,16 +120,27 @@
                 <label class="sr-only" [attr.for]="'role-' + member.userId">
                   {{ messages.actions.changeRole }}
                 </label>
-                <select
-                  class="border-input bg-card h-8 rounded-lg border px-2 text-xs"
-                  [id]="'role-' + member.userId"
-                  [value]="member.role"
+                <hlm-select
+                  [value]="roleValue(member)"
                   [disabled]="actionUserId() === member.userId"
-                  (change)="onRoleChange(member, $event)"
+                  [itemToString]="roleToString"
+                  (valueChange)="onRoleChange(member, $event)"
                 >
-                  <option value="MEMBER">{{ messages.roles.MEMBER }}</option>
-                  <option value="ADMIN">{{ messages.roles.ADMIN }}</option>
-                </select>
+                  <hlm-select-trigger
+                    size="sm"
+                    class="text-xs"
+                    [buttonId]="'role-' + member.userId"
+                  >
+                    <hlm-select-value />
+                  </hlm-select-trigger>
+                  <hlm-select-content *hlmSelectPortal>
+                    <hlm-select-group>
+                      @for (role of assignableRoles; track role) {
+                        <hlm-select-item [value]="role">{{ messages.roles[role] }}</hlm-select-item>
+                      }
+                    </hlm-select-group>
+                  </hlm-select-content>
+                </hlm-select>
               } @else {
                 <span
                   class="rounded-full px-2.5 py-0.5 text-xs font-semibold"

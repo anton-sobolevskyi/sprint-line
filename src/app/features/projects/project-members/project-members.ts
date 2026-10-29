@@ -2,6 +2,7 @@ import { Component, computed, effect, inject, input, signal } from '@angular/cor
 import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmField, HlmFieldError, HlmFieldLabel } from '@spartan-ng/helm/field';
 import { HlmInput } from '@spartan-ng/helm/input';
+import { HlmSelectImports } from '@spartan-ng/helm/select';
 import { ProjectMembersStore } from './project-members.store';
 import { Store } from '@ngrx/store';
 import { Router } from '@angular/router';
@@ -17,10 +18,19 @@ import { MEMBERS_MESSAGES } from '@constants/messages';
 import { Dialog } from '@core/services/dialog';
 
 @Component({
-  imports: [HlmButton, HlmField, HlmFieldError, HlmFieldLabel, HlmInput, FormField],
+  imports: [
+    HlmButton,
+    HlmField,
+    HlmFieldError,
+    HlmFieldLabel,
+    HlmInput,
+    HlmSelectImports,
+    FormField,
+  ],
   selector: 'sl-project-members',
   styleUrl: './project-members.scss',
   templateUrl: './project-members.html',
+  providers: [ProjectMembersStore],
 })
 export class ProjectMembers {
   readonly projectId = input.required<string>();
@@ -31,6 +41,7 @@ export class ProjectMembers {
   private readonly dialog = inject(Dialog);
 
   readonly messages = MEMBERS_MESSAGES;
+  readonly assignableRoles = ['MEMBER', 'ADMIN'] as const satisfies readonly ProjectMemberRole[];
   readonly currentUser = this.ngrxStore.selectSignal(selectCurrentUser);
 
   readonly members = this.membersStore.members;
@@ -48,6 +59,9 @@ export class ProjectMembers {
     email: '',
     role: 'MEMBER',
   });
+
+  /** Optimistic role shown while a change request is in flight. Cleared on error or once the list matches. */
+  private readonly pendingRoles = signal<Readonly<Record<string, ProjectMemberRole>>>({});
 
   readonly inviteForm = form(this.inviteModel, (schemaPath) => {
     validateStandardSchema(schemaPath, inviteMemberSchema);
@@ -67,6 +81,14 @@ export class ProjectMembers {
   });
 
   readonly isOwner = computed(() => this.myMembership()?.role === 'OWNER');
+  readonly inviteRole = computed(() => this.inviteModel().role);
+
+  readonly roleToString = (value: unknown): string => {
+    if (value === 'OWNER' || value === 'ADMIN' || value === 'MEMBER') {
+      return this.roleLabel(value);
+    }
+    return '';
+  };
 
   private readonly loadedForProjectId = signal<string | null>(null);
 
@@ -83,6 +105,25 @@ export class ProjectMembers {
       this.loadedForProjectId.set(projectId);
       this.membersStore.setProjectId(projectId);
       this.membersStore.load();
+    });
+
+    effect(() => {
+      const members = this.members();
+      const pending = this.pendingRoles();
+      const settled = Object.keys(pending).filter((userId) => {
+        const member = members.find((item) => item.userId === userId);
+        return !member || member.role === pending[userId];
+      });
+      if (settled.length === 0) {
+        return;
+      }
+      this.pendingRoles.update((current) => {
+        const next = { ...current };
+        for (const userId of settled) {
+          delete next[userId];
+        }
+        return next;
+      });
     });
   }
 
@@ -174,20 +215,38 @@ export class ProjectMembers {
     );
   }
 
-  onRoleChange(member: ProjectMemberResponseDto, event: Event): void {
+  roleValue(member: ProjectMemberResponseDto): ProjectMemberRole {
+    return this.pendingRoles()[member.userId] ?? member.role;
+  }
+
+  setInviteRole(value: unknown): void {
+    if (value === 'ADMIN' || value === 'MEMBER') {
+      this.inviteModel.update((current) => ({ ...current, role: value }));
+    }
+  }
+
+  onRoleChange(member: ProjectMemberResponseDto, value: unknown): void {
     if (!this.canManageMembers() || this.isSelf(member)) {
       return;
     }
 
-    const select = event.target as HTMLSelectElement;
-    const role = select.value as ProjectMemberRole;
-    if (role === member.role) {
+    if (value !== 'MEMBER' && value !== 'ADMIN') {
       return;
     }
 
-    this.membersStore.updateRole(member, role, {
+    if (value === member.role || this.pendingRoles()[member.userId] === value) {
+      return;
+    }
+
+    this.pendingRoles.update((current) => ({ ...current, [member.userId]: value }));
+
+    this.membersStore.updateRole(member, value, {
       onError: () => {
-        select.value = member.role;
+        this.pendingRoles.update((current) => {
+          const next = { ...current };
+          delete next[member.userId];
+          return next;
+        });
       },
     });
   }
