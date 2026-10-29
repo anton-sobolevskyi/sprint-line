@@ -1,6 +1,6 @@
 import { createFeature, createReducer, on } from '@ngrx/store';
 
-import { AuthActions } from '../auth/auth.actions';
+import { AuthActions } from '../../store/auth/auth.actions';
 import { UserActions } from './user.actions';
 import { UserResponseDto } from '@types';
 

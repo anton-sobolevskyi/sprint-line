@@ -365,7 +365,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Confirm the e-mail address with the e-mailed token */
+    /** Dialog the e-mail address with the e-mailed token */
     post: operations['auth-verifyemail'];
     delete?: never;
     options?: never;

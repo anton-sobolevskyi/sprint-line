@@ -9,7 +9,6 @@ import {
 import { HlmInput } from '@spartan-ng/helm/input';
 import { Store } from '@ngrx/store';
 import { Router } from '@angular/router';
-import { ConfirmDialogService } from '../../core/ui/confirm-dialog.service';
 import {
   selectCurrentUser,
   selectLoadError,
@@ -31,6 +30,7 @@ import { Users } from '@core/services/users';
 import { Auth } from '@core/services/auth';
 import { Session } from '@core/services/session';
 import { PROFILE_MESSAGES } from '@constants/messages';
+import { Dialog } from '@core/services/dialog';
 
 @Component({
   imports: [
@@ -53,7 +53,7 @@ export class Profile {
   private readonly authApi = inject(Auth);
   private readonly authSession = inject(Session);
   private readonly router = inject(Router);
-  private readonly confirmDialog = inject(ConfirmDialogService);
+  private readonly dialog = inject(Dialog);
 
   readonly messages = PROFILE_MESSAGES;
 
@@ -328,7 +328,7 @@ export class Profile {
       return;
     }
 
-    const confirmed = await this.confirmDialog.confirm({
+    const confirmed = await this.dialog.confirm({
       title: this.messages.deleteSection.dialogTitle,
       description: this.messages.deleteSection.dialogBody,
       confirmLabel: UI_MESSAGES.dialog.delete,

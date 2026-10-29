@@ -2,8 +2,8 @@ import { inject, Service } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Store } from '@ngrx/store';
 import { firstValueFrom, Observable, shareReplay } from 'rxjs';
-import { selectAccessToken } from '@core/auth/auth.reducer';
-import { AuthActions } from '@core/auth/auth.actions';
+import { selectAccessToken } from '../../store/auth/auth.reducer';
+import { AuthActions } from '../../store/auth/auth.actions';
 import { API_ENDPOINTS } from '@constants/api';
 import { AuthResponseDto } from '@types';
 

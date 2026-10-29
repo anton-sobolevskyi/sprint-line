@@ -24,7 +24,6 @@ import { HlmSkeleton } from '@spartan-ng/helm/skeleton';
 import { HlmTextarea } from '@spartan-ng/helm/textarea';
 
 import { ActivatedRoute, type ParamMap, Router } from '@angular/router';
-import { ConfirmDialogService } from '@core/ui/confirm-dialog.service';
 import { form, FormField, validateStandardSchema } from '@angular/forms/signals';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { appToast } from '@core/ui/toast';
@@ -39,6 +38,7 @@ import { ProjectMemberResponseDto, TaskResponseDto, TaskStatus, TaskPriority } f
 import { ProjectMembers } from '@core/services/project-members';
 import { TASKS_MESSAGES } from '@constants/messages';
 import { MEMBERS_LIMIT, PRIORITY_OPTIONS, TASK_STATUS_ORDER } from '@constants/config';
+import { Dialog } from '@core/services/dialog';
 
 @Component({
   imports: [
@@ -69,7 +69,7 @@ export class TaskDetail {
   private readonly router = inject(Router);
   private readonly tasksApi = inject(Tasks);
   private readonly membersApi = inject(ProjectMembers);
-  private readonly confirmDialog = inject(ConfirmDialogService);
+  private readonly dialog = inject(Dialog);
 
   readonly messages = TASKS_MESSAGES;
   readonly statusOrder = TASK_STATUS_ORDER;
@@ -408,7 +408,7 @@ export class TaskDetail {
       return;
     }
 
-    const confirmed = await this.confirmDialog.confirm({
+    const confirmed = await this.dialog.confirm({
       title: this.messages.confirm.deleteTitle,
       description: this.messages.confirm.deleteBody,
       confirmLabel: UI_MESSAGES.dialog.delete,

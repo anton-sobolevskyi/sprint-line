@@ -5,7 +5,6 @@ import { HlmInput } from '@spartan-ng/helm/input';
 import { ProjectMembersStore } from './project-members.store';
 import { Store } from '@ngrx/store';
 import { Router } from '@angular/router';
-import { ConfirmDialogService } from '../../../core/ui/confirm-dialog.service';
 import { selectCurrentUser } from '../../../core/users/user.reducer';
 import { form, FormField, validateStandardSchema } from '@angular/forms/signals';
 import { UserActions } from '../../../core/users/user.actions';
@@ -15,6 +14,7 @@ import { UI_MESSAGES } from '../../../core/ui/ui.messages';
 import { InviteMemberModel, inviteMemberSchema } from './project-members.schema';
 import { ProjectMemberResponseDto, ProjectMemberRole } from '@types';
 import { MEMBERS_MESSAGES } from '@constants/messages';
+import { Dialog } from '@core/services/dialog';
 
 @Component({
   imports: [HlmButton, HlmField, HlmFieldError, HlmFieldLabel, HlmInput, FormField],
@@ -28,7 +28,7 @@ export class ProjectMembers {
   private readonly membersStore = inject(ProjectMembersStore);
   private readonly ngrxStore = inject(Store);
   private readonly router = inject(Router);
-  private readonly confirmDialog = inject(ConfirmDialogService);
+  private readonly dialog = inject(Dialog);
 
   readonly messages = MEMBERS_MESSAGES;
   readonly currentUser = this.ngrxStore.selectSignal(selectCurrentUser);
@@ -198,7 +198,7 @@ export class ProjectMembers {
       return;
     }
 
-    const confirmed = await this.confirmDialog.confirm({
+    const confirmed = await this.dialog.confirm({
       title: self ? this.messages.confirm.leaveTitle : this.messages.confirm.removeTitle,
       description: self ? this.messages.confirm.leaveBody : this.messages.confirm.removeBody,
       confirmLabel: self ? this.messages.actions.leave : UI_MESSAGES.dialog.delete,
@@ -226,7 +226,7 @@ export class ProjectMembers {
       return;
     }
 
-    const confirmed = await this.confirmDialog.confirm({
+    const confirmed = await this.dialog.confirm({
       title: this.messages.confirm.transferTitle,
       description: this.messages.confirm.transferBody,
       confirmLabel: this.messages.actions.transfer,

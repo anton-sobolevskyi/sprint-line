@@ -14,7 +14,6 @@ import { HlmSkeleton } from '@spartan-ng/helm/skeleton';
 
 import { ProjectTasksStore } from './project-tasks.store';
 
-import { ConfirmDialogService } from '../../../core/ui/confirm-dialog.service';
 import { Store } from '@ngrx/store';
 import { selectCurrentUser } from '../../../core/users/user.reducer';
 import { HlmDialogService } from '@spartan-ng/helm/dialog';
@@ -33,6 +32,7 @@ import { ProjectMembers } from '@core/services/project-members';
 import { ProjectMemberResponseDto, TaskResponseDto, TaskStatus, TaskPriority } from '@types';
 import { TASKS_MESSAGES } from '@constants/messages';
 import { MEMBERS_LIMIT, PRIORITY_RANK, TASK_STATUS_ORDER } from '@constants/config';
+import { Dialog } from '@core/services/dialog';
 
 @Component({
   imports: [HlmButton, HlmInput, HlmSkeleton, RouterLink],
@@ -46,7 +46,7 @@ export class ProjectTasks {
 
   private readonly tasksStore = inject(ProjectTasksStore);
   private readonly membersApi = inject(ProjectMembers);
-  private readonly confirmDialog = inject(ConfirmDialogService);
+  private readonly dialog = inject(Dialog);
   private readonly ngrxStore = inject(Store);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -91,7 +91,7 @@ export class ProjectTasks {
   /** Small screens show one status column at a time. */
   readonly mobileStatus = signal<TaskStatus>('TODO');
 
-  private readonly dialog = inject(HlmDialogService);
+  private readonly hlmDialog = inject(HlmDialogService);
   private createRef: BrnDialogRef<boolean> | null = null;
 
   private readonly loadedForProjectId = signal<string | null>(null);
@@ -251,7 +251,7 @@ export class ProjectTasks {
       create: (dto, callbacks, status) => this.tasksStore.create(dto, callbacks, status),
     };
 
-    const ref = this.dialog.open<boolean, TaskCreateDialogData>(TaskCreateDialog, {
+    const ref = this.hlmDialog.open<boolean, TaskCreateDialogData>(TaskCreateDialog, {
       contentClass: 'sm:max-w-lg',
       showCloseButton: true,
       closeLabel: this.messages.create.cancel,
@@ -374,7 +374,7 @@ export class ProjectTasks {
   }
 
   async onDelete(task: TaskResponseDto): Promise<void> {
-    const confirmed = await this.confirmDialog.confirm({
+    const confirmed = await this.dialog.confirm({
       title: this.messages.confirm.deleteTitle,
       description: this.messages.confirm.deleteBody,
       confirmLabel: UI_MESSAGES.dialog.delete,

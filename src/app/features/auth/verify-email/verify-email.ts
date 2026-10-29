@@ -2,7 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { selectIsAuthenticated } from '../../../core/auth/auth.selectors';
+import { selectIsAuthenticated } from '../../../store/auth/auth.selectors';
 import { UserActions } from '../../../core/users/user.actions';
 import { AuthLayout } from '../../../layout/auth-layout/auth-layout';
 import { getApiErrorMessage } from '@utils';

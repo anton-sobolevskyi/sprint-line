@@ -11,13 +11,13 @@ import { provideRouterStore } from '@ngrx/router-store';
 import { provideStore } from '@ngrx/store';
 
 import { routes } from './app.routes';
-import { authFeature } from './core/auth/auth.reducer';
-import { ThemeService } from './core/ui/theme.service';
+import { authFeature } from './store/auth/auth.reducer';
 import { UserEffects } from './core/users/user.effects';
 import { userFeature } from './core/users/user.reducer';
 import { authInterceptor } from './core/interceptors/auth-interceptor';
 import { Session } from '@core/services/session';
 import { firstValueFrom } from 'rxjs';
+import { Theme } from '@core/services/theme';
 
 export function restoreAuthSession(): Promise<void> {
   const authSession = inject(Session);
@@ -41,7 +41,7 @@ export const appConfig: ApplicationConfig = {
     provideRouterStore(),
     provideAppInitializer(restoreAuthSession),
     provideAppInitializer(() => {
-      inject(ThemeService);
+      inject(Theme);
     }),
   ],
 };

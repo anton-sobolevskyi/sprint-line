@@ -19,8 +19,6 @@ import {
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { ThemeService } from '../../core/ui/theme.service';
-import { CommandPaletteService } from '../../core/ui/command-palette.service';
 import { selectCurrentUser } from '../../core/users/user.reducer';
 import { UserActions } from '../../core/users/user.actions';
 import { filter } from 'rxjs';
@@ -43,6 +41,8 @@ import { getApiErrorMessage } from '@utils';
 import { Users } from '@core/services/users';
 import { Auth } from '@core/services/auth';
 import { SHELL_MESSAGES } from '@constants/messages';
+import { CommandPalette } from '@core/services/command-palette';
+import { Theme } from '@core/services/theme';
 
 @Component({
   imports: [
@@ -90,8 +90,8 @@ export class MainLayout {
   private readonly router = inject(Router);
   private readonly store = inject(Store);
   private readonly destroyRef = inject(DestroyRef);
-  readonly theme = inject(ThemeService);
-  readonly commandPalette = inject(CommandPaletteService);
+  readonly theme = inject(Theme);
+  readonly commandPalette = inject(CommandPalette);
 
   readonly messages = SHELL_MESSAGES;
   readonly isLoggingOut = signal(false);

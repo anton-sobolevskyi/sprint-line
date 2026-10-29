@@ -1,7 +1,6 @@
 import { Component, effect, inject, input, signal } from '@angular/core';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { Store } from '@ngrx/store';
-import { ConfirmDialogService } from '@core/ui/confirm-dialog.service';
 import { selectCurrentUser } from '@core/users/user.reducer';
 import { UserActions } from '@core/users/user.actions';
 import { formatFileSize, getApiErrorMessage } from '@utils';
@@ -10,6 +9,7 @@ import { UI_MESSAGES } from '@core/ui/ui.messages';
 import { Attachments } from '@core/services/attachments';
 import { AttachmentResponseDto } from '@types';
 import { ATTACHMENTS_MESSAGES } from '@constants/messages';
+import { Dialog } from '@core/services/dialog';
 
 @Component({
   imports: [HlmButton],
@@ -22,7 +22,7 @@ export class TaskAttachments {
 
   private readonly attachmentsApi = inject(Attachments);
   private readonly store = inject(Store);
-  private readonly confirmDialog = inject(ConfirmDialogService);
+  private readonly dialog = inject(Dialog);
 
   readonly messages = ATTACHMENTS_MESSAGES;
   readonly currentUser = this.store.selectSignal(selectCurrentUser);
@@ -129,7 +129,7 @@ export class TaskAttachments {
       return;
     }
 
-    const confirmed = await this.confirmDialog.confirm({
+    const confirmed = await this.dialog.confirm({
       title: this.messages.confirm.deleteTitle,
       description: this.messages.confirm.deleteBody,
       confirmLabel: UI_MESSAGES.dialog.delete,

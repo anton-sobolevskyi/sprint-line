@@ -13,7 +13,7 @@ FROM nginx:1.27-alpine AS prod
 RUN rm /etc/nginx/conf.d/default.conf
 COPY config/nginx.conf /etc/nginx/conf.d/default.conf
 
-# Confirm this matches angular.json's outputPath.
+# Dialog this matches angular.json's outputPath.
 COPY --from=build /app/dist/sprint-line/browser /usr/share/nginx/html
 
 EXPOSE 80

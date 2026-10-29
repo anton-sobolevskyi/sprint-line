@@ -2,7 +2,7 @@
 export const UI_MESSAGES = {
   dialog: {
     cancel: 'Cancel',
-    confirm: 'Confirm',
+    confirm: 'Dialog',
     delete: 'Delete',
     continue: 'Continue',
   },

@@ -5,7 +5,6 @@ import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmSkeleton } from '@spartan-ng/helm/skeleton';
 import { HlmTextarea } from '@spartan-ng/helm/textarea';
 import { ActivatedRoute, Router, RouterLink, RouterOutlet } from '@angular/router';
-import { ConfirmDialogService } from '../../../core/ui/confirm-dialog.service';
 import { form, FormField, validateStandardSchema } from '@angular/forms/signals';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { firstFieldErrorMessage, getApiErrorMessage } from '../../../utils';
@@ -18,6 +17,7 @@ import { UpdateProjectModel, updateProjectSchema } from './project-detail.schema
 import { ProjectResponseDto } from '@types';
 import { Projects } from '@core/services/projects';
 import { PROJECTS_MESSAGES } from '@constants/messages';
+import { Dialog } from '@core/services/dialog';
 
 @Component({
   imports: [
@@ -42,7 +42,7 @@ export class ProjectDetail {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly projectsApi = inject(Projects);
-  private readonly confirmDialog = inject(ConfirmDialogService);
+  private readonly dialog = inject(Dialog);
 
   readonly messages = PROJECTS_MESSAGES;
   readonly tabValues: ProjectDetailTab[] = ['board', 'members', 'settings'] as const;
@@ -218,7 +218,7 @@ export class ProjectDetail {
       return;
     }
 
-    const confirmed = await this.confirmDialog.confirm({
+    const confirmed = await this.dialog.confirm({
       title: this.messages.detail.deleteConfirmTitle,
       description: this.messages.detail.deleteConfirmBody,
       confirmLabel: UI_MESSAGES.dialog.delete,

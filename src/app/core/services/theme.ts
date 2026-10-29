@@ -1,11 +1,9 @@
 import { Service, signal } from '@angular/core';
-
-export type ThemeMode = 'light' | 'dark' | 'system';
-
-const STORAGE_KEY = 'sprintline-theme';
+import { ThemeMode } from '@types';
+import { STORAGE_KEY } from '@constants/config';
 
 @Service()
-export class ThemeService {
+export class Theme {
   private readonly mediaQuery =
     typeof window !== 'undefined' ? window.matchMedia?.('(prefers-color-scheme: dark)') : null;
 

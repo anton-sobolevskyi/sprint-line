@@ -46,3 +46,5 @@ export const GUEST_PREFIXES = [
   '/verify-email',
   '/not-found',
 ];
+
+export const STORAGE_KEY = 'sprintline-theme';

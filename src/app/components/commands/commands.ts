@@ -10,15 +10,15 @@ import {
   viewChild,
 } from '@angular/core';
 import { HlmInput } from '@spartan-ng/helm/input';
-import { CommandPaletteService } from '../../core/ui/command-palette.service';
 import { Router } from '@angular/router';
-import { ThemeService } from '../../core/ui/theme.service';
 import { CommandGroup, CommandItem } from './commands.types';
 import { Tasks } from '@core/services/tasks';
 import { Projects } from '@core/services/projects';
 import { ProjectResponseDto, TaskResponseDto } from '@types';
 import { SHELL_MESSAGES } from '@constants/messages';
 import { PROJECTS_LIMIT } from '@constants/config';
+import { CommandPalette } from '@core/services/command-palette';
+import { Theme } from '@core/services/theme';
 
 @Component({
   imports: [HlmInput],
@@ -33,9 +33,9 @@ export class Commands {
   /** Sign-out handler provided by the shell. */
   readonly onSignOut = input<() => void>(() => undefined);
 
-  private readonly palette = inject(CommandPaletteService);
+  private readonly palette = inject(CommandPalette);
   private readonly router = inject(Router);
-  private readonly theme = inject(ThemeService);
+  private readonly theme = inject(Theme);
   private readonly projectsApi = inject(Projects);
   private readonly tasksApi = inject(Tasks);
 

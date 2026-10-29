@@ -1,6 +1,5 @@
 import { Component, effect, inject, input, signal } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { ConfirmDialogService } from '../../../core/ui/confirm-dialog.service';
 import { selectCurrentUser } from '../../../core/users/user.reducer';
 import { form, FormField, validateStandardSchema } from '@angular/forms/signals';
 import { UserActions } from '../../../core/users/user.actions';
@@ -17,6 +16,7 @@ import { Comments } from '@core/services/comments';
 import { Attachments } from '@core/services/attachments';
 import { COMMENTS_MESSAGES } from '@constants/messages';
 import { ATTACHMENT_ACCEPT, ATTACHMENT_LIMITS, COMMENTS_DEFAULT_LIMIT } from '@constants/config';
+import { Dialog } from '@core/services/dialog';
 
 @Component({
   imports: [HlmFieldImports, HlmTextareaImports, FormField, HlmButtonImports],
@@ -30,7 +30,7 @@ export class TaskComments {
   private readonly commentsApi = inject(Comments);
   private readonly attachmentsApi = inject(Attachments);
   private readonly store = inject(Store);
-  private readonly confirmDialog = inject(ConfirmDialogService);
+  private readonly dialog = inject(Dialog);
 
   readonly messages = COMMENTS_MESSAGES;
   readonly currentUser = this.store.selectSignal(selectCurrentUser);
@@ -269,7 +269,7 @@ export class TaskComments {
       return;
     }
 
-    const confirmed = await this.confirmDialog.confirm({
+    const confirmed = await this.dialog.confirm({
       title: this.messages.attach.deleteTitle,
       description: this.messages.attach.deleteBody,
       confirmLabel: UI_MESSAGES.dialog.delete,
@@ -344,7 +344,7 @@ export class TaskComments {
       return;
     }
 
-    const confirmed = await this.confirmDialog.confirm({
+    const confirmed = await this.dialog.confirm({
       title: this.messages.confirm.deleteTitle,
       description: this.messages.confirm.deleteBody,
       confirmLabel: UI_MESSAGES.dialog.delete,

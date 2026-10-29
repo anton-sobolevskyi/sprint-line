@@ -1,8 +1,7 @@
-import { Injectable, signal } from '@angular/core';
+import { Service, signal } from '@angular/core';
 
-/** Global command palette open state (⌘K / Ctrl+K). */
-@Injectable({ providedIn: 'root' })
-export class CommandPaletteService {
+@Service()
+export class CommandPalette {
   readonly open = signal(false);
 
   show(): void {

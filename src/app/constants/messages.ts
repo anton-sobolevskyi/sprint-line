@@ -108,7 +108,7 @@ export const AUTH_MESSAGES = {
     title: 'Set a new password',
     description: 'Choose a new password for your account.',
     passwordLabel: 'New password',
-    confirmLabel: 'Confirm password',
+    confirmLabel: 'Dialog password',
     submit: 'Update password',
     submitting: 'Updating…',
     success: 'Password updated. You can sign in with your new password.',
@@ -131,7 +131,7 @@ export const AUTH_MESSAGES = {
     passwordPattern: 'Password must include at least one letter and one number.',
     nameRequired: 'Name is required.',
     nameMinLength: 'Name must be at least 2 characters.',
-    confirmRequired: 'Confirm your password.',
+    confirmRequired: 'Dialog your password.',
     passwordMismatch: 'Passwords do not match.',
   },
   home: {
@@ -251,7 +251,7 @@ export const PROFILE_MESSAGES = {
     description: 'Update the password you use to sign in.',
     currentLabel: 'Current password',
     newLabel: 'New password',
-    confirmLabel: 'Confirm new password',
+    confirmLabel: 'Dialog new password',
     submit: 'Update password',
     submitting: 'Updating…',
     success: 'Password updated. Please sign in again.',
@@ -286,7 +286,7 @@ export const PROFILE_MESSAGES = {
     newPasswordRequired: 'New password is required.',
     newPasswordMinLength: 'Password must be at least 8 characters.',
     newPasswordPattern: 'Password must include at least one letter and one number.',
-    confirmRequired: 'Confirm your new password.',
+    confirmRequired: 'Dialog your new password.',
   },
 } as const;
 

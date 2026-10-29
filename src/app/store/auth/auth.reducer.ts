@@ -18,7 +18,7 @@ export const authFeature = createFeature({
       ...state,
       accessToken,
     })),
-    on(AuthActions.clearSession, (): AuthState => initialAuthState),
+    on(AuthActions.clearSession, (): AuthState => initialAuthState)
   ),
 });
 
