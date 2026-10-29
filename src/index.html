@@ -27,6 +27,111 @@
       })();
     </script>
 
+    <!-- Boot loader styles (inline so they work before the app CSS loads) -->
+    <style>
+      #sl-boot-loader {
+        position: fixed;
+        inset: 0;
+        z-index: 99999;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1.25rem;
+        background: #faf5ee;
+        color: #1f1a17;
+        font-family:
+          Inter,
+          system-ui,
+          -apple-system,
+          'Segoe UI',
+          Roboto,
+          'Helvetica Neue',
+          Arial,
+          sans-serif;
+        transition: opacity 0.25s ease, visibility 0.25s ease;
+      }
+
+      html.dark #sl-boot-loader {
+        background: #1a1614;
+        color: #f5ebe3;
+      }
+
+      #sl-boot-loader.sl-boot-loader--hide {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+      }
+
+      #sl-boot-loader .sl-boot-mark {
+        width: 3rem;
+        height: 3rem;
+        border-radius: 0.75rem;
+        background: #b8420f;
+        display: grid;
+        place-items: center;
+        box-shadow: 0 8px 24px color-mix(in srgb, #b8420f 35%, transparent);
+      }
+
+      html.dark #sl-boot-loader .sl-boot-mark {
+        background: #f08a5d;
+        box-shadow: 0 8px 24px color-mix(in srgb, #f08a5d 30%, transparent);
+      }
+
+      #sl-boot-loader .sl-boot-mark svg {
+        width: 1.5rem;
+        height: 1.5rem;
+      }
+
+      #sl-boot-loader .sl-boot-spinner {
+        width: 1.75rem;
+        height: 1.75rem;
+        border: 2.5px solid color-mix(in srgb, #b8420f 25%, transparent);
+        border-top-color: #b8420f;
+        border-radius: 50%;
+        animation: sl-boot-spin 0.75s linear infinite;
+      }
+
+      html.dark #sl-boot-loader .sl-boot-spinner {
+        border-color: color-mix(in srgb, #f08a5d 25%, transparent);
+        border-top-color: #f08a5d;
+      }
+
+      @keyframes sl-boot-spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      #sl-boot-loader .sl-boot-copy {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.35rem;
+        text-align: center;
+        max-width: 20rem;
+        padding: 0 1.25rem;
+      }
+
+      #sl-boot-loader .sl-boot-title {
+        font-family: 'Bricolage Grotesque', Inter, system-ui, sans-serif;
+        font-weight: 600;
+        font-size: 1.05rem;
+        letter-spacing: -0.01em;
+      }
+
+      #sl-boot-loader .sl-boot-hint {
+        font-size: 0.875rem;
+        line-height: 1.4;
+        color: #6b5f57;
+        min-height: 1.25em;
+      }
+
+      html.dark #sl-boot-loader .sl-boot-hint {
+        color: #a8988c;
+      }
+    </style>
+
     <!-- Bricolage Grotesque (headings) and Inter (UI) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -37,6 +142,45 @@
   </head>
 
   <body>
+    <!-- Shown until APP_INITIALIZER finishes (session restore / API wake-up). -->
+    <div id="sl-boot-loader" role="status" aria-live="polite" aria-busy="true">
+      <div class="sl-boot-mark" aria-hidden="true">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+          <path
+            d="M5 12.5L9.5 17L19 7"
+            stroke="white"
+            stroke-width="2.25"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <path
+            d="M5 8h14"
+            stroke="white"
+            stroke-width="1.75"
+            stroke-linecap="round"
+            opacity="0.5"
+          />
+        </svg>
+      </div>
+      <div class="sl-boot-spinner" aria-hidden="true"></div>
+      <div class="sl-boot-copy">
+        <div class="sl-boot-title">SprintLine</div>
+        <div id="sl-boot-hint" class="sl-boot-hint">Restoring your session…</div>
+      </div>
+    </div>
+    <script>
+      (function () {
+        // After a few seconds, explain Render free-tier cold start.
+        window.setTimeout(function () {
+          var hint = document.getElementById('sl-boot-hint');
+          var loader = document.getElementById('sl-boot-loader');
+          if (!hint || !loader || loader.classList.contains('sl-boot-loader--hide')) return;
+          hint.textContent =
+            'Waking up the server… this can take up to a minute on free hosting.';
+        }, 6000);
+      })();
+    </script>
+
     <sl-root></sl-root>
   </body>
 </html>
