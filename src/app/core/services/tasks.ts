@@ -7,7 +7,7 @@ import {
   TaskResponseDto,
   TaskStatus,
   UpdateTaskDto,
-} from '../../../types/api';
+} from '@types';
 import { API_ENDPOINTS } from '@constants/api';
 
 export interface TasksListQuery {
