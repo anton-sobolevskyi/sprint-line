@@ -5,7 +5,7 @@ import { HlmInput } from '@spartan-ng/helm/input';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormField, validateStandardSchema, form } from '@angular/forms/signals';
 import { AuthLayout } from '../../../layout/auth-layout/auth-layout';
-import { firstFieldErrorMessage, getApiErrorMessage, passwordRuleChecks } from '../../../utils';
+import { firstFieldErrorMessage, getApiErrorMessage, passwordRuleChecks } from '@utils';
 import { ResetPasswordModel, resetPasswordSchema } from './reset-password.schema';
 import { Auth } from '@core/services/auth';
 import { AUTH_MESSAGES } from '@constants/messages';
