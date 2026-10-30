@@ -23,7 +23,7 @@ describe('ProjectDetail', () => {
   beforeEach(async () => {
     const route = {
       paramMap: of({ get: (k: string) => (k === 'id' ? 'p1' : null) }),
-      queryParamMap: of({ get: (k: string) => null }),
+      queryParamMap: of({ get: () => null }),
       snapshot: { paramMap: { get: (k: string) => (k === 'id' ? 'p1' : null) } },
     };
 
@@ -31,7 +31,10 @@ describe('ProjectDetail', () => {
       imports: [ProjectDetail],
       providers: [
         provideRouter([]),
-        provideStore({ [authFeature.name]: authFeature.reducer, [userFeature.name]: userFeature.reducer }),
+        provideStore({
+          [authFeature.name]: authFeature.reducer,
+          [userFeature.name]: userFeature.reducer,
+        }),
         { provide: ActivatedRoute, useValue: route },
         { provide: Projects, useValue: projectsApi },
         { provide: Dialog, useValue: dialog },
@@ -39,7 +42,9 @@ describe('ProjectDetail', () => {
     }).compileComponents();
 
     const store = TestBed.inject(Store);
-    store.dispatch(UserActions.setCurrentUser({ user: { id: 'u1', name: 'Ada', email: 'a@b.co' } as never }));
+    store.dispatch(
+      UserActions.setCurrentUser({ user: { id: 'u1', name: 'Ada', email: 'a@b.co' } as never })
+    );
 
     fixture = TestBed.createComponent(ProjectDetail);
     fixture.detectChanges();
@@ -52,14 +57,17 @@ describe('ProjectDetail', () => {
   it('utility methods', () => {
     const c = fixture.componentInstance;
     c.setTab('members');
-    c.load("p1");
+    c.load('p1');
     c.reload();
     c.settingsFieldError('name');
   });
 
   it('onSaveSettings', () => {
     const c = fixture.componentInstance;
-    (c as unknown as { settingsModel: { set: (v: unknown) => void } }).settingsModel.set({ name: 'Project2', description: '' });
+    (c as unknown as { settingsModel: { set: (v: unknown) => void } }).settingsModel.set({
+      name: 'Project2',
+      description: '',
+    });
     const event = new Event('submit');
     vi.spyOn(event, 'preventDefault');
     c.onSaveSettings(event);

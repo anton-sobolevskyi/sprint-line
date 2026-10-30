@@ -1,6 +1,6 @@
 #!/bin/sh
 set -e
 
-echo "→ Running Vitest (CI) in Docker..."
+echo "→ Running Vitest (CI)..."
 npm run test:ci
 echo "✓ Tests passed"
