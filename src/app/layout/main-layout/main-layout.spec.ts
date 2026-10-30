@@ -20,15 +20,22 @@ describe('MainLayout', () => {
   const authApi = { logout: vi.fn(() => of(void 0)) };
   const projectsApi = { findAll: vi.fn(() => of({ data: [], meta: { total: 0 } })) };
   const usersApi = { getAttachmentDownloadUrl: vi.fn(() => of({ url: 'http://x' })) };
-  const commandPalette = new (class { open = () => false; show = vi.fn(); hide = vi.fn(); })();
+  const commandPalette = new (class {
+    open = () => false;
+    show = vi.fn();
+    hide = vi.fn();
+  })();
   const theme = { toggleLightDark: vi.fn(), mode: () => 'light', resolved: () => 'light' };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [MainLayout],
       providers: [
-        provideRouter([]),
-        provideStore({ [authFeature.name]: authFeature.reducer, [userFeature.name]: userFeature.reducer }),
+        provideRouter([{ path: '**', children: [] }]),
+        provideStore({
+          [authFeature.name]: authFeature.reducer,
+          [userFeature.name]: userFeature.reducer,
+        }),
         { provide: Auth, useValue: authApi },
         { provide: Projects, useValue: projectsApi },
         { provide: Users, useValue: usersApi },
@@ -38,7 +45,9 @@ describe('MainLayout', () => {
     }).compileComponents();
 
     const store = TestBed.inject(Store);
-    store.dispatch(UserActions.setCurrentUser({ user: { id: 'u1', name: 'Ada', email: 'a@b.co' } as never }));
+    store.dispatch(
+      UserActions.setCurrentUser({ user: { id: 'u1', name: 'Ada', email: 'a@b.co' } as never })
+    );
 
     fixture = TestBed.createComponent(MainLayout);
     fixture.detectChanges();

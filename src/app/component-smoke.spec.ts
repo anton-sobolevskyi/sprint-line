@@ -78,15 +78,20 @@ describe('component smoke', () => {
       await TestBed.configureTestingModule({
         imports: [cls],
         providers: [
-          provideRouter([]),
+          provideRouter([{ path: '**', children: [] }]),
           provideHttpClient(),
-          provideStore({ [authFeature.name]: authFeature.reducer, [userFeature.name]: userFeature.reducer }),
+          provideStore({
+            [authFeature.name]: authFeature.reducer,
+            [userFeature.name]: userFeature.reducer,
+          }),
           provideEffects([UserEffects]),
           { provide: HlmDialogService, useValue: dialog },
           { provide: BrnDialogRef, useValue: mockService() },
           ...provideMockCoreServices(),
         ],
-      }).compileComponents().catch(() => undefined);
+      })
+        .compileComponents()
+        .catch(() => undefined);
 
       let fixture: ComponentFixture<unknown> | null = null;
       try {
@@ -115,7 +120,15 @@ describe('component smoke', () => {
         for (const key of Object.keys(comp as Record<string, unknown>)) {
           const fn = (comp as Record<string, unknown>)[key];
           if (typeof fn === 'function') {
-            for (const arg of [undefined, 'p1', 't1', 1, true, { target: { value: 'x' } }, new Event('click')]) {
+            for (const arg of [
+              undefined,
+              'p1',
+              't1',
+              1,
+              true,
+              { target: { value: 'x' } },
+              new Event('click'),
+            ]) {
               try {
                 (fn as (a: unknown) => unknown)(arg);
               } catch {

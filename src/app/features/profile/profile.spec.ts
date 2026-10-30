@@ -31,8 +31,11 @@ describe('Profile', () => {
     await TestBed.configureTestingModule({
       imports: [Profile],
       providers: [
-        provideRouter([]),
-        provideStore({ [authFeature.name]: authFeature.reducer, [userFeature.name]: userFeature.reducer }),
+        provideRouter([{ path: '**', children: [] }]),
+        provideStore({
+          [authFeature.name]: authFeature.reducer,
+          [userFeature.name]: userFeature.reducer,
+        }),
         { provide: Users, useValue: usersApi },
         { provide: Auth, useValue: authApi },
         { provide: Session, useValue: session },
@@ -41,7 +44,9 @@ describe('Profile', () => {
     }).compileComponents();
 
     const store = TestBed.inject(Store);
-    store.dispatch(UserActions.setCurrentUser({ user: { id: 'u1', name: 'Ada', email: 'a@b.co' } as never }));
+    store.dispatch(
+      UserActions.setCurrentUser({ user: { id: 'u1', name: 'Ada', email: 'a@b.co' } as never })
+    );
 
     fixture = TestBed.createComponent(Profile);
     fixture.detectChanges();
@@ -61,7 +66,11 @@ describe('Profile', () => {
 
   it('onSaveDetails', () => {
     const c = fixture.componentInstance;
-    (c as unknown as { detailsModel: { set: (v: unknown) => void } }).detailsModel.set({ name: 'Ada', email: 'a@b.co', currentPassword: '' });
+    (c as unknown as { detailsModel: { set: (v: unknown) => void } }).detailsModel.set({
+      name: 'Ada',
+      email: 'a@b.co',
+      currentPassword: '',
+    });
     const event = new Event('submit');
     vi.spyOn(event, 'preventDefault');
     c.onSaveDetails(event);
@@ -69,7 +78,11 @@ describe('Profile', () => {
 
   it('onChangePassword', () => {
     const c = fixture.componentInstance;
-    (c as unknown as { passwordModel: { set: (v: unknown) => void } }).passwordModel.set({ currentPassword: 'old', newPassword: 'Password1', confirmPassword: 'Password1' });
+    (c as unknown as { passwordModel: { set: (v: unknown) => void } }).passwordModel.set({
+      currentPassword: 'old',
+      newPassword: 'Password1',
+      confirmPassword: 'Password1',
+    });
     const event = new Event('submit');
     vi.spyOn(event, 'preventDefault');
     c.onChangePassword(event);

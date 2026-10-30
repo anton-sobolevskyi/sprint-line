@@ -16,7 +16,17 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 describe('TaskDetail', () => {
   let fixture: ComponentFixture<TaskDetail>;
   const tasksApi = {
-    findOne: vi.fn(() => of({ id: 't1', title: 'Task', description: '', status: 'TODO', priority: 'MEDIUM', dueDate: '', assignedToId: '' })),
+    findOne: vi.fn(() =>
+      of({
+        id: 't1',
+        title: 'Task',
+        description: '',
+        status: 'TODO',
+        priority: 'MEDIUM',
+        dueDate: '',
+        assignedToId: '',
+      })
+    ),
     update: vi.fn(() => of({ id: 't1' })),
   };
   const membersApi = {
@@ -34,8 +44,11 @@ describe('TaskDetail', () => {
     await TestBed.configureTestingModule({
       imports: [TaskDetail],
       providers: [
-        provideRouter([]),
-        provideStore({ [authFeature.name]: authFeature.reducer, [userFeature.name]: userFeature.reducer }),
+        provideRouter([{ path: '**', children: [] }]),
+        provideStore({
+          [authFeature.name]: authFeature.reducer,
+          [userFeature.name]: userFeature.reducer,
+        }),
         { provide: ActivatedRoute, useValue: route },
         { provide: Tasks, useValue: tasksApi },
         { provide: ProjectMembers, useValue: membersApi },
@@ -44,7 +57,9 @@ describe('TaskDetail', () => {
     }).compileComponents();
 
     const store = TestBed.inject(Store);
-    store.dispatch(UserActions.setCurrentUser({ user: { id: 'u1', name: 'Ada', email: 'a@b.co' } as never }));
+    store.dispatch(
+      UserActions.setCurrentUser({ user: { id: 'u1', name: 'Ada', email: 'a@b.co' } as never })
+    );
 
     fixture = TestBed.createComponent(TaskDetail);
     fixture.detectChanges();
@@ -82,7 +97,14 @@ describe('TaskDetail', () => {
 
   it('onSave', () => {
     const c = fixture.componentInstance;
-    (c as unknown as { model: { set: (v: unknown) => void } }).model.set({ title: 'Task', description: '', status: 'TODO', priority: 'MEDIUM', dueDate: '', assignedToId: '' });
+    (c as unknown as { model: { set: (v: unknown) => void } }).model.set({
+      title: 'Task',
+      description: '',
+      status: 'TODO',
+      priority: 'MEDIUM',
+      dueDate: '',
+      assignedToId: '',
+    });
     const event = new Event('submit');
     vi.spyOn(event, 'preventDefault');
     c.onSave(event);
