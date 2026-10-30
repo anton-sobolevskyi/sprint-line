@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { of, throwError } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { Projects } from '@core/services/projects';
@@ -28,12 +28,14 @@ describe('ProjectsList', () => {
   };
 
   const dialog = {
-    open: vi.fn(() => ({ closed$: of(undefined) })),
+    open: vi.fn(),
   };
 
   beforeEach(async () => {
     projectsApi.findAll.mockReset();
-    dialog.open.mockClear();
+    dialog.open.mockReset();
+    // Stay open until closed$ emits so createRef guard can be asserted.
+    dialog.open.mockImplementation(() => ({ closed$: new Subject() }));
     projectsApi.findAll.mockReturnValue(of({ data: [], meta: { total: 0, page: 1, limit: 20 } }));
 
     await TestBed.configureTestingModule({
@@ -116,7 +118,7 @@ describe('ProjectsList', () => {
     expect((fixture.nativeElement as HTMLElement).querySelector('[role="alert"]')).toBeTruthy();
   });
 
-  it('openCreate opens the create dialog once', () => {
+  it('openCreate opens the create dialog once while still open', () => {
     fixture.detectChanges();
     component.openCreate();
     component.openCreate();
