@@ -3,6 +3,7 @@ export const SHELL_MESSAGES = {
   navLabel: 'Navigation',
   recentLabel: 'Recent',
   viewAllProjects: 'All projects',
+  sidebarToggle: 'Toggle navigation sidebar',
   nav: {
     home: 'Home',
     projects: 'Projects',
@@ -63,7 +64,14 @@ export const AUTH_MESSAGES = {
     ],
   },
   preview: { title: 'Design new homepage layout', status: 'In progress' },
-  common: { show: 'Show', hide: 'Hide', met: '(met)', notMet: '(not met yet)' },
+  common: {
+    show: 'Show',
+    hide: 'Hide',
+    showPassword: 'Show password',
+    hidePassword: 'Hide password',
+    met: '(met)',
+    notMet: '(not met yet)',
+  },
   rules: { length: '8 characters', letter: 'A letter', number: 'A number' },
   login: {
     title: 'Welcome back',
@@ -108,7 +116,7 @@ export const AUTH_MESSAGES = {
     title: 'Set a new password',
     description: 'Choose a new password for your account.',
     passwordLabel: 'New password',
-    confirmLabel: 'Dialog password',
+    confirmLabel: 'Confirm password',
     submit: 'Update password',
     submitting: 'Updating…',
     success: 'Password updated. You can sign in with your new password.',
@@ -131,7 +139,7 @@ export const AUTH_MESSAGES = {
     passwordPattern: 'Password must include at least one letter and one number.',
     nameRequired: 'Name is required.',
     nameMinLength: 'Name must be at least 2 characters.',
-    confirmRequired: 'Dialog your password.',
+    confirmRequired: 'Confirm your password.',
     passwordMismatch: 'Passwords do not match.',
   },
   home: {
@@ -251,7 +259,7 @@ export const PROFILE_MESSAGES = {
     description: 'Update the password you use to sign in.',
     currentLabel: 'Current password',
     newLabel: 'New password',
-    confirmLabel: 'Dialog new password',
+    confirmLabel: 'Confirm new password',
     submit: 'Update password',
     submitting: 'Updating…',
     success: 'Password updated. Please sign in again.',
@@ -286,7 +294,7 @@ export const PROFILE_MESSAGES = {
     newPasswordRequired: 'New password is required.',
     newPasswordMinLength: 'Password must be at least 8 characters.',
     newPasswordPattern: 'Password must include at least one letter and one number.',
-    confirmRequired: 'Dialog your new password.',
+    confirmRequired: 'Confirm your new password.',
   },
 } as const;
 
