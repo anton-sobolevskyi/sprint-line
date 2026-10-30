@@ -24,7 +24,9 @@ describe('Dialog', () => {
 
   it('confirm opens the dialog and resolves true when closed with true', async () => {
     const dialog = TestBed.inject(Dialog);
-    await expect(dialog.confirm({ title: 'Delete?', message: 'Sure?' })).resolves.toBe(true);
+    await expect(
+      dialog.confirm({ title: 'Delete?', description: 'Sure?' })
+    ).resolves.toBe(true);
     expect(hlmDialog.open).toHaveBeenCalledOnce();
   });
 });
