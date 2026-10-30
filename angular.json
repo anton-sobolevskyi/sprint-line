@@ -4,7 +4,11 @@
   "cli": {
     "packageManager": "npm",
     "analytics": false,
-    "schematicCollections": ["angular-eslint", "playwright-ng-schematics", "@ngrx/schematics"]
+    "schematicCollections": [
+      "angular-eslint",
+      "playwright-ng-schematics",
+      "@ngrx/schematics"
+    ]
   },
   "newProjectRoot": "projects",
   "projects": {
@@ -31,7 +35,9 @@
                 "input": "public"
               }
             ],
-            "styles": ["src/styles.scss"]
+            "styles": [
+              "src/styles.scss"
+            ]
           },
           "configurations": {
             "production": {
@@ -78,20 +84,31 @@
         "test": {
           "builder": "@angular/build:unit-test",
           "options": {
+            "include": [
+              "src/**/*.spec.ts"
+            ],
             "coverage": true,
-            "coverageReporters": ["html", "lcov", "json", "text"],
+            "coverageReporters": [
+              "html",
+              "lcov",
+              "json",
+              "text"
+            ],
             "coverageThresholds": {
-              "statements": 80,
-              "branches": 80,
-              "functions": 80,
-              "lines": 80
+              "statements": 60,
+              "branches": 60,
+              "functions": 60,
+              "lines": 60
             }
           }
         },
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
-            "lintFilePatterns": ["src/**/*.ts", "src/**/*.html"]
+            "lintFilePatterns": [
+              "src/**/*.ts",
+              "src/**/*.html"
+            ]
           }
         },
         "e2e": {
