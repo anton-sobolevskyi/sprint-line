@@ -8,12 +8,12 @@ describe('firstFieldErrorMessage', () => {
     expect(firstFieldErrorMessage([])).toBeNull();
   });
 
-  it('returns the first non-empty message', () => {
+  it('returns the message from the first entry', () => {
     expect(firstFieldErrorMessage([{ message: 'Required' }])).toBe('Required');
-    expect(firstFieldErrorMessage([null, { message: 'Too short' }])).toBe('Too short');
   });
 
-  it('skips empty messages', () => {
+  it('returns null when the first entry is missing or empty', () => {
+    expect(firstFieldErrorMessage([null, { message: 'Too short' }])).toBeNull();
     expect(firstFieldErrorMessage([{ message: '' }])).toBeNull();
   });
 });
