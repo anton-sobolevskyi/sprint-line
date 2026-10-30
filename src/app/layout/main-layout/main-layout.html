@@ -222,7 +222,7 @@
         routerLink="/"
         routerLinkActive="text-primary"
         [routerLinkActiveOptions]="{ exact: true }"
-        class="text-muted-foreground flex flex-col items-center gap-0.5 py-2 text-xs font-medium"
+        class="text-muted-foreground flex flex-col items-center gap-0.5 py-3 text-xs font-medium"
       >
         <ng-icon name="lucideHouse" class="size-5" />
         {{ messages.nav.home }}
@@ -230,14 +230,14 @@
       <a
         routerLink="/projects"
         routerLinkActive="text-primary"
-        class="text-muted-foreground flex flex-col items-center gap-0.5 py-2 text-xs font-medium"
+        class="text-muted-foreground flex flex-col items-center gap-0.5 py-3 text-xs font-medium"
       >
         <ng-icon name="lucideFolderKanban" class="size-5" />
         {{ messages.nav.projects }}
       </a>
       <button
         type="button"
-        class="text-muted-foreground flex flex-col items-center gap-0.5 py-2 text-xs font-medium"
+        class="text-muted-foreground flex flex-col items-center gap-0.5 py-3 text-xs font-medium"
         (click)="commandPalette.toggle()"
       >
         <ng-icon name="lucideSearch" class="size-5" />
@@ -246,7 +246,7 @@
       <a
         routerLink="/profile"
         routerLinkActive="text-primary"
-        class="text-muted-foreground flex flex-col items-center gap-0.5 py-2 text-xs font-medium"
+        class="text-muted-foreground flex flex-col items-center gap-0.5 py-3 text-xs font-medium"
       >
         <ng-icon name="lucideUserRound" class="size-5" />
         {{ messages.nav.profile }}
