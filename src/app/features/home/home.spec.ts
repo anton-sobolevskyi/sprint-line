@@ -2,15 +2,15 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { provideStore } from '@ngrx/store';
+import { provideStore, Store } from '@ngrx/store';
 import { of, throwError } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { Projects } from '@core/services/projects';
 import { Tasks } from '@core/services/tasks';
 import type { ProjectResponseDto, TaskResponseDto } from '@types';
-import { userFeature } from '../../core/users/user.reducer';
 import { UserActions } from '../../core/users/user.actions';
+import { userFeature } from '../../core/users/user.reducer';
 import { Home } from './home';
 
 function project(id: string, name: string): ProjectResponseDto {
@@ -24,6 +24,7 @@ function task(id: string, status: TaskResponseDto['status'] = 'TODO'): TaskRespo
 describe('Home', () => {
   let fixture: ComponentFixture<Home>;
   let component: Home;
+  let store: Store;
 
   const projectsApi = {
     findAll: vi.fn(),
@@ -50,14 +51,12 @@ describe('Home', () => {
       ],
     }).compileComponents();
 
+    store = TestBed.inject(Store);
     fixture = TestBed.createComponent(Home);
     component = fixture.componentInstance;
   });
 
   it('dispatches loadMe when no current user is in the store', () => {
-    const store = TestBed.inject(
-      (await import('@ngrx/store')).Store
-    );
     const spy = vi.spyOn(store, 'dispatch');
 
     fixture.detectChanges();
