@@ -15,3 +15,25 @@ services:
       - type: rewrite
         source: /*
         destination: /index.html
+    headers:
+      # Audit P0/P1 — browser security headers (HSTS already from Cloudflare edge)
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: X-Frame-Options
+        value: SAMEORIGIN
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin
+      - path: /*
+        name: Permissions-Policy
+        value: camera=(), microphone=(), geolocation=()
+      - path: /*
+        name: Content-Security-Policy
+        value: >-
+          default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self';
+          img-src 'self' data: https: blob:; font-src 'self' data:;
+          style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline';
+          connect-src 'self' https://management-app-backend-qs3u.onrender.com;
+          form-action 'self'
