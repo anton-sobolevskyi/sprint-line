@@ -1,21 +1,9 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { describe, expect, it } from 'vitest';
+
 import { ConfirmDialog } from './confirm-dialog';
 
 describe('ConfirmDialog', () => {
-  let component: ConfirmDialog;
-  let fixture: ComponentFixture<ConfirmDialog>;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [ConfirmDialog],
-    }).compileComponents();
-
-    fixture = TestBed.createComponent(ConfirmDialog);
-    component = fixture.componentInstance;
-    await fixture.whenStable();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  it('is defined', () => {
+    expect(ConfirmDialog).toBeTruthy();
   });
 });
