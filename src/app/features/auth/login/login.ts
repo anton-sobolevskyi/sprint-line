@@ -10,11 +10,9 @@ import { Auth } from '@core/services/auth';
 import { AUTH_MESSAGES } from '@constants/messages';
 import { firstFieldErrorMessage, getApiErrorMessage, sanitizeReturnUrl } from '@utils';
 import { RETURN_URL_PARAM } from '@constants/config';
-import { BrandMark } from '../../../components/brand-mark/brand-mark';
 
 @Component({
   imports: [
-    BrandMark,
     AuthLayout,
     HlmButton,
     HlmField,

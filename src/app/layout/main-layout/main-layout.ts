@@ -19,11 +19,11 @@ import {
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { selectCurrentUser } from '../../core/users/user.reducer';
-import { UserActions } from '../../core/users/user.actions';
+import { selectCurrentUser } from '@core/users/user.reducer';
+import { UserActions } from '@core/users/user.actions';
 import { filter } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { appToast } from '../../core/ui/toast';
+import { appToast } from '@core/ui/toast';
 import { Commands } from '../../components/commands/commands';
 import {
   lucideFolderKanban,
@@ -43,11 +43,9 @@ import { Auth } from '@core/services/auth';
 import { SHELL_MESSAGES } from '@constants/messages';
 import { CommandPalette } from '@core/services/command-palette';
 import { Theme } from '@core/services/theme';
-import { BrandMark } from '../../components/brand-mark/brand-mark';
 
 @Component({
   imports: [
-    BrandMark,
     HlmButton,
     HlmSidebar,
     HlmSidebarContent,

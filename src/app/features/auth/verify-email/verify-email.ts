@@ -8,10 +8,9 @@ import { AuthLayout } from '../../../layout/auth-layout/auth-layout';
 import { getApiErrorMessage } from '@utils';
 import { Auth } from '@core/services/auth';
 import { AUTH_MESSAGES } from '@constants/messages';
-import { BrandMark } from '../../../components/brand-mark/brand-mark';
 
 @Component({
-  imports: [BrandMark, HlmButton, RouterLink, AuthLayout],
+  imports: [HlmButton, RouterLink, AuthLayout],
   selector: 'sl-verify-email',
   styleUrl: './verify-email.scss',
   templateUrl: './verify-email.html',
