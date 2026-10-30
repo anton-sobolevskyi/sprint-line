@@ -3,6 +3,24 @@
   "rules": {
     "no-empty-source": null,
     "selector-class-pattern": null,
+    "import-notation": null,
+    "at-rule-no-unknown": [
+      true,
+      {
+        "ignoreAtRules": [
+          "tailwind",
+          "apply",
+          "layer",
+          "config",
+          "theme",
+          "plugin",
+          "source",
+          "utility",
+          "custom-variant",
+          "variant"
+        ]
+      }
+    ],
     "scss/at-rule-no-unknown": [
       true,
       {
@@ -17,10 +35,26 @@
           "each",
           "for",
           "while",
-          "return"
+          "return",
+          "tailwind",
+          "apply",
+          "layer",
+          "config",
+          "theme",
+          "plugin",
+          "source",
+          "utility",
+          "custom-variant",
+          "variant"
         ]
       }
-    ]
+    ],
+    "scss/load-partial-extension": null,
+    "scss/at-import-partial-extension": null,
+    "color-function-notation": null,
+    "alpha-value-notation": null,
+    "hue-degree-notation": null,
+    "declaration-property-value-no-unknown": null
   },
   "overrides": [
     {
