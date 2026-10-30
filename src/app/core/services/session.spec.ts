@@ -9,6 +9,12 @@ import { authFeature } from '../../store/auth/auth.reducer';
 import { selectAccessToken } from '../../store/auth/auth.selectors';
 import { Session } from './session';
 
+/** Session applies refresh results in a microtask via firstValueFrom().then(...) */
+async function flushMicrotasks(): Promise<void> {
+  await Promise.resolve();
+  await Promise.resolve();
+}
+
 describe('Session', () => {
   let session: Session;
   let http: HttpTestingController;
@@ -40,19 +46,20 @@ describe('Session', () => {
     expect(session.getAccessTokenSnapshot()).toBeNull();
   });
 
-  it('refresh posts with credentials and applies the response', () => {
+  it('refresh posts with credentials and applies the response', async () => {
     const sub = session.refresh().subscribe();
 
     const req = http.expectOne(API_ENDPOINTS.auth.refresh);
     expect(req.request.method).toBe('POST');
     expect(req.request.withCredentials).toBe(true);
     req.flush({ accessToken: 'refreshed' });
+    await flushMicrotasks();
 
     expect(session.getAccessTokenSnapshot()).toBe('refreshed');
     sub.unsubscribe();
   });
 
-  it('coalesces concurrent refresh calls into one HTTP request', () => {
+  it('coalesces concurrent refresh calls into one HTTP request', async () => {
     const a = session.refresh().subscribe();
     const b = session.refresh().subscribe();
 
@@ -61,13 +68,14 @@ describe('Session', () => {
     const only = requests[0];
     expect(only).toBeDefined();
     only!.flush({ accessToken: 'once' });
+    await flushMicrotasks();
 
     expect(session.getAccessTokenSnapshot()).toBe('once');
     a.unsubscribe();
     b.unsubscribe();
   });
 
-  it('clears the session when refresh fails', () => {
+  it('clears the session when refresh fails', async () => {
     session.applyAuthResponse({ accessToken: 'old' } as never);
     const sub = session.refresh().subscribe({
       error: () => undefined,
@@ -77,6 +85,7 @@ describe('Session', () => {
       status: 401,
       statusText: 'Unauthorized',
     });
+    await flushMicrotasks();
 
     expect(session.getAccessTokenSnapshot()).toBeNull();
     sub.unsubscribe();
