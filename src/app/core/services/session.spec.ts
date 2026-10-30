@@ -58,7 +58,9 @@ describe('Session', () => {
 
     const requests = http.match(API_ENDPOINTS.auth.refresh);
     expect(requests).toHaveLength(1);
-    requests[0].flush({ accessToken: 'once' });
+    const only = requests[0];
+    expect(only).toBeDefined();
+    only!.flush({ accessToken: 'once' });
 
     expect(session.getAccessTokenSnapshot()).toBe('once');
     a.unsubscribe();
