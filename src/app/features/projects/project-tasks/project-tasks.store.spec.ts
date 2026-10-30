@@ -2,7 +2,8 @@ import { TestBed } from '@angular/core/testing';
 import { Subject, of, throwError } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { type TaskResponseDto, TasksApiService } from '../../../core/tasks/tasks-api.service';
+import { Tasks } from '@core/services/tasks';
+import type { TaskResponseDto } from '@types';
 import { ProjectTasksStore } from './project-tasks.store';
 
 function task(id: string, status: TaskResponseDto['status'] = 'TODO'): TaskResponseDto {
@@ -23,7 +24,7 @@ describe('ProjectTasksStore', () => {
 
   function createStore() {
     TestBed.configureTestingModule({
-      providers: [ProjectTasksStore, { provide: TasksApiService, useValue: api }],
+      providers: [ProjectTasksStore, { provide: Tasks, useValue: api }],
     });
     const store = TestBed.inject(ProjectTasksStore);
     store.setProjectId('p1');
@@ -117,7 +118,9 @@ describe('ProjectTasksStore', () => {
     const store = createStore();
     store.load();
 
-    store.updateStatus(store.tasks()[0]!, 'DONE');
+    const firstTask = store.tasks()[0];
+    expect(firstTask).toBeDefined();
+    store.updateStatus(firstTask!, 'DONE');
 
     expect(store.tasks()[0]?.status).toBe('TODO');
     expect(store.actionError()).toBeTruthy();
