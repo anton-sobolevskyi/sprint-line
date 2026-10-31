@@ -10,7 +10,14 @@
       content="SprintLine — lightweight project management for teams. Projects, kanban tasks, comments, and files."
     />
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
-    <link rel="alternate icon" type="image/x-icon" href="favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
+    <link rel="alternate icon" type="image/x-icon" href="favicon.ico" sizes="16x16 32x32 48x48" />
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+    <link rel="manifest" href="site.webmanifest" />
+    <meta name="theme-color" content="#faf5ee" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#17130f" media="(prefers-color-scheme: dark)" />
+    <meta name="apple-mobile-web-app-title" content="SprintLine" />
 
     <!-- Prevent flash of wrong theme before Angular boots -->
     <script>
@@ -49,7 +56,9 @@
           'Helvetica Neue',
           Arial,
           sans-serif;
-        transition: opacity 0.25s ease, visibility 0.25s ease;
+        transition:
+          opacity 0.25s ease,
+          visibility 0.25s ease;
       }
 
       html.dark #sl-boot-loader {
@@ -164,8 +173,7 @@
           var hint = document.getElementById('sl-boot-hint');
           var loader = document.getElementById('sl-boot-loader');
           if (!hint || !loader || loader.classList.contains('sl-boot-loader--hide')) return;
-          hint.textContent =
-            'Waking up the server… this can take up to a minute on free hosting.';
+          hint.textContent = 'Waking up the server… this can take up to a minute on free hosting.';
         }, 6000);
       })();
     </script>
