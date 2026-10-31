@@ -19,6 +19,7 @@ import { Session } from '@core/services/session';
 import { firstValueFrom } from 'rxjs';
 import { Theme } from '@core/services/theme';
 import { hideBootLoader } from '@utils';
+import { provideHlmSidebarConfig } from '@spartan-ng/helm/sidebar';
 
 export function restoreAuthSession(): Promise<void> {
   const authSession = inject(Session);
@@ -36,6 +37,12 @@ export function restoreAuthSession(): Promise<void> {
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
+    // Match Tailwind's `md` (768px): the sidebar library switches to its sheet at <=768px,
+    // while the CSS shows the desktop sidebar from >=768px, so exactly 768px (iPad portrait) matched both.
+    provideHlmSidebarConfig({
+      mobileBreakpoint: '767px',
+      closeMobileSidebarOnMenuButtonClick: true,
+    }),
     provideRouter(routes),
     provideHttpClient(withInterceptors([authInterceptor])),
     provideStore({

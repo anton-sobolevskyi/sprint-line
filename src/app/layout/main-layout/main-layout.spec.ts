@@ -31,7 +31,7 @@ describe('MainLayout', () => {
     await TestBed.configureTestingModule({
       imports: [MainLayout],
       providers: [
-        provideRouter([{ path: '**', children: [] }]),
+        provideRouter([]),
         provideStore({
           [authFeature.name]: authFeature.reducer,
           [userFeature.name]: userFeature.reducer,

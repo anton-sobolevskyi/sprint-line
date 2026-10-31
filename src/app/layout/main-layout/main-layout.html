@@ -136,11 +136,13 @@
     <button type="button" hlmSidebarRail [attr.aria-label]="messages.sidebarToggle">&nbsp;</button>
   </hlm-sidebar>
 
-  <main hlmSidebarInset class="flex flex-col">
+  <main hlmSidebarInset class="flex min-w-0 flex-col">
     <header
       class="border-border bg-background/80 sticky top-0 z-30 flex h-14 items-center gap-2 border-b px-3 backdrop-blur-md md:px-4"
     >
-      <button type="button" hlmSidebarTrigger [attr.aria-label]="messages.sidebarToggle">&nbsp;</button>
+      <button type="button" hlmSidebarTrigger [attr.aria-label]="messages.sidebarToggle">
+        &nbsp;
+      </button>
 
       @if (activeProjectName(); as projectName) {
         <div class="min-w-0 flex-1">

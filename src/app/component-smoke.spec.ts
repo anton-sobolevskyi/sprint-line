@@ -78,7 +78,7 @@ describe('component smoke', () => {
       await TestBed.configureTestingModule({
         imports: [cls],
         providers: [
-          provideRouter([{ path: '**', children: [] }]),
+          provideRouter([]),
           provideHttpClient(),
           provideStore({
             [authFeature.name]: authFeature.reducer,

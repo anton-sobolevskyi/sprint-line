@@ -1,6 +1,6 @@
 <section class="flex flex-col gap-4">
   <div class="flex flex-col gap-4">
-    <div class="flex flex-col gap-2 lg:flex-row lg:items-center">
+    <div class="flex flex-col gap-2 xl:flex-row xl:items-center">
       <div class="min-w-0 flex-1">
         <label class="sr-only" for="board-search">{{ messages.filters.searchLabel }}</label>
         <input
@@ -44,7 +44,7 @@
         }
       </div>
 
-      <div class="flex flex-wrap items-center gap-2 lg:ms-auto">
+      <div class="flex flex-wrap items-center gap-2 xl:ms-auto">
         <div
           class="bg-secondary inline-flex rounded-lg p-0.5"
           role="group"
@@ -99,7 +99,7 @@
         </div>
       } @else {
         <div
-          class="sl-board-scroll grid gap-2.5 pb-1 md:grid-cols-2 lg:grid-cols-4"
+          class="sl-board-scroll grid gap-2.5 pb-1 md:grid-cols-2 xl:grid-cols-4"
           aria-busy="true"
           [attr.aria-label]="messages.loading"
         >
@@ -285,7 +285,7 @@
           </button>
         }
       </div>
-      <div class="sl-board-scroll grid gap-2.5 pb-1 md:grid-cols-2 lg:grid-cols-4">
+      <div class="sl-board-scroll grid gap-2.5 pb-1 md:grid-cols-2 xl:grid-cols-4">
         @for (column of columns(); track column.status) {
           <div
             class="sl-board-column w-full md:flex md:w-auto"

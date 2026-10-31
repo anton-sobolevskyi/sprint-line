@@ -1,4 +1,4 @@
-<main class="mx-auto flex w-full max-w-6xl flex-col gap-6 p-4 py-6 md:p-8">
+<div class="mx-auto flex w-full max-w-6xl flex-col gap-6 p-4 py-6 md:p-8">
   <header class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
     <div class="min-w-0">
       <h1 class="text-3xl font-semibold">{{ greeting() }}</h1>
@@ -16,7 +16,7 @@
         <div hlmSkeleton class="h-16 w-full rounded-lg"></div>
         <div hlmSkeleton class="h-16 w-full rounded-lg sm:col-span-2"></div>
       </div>
-      <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+      <div class="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
         <div hlmSkeleton class="h-24 w-full rounded-lg"></div>
         <div hlmSkeleton class="h-24 w-full rounded-lg"></div>
         <div hlmSkeleton class="h-24 w-full rounded-lg"></div>
@@ -94,8 +94,8 @@
     </section>
   } @else {
     <section class="grid grid-cols-3 gap-3" [attr.aria-label]="messages.myWork.title">
-      <div class="border-border bg-card rounded-xl border px-4 py-3">
-        <p class="sl-eyebrow">{{ messages.stats.overdue }}</p>
+      <div class="border-border bg-card min-w-0 rounded-xl border px-3 py-3 sm:px-4">
+        <p class="sl-eyebrow break-words">{{ messages.stats.overdue }}</p>
         <p
           class="mt-1 text-2xl font-semibold tabular-nums"
           [class.text-destructive]="overdueCount() > 0"
@@ -103,17 +103,17 @@
           {{ overdueCount() }}
         </p>
       </div>
-      <div class="border-border bg-card rounded-xl border px-4 py-3">
-        <p class="sl-eyebrow">{{ messages.stats.week }}</p>
+      <div class="border-border bg-card min-w-0 rounded-xl border px-3 py-3 sm:px-4">
+        <p class="sl-eyebrow break-words">{{ messages.stats.week }}</p>
         <p class="mt-1 text-2xl font-semibold tabular-nums">{{ dueThisWeekCount() }}</p>
       </div>
-      <div class="border-border bg-card rounded-xl border px-4 py-3">
-        <p class="sl-eyebrow">{{ messages.stats.progress }}</p>
+      <div class="border-border bg-card min-w-0 rounded-xl border px-3 py-3 sm:px-4">
+        <p class="sl-eyebrow break-words">{{ messages.stats.progress }}</p>
         <p class="mt-1 text-2xl font-semibold tabular-nums">{{ inProgressCount() }}</p>
       </div>
     </section>
 
-    <div class="grid items-start gap-6 lg:grid-cols-[1.6fr_1fr]">
+    <div class="flex flex-col items-start items-stretch gap-6 xl:grid xl:grid-cols-[1.6fr_1fr]">
       <section class="flex flex-col gap-3" [attr.aria-label]="messages.myWork.title">
         <h2 class="text-lg font-semibold">{{ messages.myWork.title }}</h2>
 
@@ -172,13 +172,13 @@
                         </span>
                       </span>
                       <span
-                        class="sl-priority-chip"
+                        class="sl-priority-chip shrink-0"
                         [class]="'sl-priority-chip sl-priority-chip-' + task.priority"
                       >
                         {{ priorityLabel(task) }}
                       </span>
                       <span
-                        class="text-muted-foreground w-20 shrink-0 text-right text-xs font-medium"
+                        class="text-muted-foreground min-w-14 shrink-0 text-right text-xs font-medium sm:w-20"
                         [class.text-destructive]="isOverdue(task)"
                       >
                         {{ dueLabel(task) ?? messages.groups.none }}
@@ -264,4 +264,4 @@
       </section>
     </div>
   }
-</main>
+</div>

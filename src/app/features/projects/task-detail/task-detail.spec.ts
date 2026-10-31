@@ -44,7 +44,7 @@ describe('TaskDetail', () => {
     await TestBed.configureTestingModule({
       imports: [TaskDetail],
       providers: [
-        provideRouter([{ path: '**', children: [] }]),
+        provideRouter([]),
         provideStore({
           [authFeature.name]: authFeature.reducer,
           [userFeature.name]: userFeature.reducer,
